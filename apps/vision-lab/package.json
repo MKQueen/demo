@@ -1,0 +1,13 @@
+{
+  "name": "vision-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "视觉感知 · VISION LAB：摄像头 / 视频 / 图片实时物体识别（MediaPipe EfficientDet-Lite0，浏览器内 AI 推理，零后端）",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/dev.mjs"
+  }
+}

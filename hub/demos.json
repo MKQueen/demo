@@ -2,8 +2,8 @@
   "site": {
     "name": "DEMO LAB",
     "title": "交互实验室 · 作品集",
-    "subtitle": "3D · WebGIS · 动态水淹 · 检索增强 · AI Agent",
-    "description": "六个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台，以及真调用模型、真读写文件的 mini-opencode Agent。六个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
+    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent",
+    "description": "七个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台，实时识别摄像头/视频里物体的 VISION LAB，以及真调用模型、真读写文件的 mini-opencode Agent。七个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
     "keywords": [
       "Three.js",
       "CesiumJS",
@@ -19,11 +19,11 @@
     ],
     "stats": [
       {
-        "value": "06",
+        "value": "07",
         "label": "独立 Demo"
       },
       {
-        "value": "04",
+        "value": "05",
         "label": "纯静态即完整运行"
       },
       {
@@ -31,7 +31,7 @@
         "label": "接本地真模型"
       }
     ],
-    "footer": "六个纯静态构建产物 · 两个本地真模型 Demo（RAG 观测台 + mini-opencode）"
+    "footer": "七个纯静态构建产物 · 两个本地真模型 Demo（RAG 观测台 + mini-opencode）"
   },
   "demos": [
     {
@@ -131,6 +131,30 @@
       "href": "demos/building-atlas/",
       "cta": "查看楼宇",
       "meta": "六座楼 · 街区语境"
+    },
+    {
+      "id": "vision-lab",
+      "name": "视觉感知",
+      "en": "VISION LAB",
+      "kicker": "实时物体识别",
+      "tagline": "打开摄像头，让 AI 逐帧标出画面里的每一件东西。",
+      "description": "摄像头 / 视频 / 图片三路输入，MediaPipe EfficientDet-Lite0 在浏览器 Worker 内逐帧检测 COCO 80 类物体：检测框、中文类别、置信度、FPS 与延迟实时可见；支持阈值/目标数调节、标注图下载，可选本地大模型做场景解读。",
+      "tags": [
+        "MediaPipe",
+        "Web Worker",
+        "COCO 80",
+        "实时推理"
+      ],
+      "highlights": [
+        "摄像头 / 视频 / 图片三路输入",
+        "12–15 FPS 实时框选 · 31–38ms 推理",
+        "本地推理 · 画面不上传"
+      ],
+      "accent": "#8ef0a8",
+      "cover": "thumbs/vision-lab.jpg",
+      "href": "demos/vision-lab/",
+      "cta": "打开视觉实验",
+      "meta": "纯本地 AI · 零后端"
     },
     {
       "id": "rag-lab",
