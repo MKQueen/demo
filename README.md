@@ -13,7 +13,7 @@ Agent 后端与 RAG 的模型转发。
 | **北京数字孪生** BEIJING DIGITAL TWIN | 16 个行政区逐区探索：每区独立边界 / 相机 / 地标 / POI；中心城区 86,706 实例化体块 + 国贸 CBD + 6 个免费地标 | CesiumJS · Vue 3 · TypeScript | `apps/cbd-digital-twin` |
 | **潮线 TIDELINE** 3D 动态水淹模拟 | 程序化 DEM 河谷 + 1067 栋本地 3D Tiles 滨海城市（老城/西城/北城/滨海新区/CBD）+ 地形框选蓄水区 + ShaderToy「Seascape」移植的屏幕空间水面；滑块实时调节水位并统计淹没建筑 / 面积 | CesiumJS · Vue 3 · WebGL Shader | `apps/flood-sim` |
 | **RAG 观测台** | 检索 → 融合 → Prompt → 流式回答全链路可视化：8 篇知识库、48 块切块、哈希向量 + BM25 + RRF、PCA、引用解析全在浏览器内运行，回答由**真实大模型**流式生成（本地服务器只做 CORS 绕行 + Key 注入） | 原生 JS · 哈希向量 + BM25 + RRF · 真实模型转发 | `apps/rag-lab` |
-| **视觉感知** VISION LAB | 摄像头 / 视频 / 图片三路输入，实时检测 COCO 80 类物体：Worker 内 AI 推理、检测框 + 中文类别 + 置信度、FPS / 延迟实时可见；本地推理，画面不上传 | MediaPipe · Web Worker · Canvas 2D | `apps/vision-lab` |
+| **视觉感知** VISION LAB | 摄像头 / 视频 / 图片三路输入，实时检测 COCO 80 类物体：高精度 (Lite2) / 快速 (Lite0) 双模型、Worker 内推理、可选用本地视觉大模型「AI 精读」当前帧 | MediaPipe · Web Worker · Canvas 2D | `apps/vision-lab` |
 | **mini-opencode** Agent 面板 | **真实 AI Agent**：真模型、真工具、真权限审批、真会话轨迹；安静克制的中性浅色界面，实时可观察每一步 | Node 24 TS（原项目后端）· 原生 JS 前端 · SSE | `apps/agent-lab` |
 
 首页：`hub/`（纯静态，无构建依赖）。
@@ -81,7 +81,7 @@ npm run zip            # → site.zip
 `npm run serve` 后打开 <http://127.0.0.1:5180/>。七个 demo 的实机截图在
 `screenshots/preview/`（合集：`00-collage.jpg`，首页：`01-hub-hero.jpg`、`02-hub-work.jpg`）。
 
-当前构建产物大小以 `npm run build` 末尾输出为准（完整 `site/` 约 197 MB：含 3D 模型、Cesium 运行时与 MediaPipe 视觉模型；其中 `vision-lab` 的模型/WASM 约 39 MB，复用自 `apps/mecha-battle/public/mediapipe`）。
+当前构建产物大小以 `npm run build` 末尾输出为准（完整 `site/` 约 219 MB：含 3D 模型、Cesium 运行时与 MediaPipe 视觉模型；其中 `vision-lab` 的模型/WASM 约 61 MB（含 Lite2 高精度模型；Lite0 复用自 `apps/mecha-battle/public/mediapipe`））。
 如果托管平台限制体积，可参考 `apps/mecha-battle/README.md` 中「体感模型」一节按需精简钢铁黎明的体感模型后重新构建。
 
 ## 目录结构

@@ -138,17 +138,17 @@
       "en": "VISION LAB",
       "kicker": "实时物体识别",
       "tagline": "打开摄像头，让 AI 逐帧标出画面里的每一件东西。",
-      "description": "摄像头 / 视频 / 图片三路输入，MediaPipe EfficientDet-Lite0 在浏览器 Worker 内逐帧检测 COCO 80 类物体：检测框、中文类别、置信度、FPS 与延迟实时可见；支持阈值/目标数调节、标注图下载，可选本地大模型做场景解读。",
+      "description": "摄像头 / 视频 / 图片三路输入，MediaPipe 在浏览器 Worker 内实时检测 COCO 80 类物体：高精度 EfficientDet-Lite2（448 输入）与快速 Lite0 双模型一键切换，检测框 / 中文类别 / 置信度 / FPS / 延迟实时可见；还能用本地多模态大模型「AI 精读」当前帧，得到更准确的物体清单与场景描述。",
       "tags": [
         "MediaPipe",
+        "EfficientDet-Lite2",
         "Web Worker",
-        "COCO 80",
-        "实时推理"
+        "AI 精读"
       ],
       "highlights": [
-        "摄像头 / 视频 / 图片三路输入",
-        "12–15 FPS 实时框选 · 31–38ms 推理",
-        "本地推理 · 画面不上传"
+        "高精度 / 快速双检测模型",
+        "AI 精读当前帧 · 视觉大模型",
+        "本地推理 · 画面不上传（精读可选上传）"
       ],
       "accent": "#8ef0a8",
       "cover": "thumbs/vision-lab.jpg",

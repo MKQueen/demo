@@ -1,61 +1,110 @@
 /* global Vision */
 /**
- * detector.worker.js —— 在 Worker 里跑 MediaPipe EfficientDet-Lite0。
+ * detector.worker.js —— 在 Worker 里跑 MediaPipe 物体检测。
+ *
+ * 支持两个模型：
+ *   - person_detector.tflite / EfficientDet-Lite0 —— 快速模式
+ *   - efficientdet_lite2.tflite / EfficientDet-Lite2 —— 高精度模式
  *
  * 为什么放在 Worker：
- *   目标检测是同步的 WASM 计算（CPU 上单帧 ~40-80ms），放在主线程会阻塞
- *   视频渲染和 UI；放到 Worker 后主线程只负责把视频帧 transfer 过来，
- *   视频与界面保持流畅，检测结果异步回来再画框。
+ *   检测是同步的 WASM 计算，放在主线程会阻塞视频渲染与 UI；放到 Worker 后
+ *   主线程只负责传帧和画框，检测结果异步回来。
  *
  * 消息协议：
- *   main → worker: { type:'init', wasmBase, modelUrl }
+ *   main → worker: { type:'init', modelUrl, fallbackUrl }
+ *                  { type:'model', modelUrl, fallbackUrl }
  *                  { type:'config', scoreThreshold, maxResults }
- *                  { type:'detect', requestId, bitmap, timestamp, mode:'video'|'image' }
- *   worker → main: { type:'ready', delegate, maxResults }
+ *                  { type:'detect', requestId, token, bitmap, timestamp, mode }
+ *   worker → main: { type:'ready', delegate, url, fallbackUsed, maxResults }
+ *                  { type:'modelReady', delegate, url, fallbackUsed }
  *                  { type:'config', ... }
- *                  { type:'result', requestId, detections, latency, width, height }
- *                  { type:'error', requestId?, message }
+ *                  { type:'result', requestId, token, detections, latency, width, height }
+ *                  { type:'error', requestId?, token?, message }
  */
 importScripts('./vision_bundle.js');
 
 let detector = null;
 let currentMode = '';
+let visionInstance = null;
 let frameCanvas = null;
 let frameContext = null;
-const config = { scoreThreshold: 0.35, maxResults: 15 };
+const config = { scoreThreshold: 0.4, maxResults: 15 };
 
 function post(payload) {
   self.postMessage(payload);
 }
 
-async function createDetector(modelUrl) {
-  const vision = await Vision.FilesetResolver.forVisionTasks(new URL('./wasm', self.location.href).href);
-  const options = (delegate) => ({
-    baseOptions: { modelAssetPath: modelUrl, delegate },
-    runningMode: 'VIDEO',
-    scoreThreshold: config.scoreThreshold,
-    maxResults: config.maxResults,
-  });
+async function getVision() {
+  if (!visionInstance) {
+    visionInstance = await Vision.FilesetResolver.forVisionTasks(new URL('./wasm', self.location.href).href);
+  }
+  return visionInstance;
+}
 
-  // 优先 GPU（部分浏览器不给 Worker 提供 WebGL，会自动回退 CPU）
+async function createDetectorFor(modelUrl) {
+  const vision = await getVision();
+  let lastError = null;
+  for (const delegate of ['GPU', 'CPU']) {
+    try {
+      const instance = await Vision.ObjectDetector.createFromOptions(vision, {
+        baseOptions: { modelAssetPath: modelUrl, delegate },
+        runningMode: 'VIDEO',
+        scoreThreshold: config.scoreThreshold,
+        maxResults: config.maxResults,
+      });
+      return { detector: instance, delegate, url: modelUrl };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error('模型初始化失败');
+}
+
+async function createWithFallback(primaryUrl, fallbackUrl) {
   try {
-    const candidate = await Vision.ObjectDetector.createFromOptions(vision, options('GPU'));
-    return { detector: candidate, delegate: 'GPU' };
+    return await createDetectorFor(primaryUrl);
   } catch (error) {
-    const candidate = await Vision.ObjectDetector.createFromOptions(vision, options('CPU'));
-    return { detector: candidate, delegate: 'CPU' };
+    if (!fallbackUrl || fallbackUrl === primaryUrl) throw error;
+    const result = await createDetectorFor(fallbackUrl);
+    return { ...result, fallbackUsed: true, error: String(error && error.message ? error.message : error) };
   }
 }
 
 async function handleInit(data) {
   if (detector) {
-    post({ type: 'ready', delegate: data.delegate || 'ready', maxResults: config.maxResults });
+    post({ type: 'ready', delegate: 'ready', url: data.modelUrl, maxResults: config.maxResults });
     return;
   }
-  const { detector: instance, delegate } = await createDetector(String(data.modelUrl));
-  detector = instance;
+  const result = await createWithFallback(String(data.modelUrl), data.fallbackUrl ? String(data.fallbackUrl) : '');
+  detector = result.detector;
   currentMode = 'VIDEO';
-  post({ type: 'ready', delegate, maxResults: config.maxResults });
+  post({
+    type: 'ready',
+    delegate: result.delegate,
+    url: result.url,
+    fallbackUsed: Boolean(result.fallbackUsed),
+    fallbackReason: result.error || '',
+    maxResults: config.maxResults,
+  });
+}
+
+async function handleModel(data) {
+  const next = await createWithFallback(String(data.modelUrl), data.fallbackUrl ? String(data.fallbackUrl) : '');
+  const previous = detector;
+  detector = next.detector;
+  currentMode = 'VIDEO';
+  try {
+    previous?.close?.();
+  } catch {
+    /* 旧模型关闭失败不影响新模型 */
+  }
+  post({
+    type: 'modelReady',
+    delegate: next.delegate,
+    url: next.url,
+    fallbackUsed: Boolean(next.fallbackUsed),
+    fallbackReason: next.error || '',
+  });
 }
 
 async function handleConfig(data) {
@@ -119,6 +168,7 @@ self.addEventListener('message', async (event) => {
   const data = event.data || {};
   try {
     if (data.type === 'init') await handleInit(data);
+    else if (data.type === 'model') await handleModel(data);
     else if (data.type === 'config') await handleConfig(data);
     else if (data.type === 'detect') await handleDetect(data);
   } catch (error) {
@@ -126,6 +176,7 @@ self.addEventListener('message', async (event) => {
       type: 'error',
       requestId: data.requestId,
       token: data.token,
+      phase: data.type,
       message: String((error && error.message) || error),
     });
   }

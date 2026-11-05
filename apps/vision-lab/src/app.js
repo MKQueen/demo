@@ -4,7 +4,32 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 const WORKER_URL = './mp/detector.worker.js';
-const MODEL_URL = new URL('./mp/person_detector.tflite', document.baseURI).href;
+
+const MODELS = {
+  accurate: {
+    key: 'accurate',
+    label: '高精度',
+    short: 'Lite2',
+    url: new URL('./mp/efficientdet_lite2.tflite', document.baseURI).href,
+    note: 'EfficientDet-Lite2 · 448 输入 · 小目标更准，推理稍慢',
+  },
+  fast: {
+    key: 'fast',
+    label: '快速',
+    short: 'Lite0',
+    url: new URL('./mp/person_detector.tflite', document.baseURI).href,
+    note: 'EfficientDet-Lite0 · 320 输入 · 更快，适合低配设备',
+  },
+};
+const MODEL_PREF_KEY = 'vision-lab-model';
+
+function modelFromUrl(url) {
+  return String(url || '').includes('lite2') ? 'accurate' : 'fast';
+}
+
+function modelShort(key) {
+  return MODELS[key] ? MODELS[key].short : 'Lite';
+}
 
 const dom = {
   video: $('#video'),
@@ -42,8 +67,10 @@ const dom = {
   btnVideoPlay: $('#btn-video-play'),
   videoSeek: $('#video-seek'),
   videoTime: $('#video-time'),
+  modelNote: $('#model-note'),
   aiNote: $('#ai-note'),
   aiAsk: $('#ai-ask'),
+  aiVision: $('#ai-vision'),
   aiAnswer: $('#ai-answer'),
   toast: $('#toast'),
   helpDialog: $('#help-dialog'),
@@ -62,7 +89,9 @@ const state = {
   imageWarmupToken: 0,
   detections: [],
   selectedEn: '',
-  threshold: 0.35,
+  model: 'accurate',
+  modelBeforeSwitch: 'accurate',
+  threshold: 0.4,
   maxObjects: 15,
   mirror: true,
   showLabels: true,
@@ -136,8 +165,15 @@ function mediaAspect() {
 function ensureEngine() {
   if (enginePromise) return enginePromise;
   enginePromise = new Promise((resolve, reject) => {
-    setEngine('loading', '引擎加载中…');
-    showLoading(true, '正在加载视觉模型…', '首次加载约 40 MB（模型 + WASM），之后走浏览器缓存');
+    const activeModel = MODELS[state.model] || MODELS.accurate;
+    setEngine('loading', `加载${activeModel.label}模型…`);
+    showLoading(
+      true,
+      `正在加载${activeModel.label}检测模型…`,
+      state.model === 'accurate'
+        ? '首次加载约 50 MB（Lite2 模型 + WASM），之后走浏览器缓存'
+        : '首次加载约 40 MB（Lite0 模型 + WASM），之后走浏览器缓存',
+    );
 
     let settled = false;
     const finish = (ok, detail) => {
@@ -163,8 +199,27 @@ function ensureEngine() {
     worker.onmessage = (event) => {
       const data = event.data || {};
       if (data.type === 'ready') {
-        finish(true, data.delegate === 'GPU' ? 'GPU · Worker' : 'CPU · Worker');
+        const usedModel = modelFromUrl(data.url);
+        state.model = usedModel;
+        applyModelUi();
+        if (data.fallbackUsed) toast(`高精度模型加载失败，已回退到快速模型：${data.fallbackReason || ''}`, 5200);
+        finish(
+          true,
+          `${modelShort(usedModel)} · ${data.delegate === 'GPU' ? 'GPU' : 'CPU'} · Worker`,
+        );
         worker.postMessage({ type: 'config', scoreThreshold: state.threshold, maxResults: state.maxObjects });
+        return;
+      }
+      if (data.type === 'modelReady') {
+        showLoading(false);
+        const usedModel = modelFromUrl(data.url);
+        state.model = usedModel;
+        state.pending = false;
+        applyModelUi();
+        setEngine('ready', `引擎就绪 · ${modelShort(usedModel)} · ${data.delegate === 'GPU' ? 'GPU' : 'CPU'}`);
+        if (data.fallbackUsed) toast(`高精度模型加载失败，已回退快速模型：${data.fallbackReason || ''}`, 5200);
+        else toast(`检测模型已切换：${MODELS[usedModel].label}（${MODELS[usedModel].short}）`);
+        if (state.source === 'image') detectImage();
         return;
       }
       if (data.type === 'result') {
@@ -172,6 +227,13 @@ function ensureEngine() {
         return;
       }
       if (data.type === 'error') {
+        if (data.phase === 'model') {
+          showLoading(false);
+          state.model = state.modelBeforeSwitch;
+          applyModelUi();
+          toast(`模型切换失败（继续使用原模型）：${data.message}`, 5200);
+          return;
+        }
         if (data.requestId) {
           state.pending = false;
           if (data.message && !/模型尚未初始化/.test(data.message)) toast(`检测出错：${data.message}`);
@@ -185,13 +247,48 @@ function ensureEngine() {
       if (!settled) finish(false, event.message || '检测 Worker 加载失败');
     };
 
-    worker.postMessage({ type: 'init', modelUrl: MODEL_URL });
+    worker.postMessage({
+      type: 'init',
+      modelUrl: MODELS[state.model].url,
+      fallbackUrl: MODELS.fast.url,
+    });
   });
   enginePromise.catch(() => {
     // 允许用户重试：清空缓存的 promise，下一次输入时重新初始化
     enginePromise = null;
   });
   return enginePromise;
+}
+
+function applyModelUi() {
+  const model = MODELS[state.model] || MODELS.accurate;
+  dom.modelNote.textContent = model.note;
+  $$('[data-model]').forEach((button) => {
+    button.classList.toggle('is-active', button.dataset.model === state.model);
+  });
+  try {
+    window.localStorage.setItem(MODEL_PREF_KEY, state.model);
+  } catch {
+    /* 隐私模式下忽略 */
+  }
+}
+
+function switchModel(key) {
+  const next = MODELS[key];
+  if (!next || key === state.model) return;
+  state.modelBeforeSwitch = state.model;
+  state.model = key;
+  applyModelUi();
+  if (state.engine === 'ready' && worker) {
+    state.pending = false;
+    state.sourceToken += 1;
+    showLoading(true, `正在切换${next.label}检测模型…`, '模型文件已缓存时切换会很快');
+    worker.postMessage({ type: 'model', modelUrl: next.url, fallbackUrl: MODELS.fast.url });
+  } else {
+    enginePromise = null;
+    if (state.engine === 'error') setEngine('idle', '引擎待命');
+    toast(`下次启用时使用${next.label}模型`);
+  }
 }
 
 function sendConfig() {
@@ -753,12 +850,34 @@ async function checkAi() {
     }
     state.ai.configured = true;
     state.ai.model = health.model || '';
-    dom.aiNote.textContent = `本地模型：${health.model || '已连接'} · 只发送识别标签，不上传画面`;
+    dom.aiNote.textContent = `本地模型：${health.model || '已连接'} · 标签解读只发标签，AI 精读会上传当前帧`;
     return true;
   } catch {
     dom.aiNote.textContent = '静态部署模式：AI 解读需要本地 npm run serve + 模型 Key；上面的物体检测不受影响。';
     return false;
   }
+}
+
+function captureFrameJpeg(maxSize = 720, quality = 0.82) {
+  const media = state.source === 'image' ? dom.image : dom.video;
+  const width = state.sourceWidth || media.naturalWidth || media.videoWidth;
+  const height = state.sourceHeight || media.naturalHeight || media.videoHeight;
+  if (!width || !height) return null;
+  if (state.source === 'video' && dom.video.readyState < 2) return null;
+  const scale = Math.min(1, maxSize / Math.max(width, height));
+  const outWidth = Math.max(1, Math.round(width * scale));
+  const outHeight = Math.max(1, Math.round(height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = outWidth;
+  canvas.height = outHeight;
+  const ctx = canvas.getContext('2d');
+  const mirrored = state.source === 'camera' && state.mirror;
+  if (mirrored) {
+    ctx.translate(outWidth, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(media, 0, 0, outWidth, outHeight);
+  return { dataUrl: canvas.toDataURL('image/jpeg', quality), width: outWidth, height: outHeight };
 }
 
 function detectionSummary() {
@@ -782,6 +901,7 @@ async function askAi() {
   if (!state.ai.configured) return;
   state.ai.busy = true;
   dom.aiAsk.disabled = true;
+  dom.aiVision.disabled = true;
   dom.aiAsk.textContent = '生成中…';
   dom.aiAnswer.hidden = false;
   dom.aiAnswer.textContent = '正在让本地模型解读画面……';
@@ -819,7 +939,83 @@ async function askAi() {
   } finally {
     state.ai.busy = false;
     dom.aiAsk.disabled = false;
-    dom.aiAsk.textContent = '生成场景解读';
+    dom.aiVision.disabled = false;
+    dom.aiAsk.textContent = '标签解读（不上传画面）';
+  }
+}
+
+async function askVisionAi() {
+  if (state.ai.busy) return;
+  if (state.source === 'none') {
+    toast('先打开摄像头 / 视频 / 图片，再让 AI 精读画面');
+    return;
+  }
+  if (!state.ai.checked) {
+    const available = await checkAi();
+    if (!available) {
+      dom.aiAnswer.hidden = false;
+      dom.aiAnswer.textContent = dom.aiNote.textContent;
+      return;
+    }
+  }
+  if (!state.ai.configured) return;
+
+  const frame = captureFrameJpeg(720, 0.82);
+  if (!frame) {
+    toast('当前没有可读取的画面帧，请等视频加载后再试');
+    return;
+  }
+
+  state.ai.busy = true;
+  dom.aiAsk.disabled = true;
+  dom.aiVision.disabled = true;
+  dom.aiVision.textContent = 'AI 精读中…';
+  dom.aiAnswer.hidden = false;
+  dom.aiAnswer.textContent = '已把当前帧（' + frame.width + '×' + frame.height + '）发给本地模型网关，等待识别……';
+
+  try {
+    const response = await fetch('/api/llm/chat/completions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: state.ai.model || undefined,
+        messages: [
+          {
+            role: 'system',
+            content:
+              '你是视觉识别助手。请用简洁、客观的中文描述图片内容；不确定的细节不要编造。只输出最终结果。',
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text:
+                  '请识别这张图片：先列出主要物体名称与大致数量（按重要性排序），再用 1-2 句描述场景。' +
+                  '如果画面里有人，请说明人数。不要输出坐标或置信度。',
+              },
+              { type: 'image_url', image_url: { url: frame.dataUrl } },
+            ],
+          },
+        ],
+        temperature: 0.3,
+        stream: false,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data?.error?.message || `模型服务返回 HTTP ${response.status}`);
+    }
+    const text = data?.choices?.[0]?.message?.content;
+    dom.aiAnswer.textContent = String(text || '').trim() || '模型没有返回内容。';
+  } catch (error) {
+    dom.aiAnswer.textContent =
+      `AI 精读失败：${error?.message || error}\n\n提示：确认已运行 npm run serve，模型网关需要支持图片输入（OpenAI 兼容 image_url）。`;
+  } finally {
+    state.ai.busy = false;
+    dom.aiAsk.disabled = false;
+    dom.aiVision.disabled = false;
+    dom.aiVision.textContent = 'AI 精读画面（上传当前帧）';
   }
 }
 
@@ -859,6 +1055,10 @@ function bindEvents() {
     const file = dom.fileVideo.files?.[0];
     dom.fileVideo.value = '';
     if (file) void startVideoFile(file);
+  });
+
+  $$('[data-model]').forEach((button) => {
+    button.addEventListener('click', () => switchModel(button.dataset.model));
   });
 
   dom.threshold.addEventListener('input', () => {
@@ -930,6 +1130,7 @@ function bindEvents() {
   });
 
   dom.aiAsk.addEventListener('click', () => void askAi());
+  dom.aiVision.addEventListener('click', () => void askVisionAi());
 
   dom.helpOpen.addEventListener('click', () => dom.helpDialog.showModal());
   dom.helpClose.addEventListener('click', () => dom.helpDialog.close());
@@ -950,8 +1151,18 @@ function bindEvents() {
 function boot() {
   bindEvents();
   dom.aiNote.textContent =
-    '本地运行 npm run serve 并配置模型 Key 后可启用；点击下方按钮会检测本地服务。只发送识别标签，不上传画面。';
+    '本地运行 npm run serve 并配置模型 Key 后可启用；首次点击会检测本地服务。标签解读不上传画面，AI 精读会上传当前帧。';
   dom.aiAsk.disabled = false;
+  dom.aiVision.disabled = false;
+  try {
+    const saved = window.localStorage.getItem(MODEL_PREF_KEY);
+    if (saved && MODELS[saved]) state.model = saved;
+  } catch {
+    /* ignore */
+  }
+  applyModelUi();
+  dom.threshold.value = String(state.threshold);
+  dom.thresholdValue.textContent = state.threshold.toFixed(2);
   paintOverlay();
   updateHud(true);
 }

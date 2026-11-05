@@ -8,7 +8,8 @@
  *   mp/detector.worker.js
  *   mp/vision_bundle.js
  *   mp/wasm/*          MediaPipe Tasks Vision 的 WASM 运行时
- *   mp/person_detector.tflite   EfficientDet-Lite0（COCO 80 类）
+ *   mp/person_detector.tflite   EfficientDet-Lite0（COCO 80 类 · 快速模式）
+ *   mp/efficientdet_lite2.tflite EfficientDet-Lite2（COCO 80 类 · 高精度模式）
  *
  * 为什么是「复制」而不是 npm 依赖：
  *   MediaPipe 的运行时文件（约 39MB）在仓库里只存一份 —— 复用
@@ -55,8 +56,10 @@ if (!fs.existsSync(MP_SRC)) {
 }
 const model = path.join(MP_SRC, 'person_detector.tflite');
 const bundle = path.join(MP_SRC, 'vision_bundle.js');
+const accurateModel = path.join(PUBLIC, 'models', 'efficientdet_lite2.tflite');
 if (!fs.existsSync(model)) fail(`缺少模型文件：${model}`);
 if (!fs.existsSync(bundle)) fail(`缺少 MediaPipe 浏览器运行时：${bundle}`);
+if (!fs.existsSync(accurateModel)) fail(`缺少高精度模型：${accurateModel}`);
 
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
@@ -69,6 +72,7 @@ copy(path.join(SRC, 'style.css'), path.join(DIST, 'style.css'));
 copy(path.join(SRC, 'detector.worker.js'), path.join(MP_OUT, 'detector.worker.js'));
 copy(bundle, path.join(MP_OUT, 'vision_bundle.js'));
 copy(model, path.join(MP_OUT, 'person_detector.tflite'));
+copy(accurateModel, path.join(MP_OUT, 'efficientdet_lite2.tflite'));
 
 // 两张示例图（Pexels License，见 README）
 fs.mkdirSync(path.join(DIST, 'samples'), { recursive: true });
@@ -88,6 +92,7 @@ const required = [
   'mp/detector.worker.js',
   'mp/vision_bundle.js',
   'mp/person_detector.tflite',
+  'mp/efficientdet_lite2.tflite',
   'mp/wasm/vision_wasm_internal.js',
   'mp/wasm/vision_wasm_internal.wasm',
   'mp/wasm/vision_wasm_nosimd_internal.js',
