@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#101c26" />
+  <meta name="description" content="富华大厦 · 建筑数字档案：影像驱动的三维建筑重建，含楼层分层、逐层平面布局，以及东四十条街区语境（OSM 周边白模 / 路网 / 地标）。" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <title>富华大厦 · 建筑数字档案</title>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a class="brand" href="../../index.html" aria-label="返回 DEMO 作品集">
+      <span class="brandmark">富</span>
+      <div><strong>富华大厦</strong><small>FUHUA MANSION · DONG SI SHI TIAO</small></div>
+    </a>
+    <nav>
+      <button class="nav active" data-panel="overview">建筑总览</button>
+      <button class="nav" id="nav-context" data-panel="context">街区语境 <span>SITE</span></button>
+      <button class="nav" id="nav-floors" data-panel="floors">楼层分层 <span>FLOORS</span></button>
+      <button class="nav" data-panel="atlas">影像档案 <span>10</span></button>
+      <button class="nav" data-panel="about">重建说明</button>
+    </nav>
+    <div class="header-right">
+      <span class="status-dot"></span><span id="status-text">三维场景已连接</span><time id="clock"></time>
+      <button id="fullscreen" title="全屏展示" aria-label="全屏展示">⛶</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="viewport" aria-label="富华大厦交互式三维模型"></div>
+    <div class="vignette"></div>
+
+    <div id="loading">
+      <span></span>
+      <strong>正在构建建筑视野</strong>
+      <small id="load-progress">载入三维模型…</small>
+      <small id="load-progress-city">载入街区语境数据…</small>
+    </div>
+
+    <div class="scene-heading">
+      <div class="eyebrow"><span></span> ARCHITECTURAL DIGITAL ATLAS</div>
+      <h1>城市里的<br /><em>古典秩序。</em></h1>
+      <p>北京市东城区 · 东四十条 · 富华大厦建筑群</p>
+      <div class="heading-line"></div>
+      <span class="edition">影像重建 + 街区语境 / STUDY NO. 002</span>
+    </div>
+
+    <!-- 整体模式：建筑索引 -->
+    <aside class="left-panel panel">
+      <div class="section-label">建筑索引 <span>BUILDING INDEX</span></div>
+      <div class="index-heading"><b>六座 · 一庭</b><span>围合式建筑群</span></div>
+      <div class="building-grid" id="building-grid"></div>
+      <div class="index-detail">
+        <span id="detail-location">整体建筑群</span>
+        <strong id="detail-name">富华大厦</strong>
+        <p id="detail-description">双列塔楼与低层连廊围合中央庭院，浅色石材与连续拱券构成立面韵律。</p>
+        <button id="show-all">查看完整建筑群 <span>↗</span></button>
+      </div>
+      <div class="materials">
+        <span><i style="background:#b8aa8a"></i>石材立面</span>
+        <span><i style="background:#546b74"></i>玻璃窗面</span>
+        <span><i style="background:#667e69"></i>庭院绿化</span>
+      </div>
+      <div class="site-facts">
+        <div><strong>125×130</strong><span>地块尺寸 m</span></div>
+        <div><strong>90</strong><span>楼层带</span></div>
+        <div><strong>1.5 km</strong><span>街区语境半径</span></div>
+      </div>
+    </aside>
+
+    <!-- 整体模式：街区语境 + 空间导览 -->
+    <aside class="right-panel panel">
+      <div class="section-label">街区语境 <span>SITE CONTEXT</span></div>
+      <div class="context-map" id="context-map" aria-label="东四十条街区小地图">
+        <span class="map-loading">街区地图载入中…</span>
+      </div>
+      <div class="context-map-meta">
+        <span id="context-range">覆盖半径 1.2 km</span>
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a>
+      </div>
+
+      <div class="section-label image-title">周边地标 <span>LANDMARKS</span></div>
+      <ol class="landmark-list" id="landmark-list"></ol>
+      <div class="poi-detail" id="poi-detail">点选地标，镜头飞往该位置。</div>
+
+      <div class="context-stats">
+        <div><strong id="stat-buildings">—</strong><span>周边建筑</span></div>
+        <div><strong id="stat-roads">—</strong><span>道路</span></div>
+        <div><strong id="stat-transit">—</strong><span>最近地铁 m</span></div>
+      </div>
+
+      <button id="reference-open" class="reference-photo" title="打开建筑影像档案">
+        <img src="./references/01.jpg" alt="富华大厦正立面参考照片" />
+        <span>正立面 · 拱券与双塔 <b>↗</b></span>
+      </button>
+    </aside>
+
+    <!-- 楼层模式：楼层索引 -->
+    <aside id="floor-panel" class="panel floor-panel" hidden>
+      <div class="section-label">楼层索引 <span>FLOOR INDEX</span></div>
+      <div class="floor-tower-tabs" id="floor-tower-tabs"></div>
+      <div class="floor-meta" id="floor-meta">—</div>
+      <ol class="floor-list" id="floor-list"></ol>
+      <div class="floor-card" id="floor-card"></div>
+    </aside>
+
+    <!-- 楼层模式：2D 平面布局 -->
+    <aside id="layout-panel" class="panel layout-panel" hidden>
+      <div class="section-label">楼层平面 <span>FLOOR LAYOUT</span></div>
+      <div class="layout-head">
+        <strong id="layout-title">—</strong>
+        <span id="layout-type">—</span>
+      </div>
+      <div class="layout-svg" id="layout-svg"></div>
+      <div class="layout-legend" id="layout-legend"></div>
+      <div class="layout-unit" id="layout-unit">选择平面分区查看说明</div>
+      <p class="layout-note">示意分区 · 非测绘数据，依据立面与层高估算</p>
+    </aside>
+
+    <div class="floor-mode-tag" id="floor-mode-tag" hidden>
+      <span class="dot"></span> FLOOR SURVEY · 楼层分层
+      <b id="floor-mode-tag-sub">—</b>
+    </div>
+
+    <div id="labels"></div>
+    <div id="city-labels"></div>
+    <div class="floor-tag-3d" id="floor-tag-3d" hidden></div>
+    <button class="poi-focus-tag" id="poi-focus-tag" hidden aria-label="结束地标聚焦，回到整体视角"></button>
+
+    <div class="scene-coordinate">
+      <span>轴测观察 · <b id="view-name">西南视角</b></span>
+      <span id="scene-hint">拖动旋转 / 滚轮缩放 / 右键平移</span>
+    </div>
+
+    <div class="view-controls">
+      <button class="active" data-view="perspective">◈ <span>整体鸟瞰</span></button>
+      <button data-view="front">▥ <span>西侧立面</span></button>
+      <button data-view="top">⊞ <span>总平布局</span></button>
+      <button data-view="courtyard">⌑ <span>中庭视角</span></button>
+      <button data-view="city">◉ <span>街区鸟瞰</span></button>
+      <i></i>
+      <button id="layers-toggle" aria-expanded="false">◫ <span>图层</span></button>
+      <button id="rotate" aria-label="自动环绕" aria-pressed="false">↻ <span>自动环绕</span></button>
+      <button id="night" aria-label="切换时间" aria-pressed="false">☀ <span>日景</span></button>
+      <button id="reset" title="重置视角" aria-label="重置视角">⟲</button>
+    </div>
+
+    <!-- 图层控制 -->
+    <div class="layers-panel" id="layers-panel" hidden>
+      <div class="layers-head"><span>图层 · LAYERS</span><button id="layers-close" aria-label="关闭图层面板">×</button></div>
+      <div class="layers-grid">
+        <button data-layer="whiteModels" aria-pressed="true"><i></i>周边白模</button>
+        <button data-layer="roads" aria-pressed="true"><i></i>路网</button>
+        <button data-layer="landuse" aria-pressed="true"><i></i>绿地水系</button>
+        <button data-layer="poi" aria-pressed="true"><i></i>地标标注</button>
+        <button data-layer="site" aria-pressed="true"><i></i>地块边界</button>
+        <button data-layer="rings" aria-pressed="false"><i></i>距离环</button>
+        <button data-layer="ghost" aria-pressed="false"><i></i>白模透视</button>
+        <button data-layer="trees" aria-pressed="true"><i></i>树木</button>
+        <button data-layer="lamps" aria-pressed="true"><i></i>路灯 / 车流</button>
+      </div>
+      <p class="layers-note">周边白模来自 OpenStreetMap（ODbL），高度为 OSM / 估算示意，非测绘数据。</p>
+    </div>
+
+    <div class="floor-controls" id="floor-controls" hidden>
+      <button id="floor-prev" aria-label="下一层（低层）">↓ <span>下一层</span></button>
+      <div class="floor-indicator"><b id="floor-current">L1</b><span id="floor-total">/ 1</span></div>
+      <button id="floor-next" aria-label="上一层（高层）">↑ <span>上一层</span></button>
+      <i></i>
+      <button id="floor-explode" aria-pressed="true" aria-label="合拢 / 炸开楼层">⇕ <span>合拢</span></button>
+      <button id="floor-plan-toggle" class="only-mobile" aria-label="显示 / 隐藏楼层平面">▤ <span>平面</span></button>
+      <button id="floor-exit" aria-label="退出楼层分层">✕ <span>退出楼层</span></button>
+    </div>
+
+    <div class="scale"><span></span>比例示意 · 非测绘模型</div>
+    <div class="compass"><span>N</span><div>↑</div><small>W ─ E</small></div>
+  </main>
+
+  <footer>
+    <span><i></i> 影像驱动建筑重建 <b>/</b> 街区语境白模</span>
+    <span id="notice">按参考图片估算比例 · 楼层 / 分区为按楼高推算的示意数据 · 街区白模 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>（ODbL 1.0）</span>
+    <a href="./models/fuhua-mansion.glb" download>下载三维模型 <span>↓</span></a>
+  </footer>
+
+  <dialog id="gallery">
+    <div class="modal-header">
+      <div><small>VISUAL ARCHIVE</small><h2>建筑影像档案</h2></div>
+      <button class="close-modal" aria-label="关闭影像档案">×</button>
+    </div>
+    <div id="gallery-grid"></div>
+    <p>用户提供的建筑、入口、街景、卫星与平面参考图。</p>
+  </dialog>
+
+  <dialog id="about">
+    <div class="modal-header">
+      <div><small>RECONSTRUCTION NOTES</small><h2>从影像到建筑，再到街区</h2></div>
+      <button class="close-modal" aria-label="关闭重建说明">×</button>
+    </div>
+    <div class="about-content">
+      <h3>依据与范围</h3>
+      <p>建筑本体依据 10 张用户提供的正立面、入口、大堂、街景、卫星图及地图截图重建。A–F 座相对位置参照平面图，四座较高塔楼与两座中间楼体围合中庭。浏览器直接读取由 Blender 实际导出的 GLB 模型。</p>
+      <h3>楼层分层</h3>
+      <p>在 GLB 模型上按楼层高度切分三角面，生成可分离的楼层带与半透明楼板；可逐层炸开、聚焦并查看 2D 平面示意。层数由各楼座真实楼高与 3.35 m 标准层高推算：基座大堂 0–7.50 m，标准层自 7.50 m 起，顶部一层为设备 / 避难层，结构楼高以上并入屋顶机房层。</p>
+      <h3>街区语境（新增）</h3>
+      <p>周边建筑白模、路网、绿地水系与地标来自 OpenStreetMap（© OpenStreetMap contributors，ODbL 1.0）。模型以富华大厦地块中心为原点做局部 ENU 配准（+X 东 / −Z 北），高度按 OSM 实测 <code>height</code> → <code>building:levels × 3.2 m</code> → 名称估算值 → 类型默认值推算；富华大厦自身地块内的 OSM 建筑已挖空，避免与精细模型重叠。街区数据仅用于空间语境表达，不构成测绘或城市规划资料。</p>
+      <h3>精度说明</h3>
+      <p>此版本为建筑外观展示模型，并非测绘或 BIM 成果。楼高、层高、窗位与背立面按影像估算；未复刻室内。楼层数、2D 平面分区、面积与房间用途均为「按立面窗列与层高估算的示意数据」。中央喷泉、绿化及铺装属于示意景观。周边建筑高度多数由 OSM 层数或类型估算，个别地标按公开形象取整，均非实测。银行标识未复刻。</p>
+      <div class="downloads">
+        <a href="./models/fuhua-mansion.glb" download>下载 GLB 模型 ↗</a>
+        <a href="./models/architectural-render.jpg" download>下载建筑渲染图 ↗</a>
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap 版权与 ODbL ↗</a>
+      </div>
+      <p class="about-small">Blender 源文件（.blend，约 10 MB × 2）不随静态站点分发，仅在本地 source-assets/ 保留；街区数据生成脚本见 tools/build-site-context.py。</p>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status"></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

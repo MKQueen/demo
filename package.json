@@ -1,0 +1,22 @@
+{
+  "name": "demo-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Demo 合集：3D 机甲战斗 / 建筑楼层档案 / CBD 数字孪生 / 动态水淹 / RAG 观测台 / 真实本地 Agent",
+  "scripts": {
+    "build": "node scripts/build-all.mjs",
+    "build:fast": "node scripts/build-all.mjs --skip-build",
+    "serve": "node scripts/serve-site.mjs",
+    "zip": "node scripts/zip-site.mjs",
+    "install:all": "node scripts/install-all.mjs",
+    "covers": "node scripts/capture-covers.mjs",
+    "audit": "node scripts/audit-site.mjs --shots",
+    "verify:agent": "node scripts/verify-agent-live.mjs --shot",
+    "verify:rag": "node apps/rag-lab/scripts/verify-live.mjs --shot",
+    "deploy:gh-pages": "node scripts/deploy-gh-pages.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.59.1"
+  }
+}

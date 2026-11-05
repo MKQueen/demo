@@ -1,0 +1,6 @@
+# 本项目的 API Key 只放在 .env 里，绝不提交
+.env
+node_modules/
+*.log
+.DS_Store
+.cache/

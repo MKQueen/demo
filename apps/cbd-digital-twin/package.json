@@ -1,0 +1,28 @@
+{
+  "name": "cbd-digital-twin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "北京朝阳 CBD 数字孪生 · Cesium 1.147 + Vue 3 + TypeScript，OSM 白模 3D Tiles / 发光路网 / POI 交互",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5185 --strictPort",
+    "start": "vite --host 127.0.0.1 --port 5185 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5186 --strictPort",
+    "typecheck": "vue-tsc --noEmit",
+    "generate:models": "node scripts/generate-landmarks.mjs"
+  },
+  "dependencies": {
+    "cesium": "1.147.0",
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.5",
+    "vue-tsc": "^3.3.14"
+  }
+}

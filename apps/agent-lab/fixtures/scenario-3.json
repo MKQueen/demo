@@ -1,0 +1,1864 @@
+{
+  "key": "demo-chat",
+  "title": "纯文本对话",
+  "description": "不触发工具时的流式回复，演示 mock 模型的默认剧本",
+  "task": "介绍一下你能做什么，以及面板上能观察哪些东西",
+  "permissionLevel": "auto",
+  "sessionId": "20261103-155106-pv5r",
+  "recordedAt": "2026-11-03T07:51:07.557Z",
+  "durationMs": 686,
+  "toolCalls": 0,
+  "approvalCount": 0,
+  "initialState": {
+    "version": "0.2.0",
+    "cwd": "/tmp/mini-opencode-demo",
+    "workspace": {
+      "path": "/tmp/mini-opencode-demo"
+    },
+    "startedAt": 1793692265357,
+    "config": {
+      "model": "mock-model",
+      "baseUrl": "https://api.deepseek.com",
+      "mock": true,
+      "maxSteps": 24,
+      "maxToolCalls": 48,
+      "contextBudget": 112000,
+      "temperature": 0.2,
+      "reasoningEffort": "default",
+      "hasApiKey": false,
+      "apiKeyMasked": "",
+      "providerError": null
+    },
+    "mode": "build",
+    "permissionLevel": "auto",
+    "yolo": true,
+    "acceptEdits": false,
+    "busy": false,
+    "session": {
+      "id": "20261103-155106-pv5r",
+      "title": "(空会话)",
+      "createdAt": "2026-11-03T07:51:06.858Z",
+      "file": ".mini-opencode/sessions/20261103-155106-pv5r.jsonl"
+    },
+    "messages": [],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-pv5r",
+          "createdAt": "2026-11-03T07:51:06.858Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      }
+    ],
+    "sessions": [
+      {
+        "id": "20261103-155106-pv5r",
+        "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+        "messageCount": 2,
+        "updatedAt": "2026-11-03T07:51:07.431Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155106-jcax",
+        "title": "用 todo 拆解一下这个任务",
+        "messageCount": 6,
+        "updatedAt": "2026-11-03T07:51:06.733Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155105-eu00",
+        "title": "帮我创建一个 hello.txt",
+        "messageCount": 8,
+        "updatedAt": "2026-11-03T07:51:06.329Z",
+        "archived": false
+      }
+    ],
+    "tools": [
+      {
+        "name": "read",
+        "description": "读取一个文本文件，返回带行号的内容。大文件请用 offset/limit 分段读取。改文件前一定要先 read，否则你可能基于过时内容做修改。",
+        "category": "read",
+        "summary": "读取文件内容（带行号、可分段）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录或绝对路径）"
+            },
+            "offset": {
+              "type": "integer",
+              "description": "从第几行开始读（1 开始），默认 1",
+              "minimum": 1
+            },
+            "limit": {
+              "type": "integer",
+              "description": "最多读多少行，默认 2000",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "glob",
+        "description": "按 glob 模式查找文件，例如 `src/**/*.ts`、`*.md`、`**/test*.ts`。返回相对工作目录的路径列表。找文件优先用它，比 bash find 更快更结构化。",
+        "category": "read",
+        "summary": "按模式找文件",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "glob 模式，例如 src/**/*.ts"
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录下找（默认工作目录），例如 src"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "grep",
+        "description": "在文件内容里用正则搜索，返回 `文件:行号: 内容`。适合找函数定义、变量名、TODO、报错信息。优先于 bash 的 grep/rg。",
+        "category": "read",
+        "summary": "按内容正则搜索",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "正则表达式，例如 `function\\s+main` 或 `TODO`",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录/文件里搜（默认工作目录）"
+            },
+            "include": {
+              "type": "string",
+              "description": "只搜匹配这个 glob 的文件，例如 `*.ts` 或 `src/**/*.ts`"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "webfetch",
+        "description": "抓取一个公开网页并返回纯文本（只读；用于查文档/资料，不支持内网地址）。",
+        "category": "read",
+        "summary": "抓取公开网页并转成纯文本",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "http(s) URL"
+            },
+            "max_chars": {
+              "type": "integer",
+              "description": "最多返回多少字符（1000~20000，默认 8000）"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "skill",
+        "description": "读取一个项目技能的完整说明（skills 列在系统提示词里；任务匹配时再读取，省上下文）。",
+        "category": "read",
+        "summary": "按需读取项目技能说明",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "技能名"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "write",
+        "description": "把完整内容写入一个文件（覆盖已有文件，自动创建目录）。修改已有文件请优先用 edit，避免把没读过的内容覆盖掉。",
+        "category": "write",
+        "summary": "创建/覆盖文件",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "content": {
+              "type": "string",
+              "description": "要写入的完整文本内容"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "edit",
+        "description": "在文件中做精确字符串替换：把 oldString 替换成 newString。oldString 必须与文件内容逐字符一致（包括空格/缩进/换行），且必须唯一匹配（除非 replaceAll=true）。修改前请先 read 确认内容。",
+        "category": "write",
+        "summary": "精确字符串替换（改代码主力）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "oldString": {
+              "type": "string",
+              "description": "要被替换的原文，必须和文件里的内容完全一致",
+              "minLength": 1
+            },
+            "newString": {
+              "type": "string",
+              "description": "替换后的新文本，可以为空字符串（表示删除）"
+            },
+            "replaceAll": {
+              "type": "boolean",
+              "description": "是否替换所有匹配项，默认 false（只允许唯一匹配）"
+            }
+          },
+          "required": [
+            "path",
+            "oldString",
+            "newString"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "bash",
+        "description": "在工作目录中执行一条 shell 命令并返回 stdout/stderr。用于运行测试、git、npm、查看目录等。每次调用只执行一个命令，不要用交互式命令（如 vim、top）。命令失败时会返回非零退出码，请根据 stderr 修正后重试。",
+        "category": "exec",
+        "summary": "执行 shell 命令（超时/进程组/环境变量清洗）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "要执行的 shell 命令，例如 `npm test` 或 `ls -la src`",
+              "minLength": 1
+            },
+            "timeout_ms": {
+              "type": "number",
+              "description": "超时时间（毫秒），默认 120000，最大 600000",
+              "minimum": 1000,
+              "maximum": 600000
+            },
+            "description": {
+              "type": "string",
+              "description": "用一句话说明这条命令要干什么（给人看的，会显示在 UI 上）"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "rewind",
+        "description": "回退最近一次 checkpoint：恢复被 write/edit 改过的文件（新文件会被删除）。可选 path 只回退某个文件。",
+        "category": "write",
+        "summary": "回退最近一次文件 checkpoint",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "只回退这个相对路径（可选）"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "todowrite",
+        "description": "创建/更新当前任务的待办清单。做多步骤复杂任务时先拆解成清单，每完成一步就更新状态。每次调用要传**完整的**清单（不是增量）。",
+        "category": "read",
+        "summary": "维护待办清单（Agent 的工作记忆）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "todos": {
+              "type": "array",
+              "description": "完整的待办清单",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "任务内容，一句话"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed"
+                    ],
+                    "description": "pending=待办，in_progress=进行中（同一时间建议只有一个），completed=已完成"
+                  }
+                },
+                "required": [
+                  "content",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "todos"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "task",
+        "description": "启动一个子 Agent 去做调研/搜索。子 Agent 有独立的上下文和只读工具（read/glob/grep），不会修改文件。适合回答“这个项目里 X 是怎么实现的”这类需要翻很多文件的问题。把你希望它回答的问题写清楚，它会返回一段总结。",
+        "category": "read",
+        "summary": "派子 Agent 做只读调研（上下文隔离）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "用 3-6 个词概括这次调研任务，用于 UI 显示，例如“调研权限系统”",
+              "minLength": 1
+            },
+            "prompt": {
+              "type": "string",
+              "description": "完整的任务描述，要具体：要找什么、关注哪些文件、希望回答什么",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "description",
+            "prompt"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "features": [
+      {
+        "title": "流式对话",
+        "detail": "模型逐字输出，前端实时渲染；支持中断（Stop）。",
+        "chapter": "第 1、9 章"
+      },
+      {
+        "title": "工具调用协议",
+        "detail": "模型只生成 tool_calls JSON，由服务端校验参数后真正执行。",
+        "chapter": "第 2 章"
+      },
+      {
+        "title": "Agent 循环",
+        "detail": "模型→工具→结果回填→再推理，带步数上限与错误自愈。",
+        "chapter": "第 3 章"
+      },
+      {
+        "title": "文件工具 read/write/edit",
+        "detail": "带行号读取、精确字符串替换、路径边界与符号链接防护。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "搜索工具 glob/grep",
+        "detail": "按文件名模式找文件、按正则搜内容，结果有上限。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "bash 执行",
+        "detail": "命令超时、杀进程组、输出截断、环境变量清洗。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "权限审批",
+        "detail": "allow/ask/deny 三档；浏览器里点允许/拒绝/始终允许；危险命令单独提示。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "上下文管理",
+        "detail": "token 估算、工具输出截断、整轮裁剪、LLM 摘要压缩，压缩后写快照。",
+        "chapter": "第 6 章"
+      },
+      {
+        "title": "会话持久化",
+        "detail": "每一步、每次工具调用都写 JSONL；支持恢复、回放、导出。",
+        "chapter": "第 7 章"
+      },
+      {
+        "title": "系统提示词 + AGENTS.md",
+        "detail": "项目规则自动注入；build / plan 两种模式双保险。",
+        "chapter": "第 8 章"
+      },
+      {
+        "title": "实时事件流",
+        "detail": "trace 事件按步记录上下文大小、工具、耗时，可当“黑匣子”排查。",
+        "chapter": "第 9 章"
+      },
+      {
+        "title": "todo 清单",
+        "detail": "Agent 用 todowrite 维护待办，界面上实时同步。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "子 Agent（task）",
+        "detail": "隔离上下文做只读调研，只把结论带回主 Agent。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "模型配置",
+        "detail": "支持 DeepSeek / 任意 OpenAI 兼容接口，也可用 mock 离线演示。",
+        "chapter": "第 1 章"
+      }
+    ],
+    "docs": [
+      {
+        "title": "00-从零理解Agent",
+        "file": "docs/00-从零理解Agent.md"
+      },
+      {
+        "title": "01-最小可跑-第一次调用LLM",
+        "file": "docs/01-最小可跑-第一次调用LLM.md"
+      },
+      {
+        "title": "02-消息与工具调用协议",
+        "file": "docs/02-消息与工具调用协议.md"
+      },
+      {
+        "title": "03-Agent循环-把循环装进程序里",
+        "file": "docs/03-Agent循环-把循环装进程序里.md"
+      },
+      {
+        "title": "04-文件工具与路径安全",
+        "file": "docs/04-文件工具与路径安全.md"
+      },
+      {
+        "title": "05-bash与权限系统",
+        "file": "docs/05-bash与权限系统.md"
+      },
+      {
+        "title": "06-上下文管理",
+        "file": "docs/06-上下文管理.md"
+      },
+      {
+        "title": "07-会话持久化与恢复",
+        "file": "docs/07-会话持久化与恢复.md"
+      },
+      {
+        "title": "08-系统提示词工程",
+        "file": "docs/08-系统提示词工程.md"
+      },
+      {
+        "title": "09-终端UI与交互",
+        "file": "docs/09-终端UI与交互.md"
+      },
+      {
+        "title": "10-进阶-子Agent模式与MCP",
+        "file": "docs/10-进阶-子Agent模式与MCP.md"
+      },
+      {
+        "title": "11-对照真实opencode源码",
+        "file": "docs/11-对照真实opencode源码.md"
+      },
+      {
+        "title": "12-Web可视化与真实模型接入",
+        "file": "docs/12-Web可视化与真实模型接入.md"
+      },
+      {
+        "title": "13-轮数步数与真实干活-对照三家Agent",
+        "file": "docs/13-轮数步数与真实干活-对照三家Agent.md"
+      },
+      {
+        "title": "14-MCP与工具生态",
+        "file": "docs/14-MCP与工具生态.md"
+      },
+      {
+        "title": "99-术语表与常见坑",
+        "file": "docs/99-术语表与常见坑.md"
+      },
+      {
+        "title": "代码地图-函数清单",
+        "file": "docs/代码地图-函数清单.md"
+      }
+    ],
+    "pendingApprovals": [],
+    "todos": [],
+    "contextUsage": {
+      "system": 942,
+      "tools": 2117,
+      "messages": 0,
+      "total": 3059,
+      "budget": 112000
+    }
+  },
+  "finalState": {
+    "version": "0.2.0",
+    "cwd": "/tmp/mini-opencode-demo",
+    "workspace": {
+      "path": "/tmp/mini-opencode-demo"
+    },
+    "startedAt": 1793692265357,
+    "config": {
+      "model": "mock-model",
+      "baseUrl": "https://api.deepseek.com",
+      "mock": true,
+      "maxSteps": 24,
+      "maxToolCalls": 48,
+      "contextBudget": 112000,
+      "temperature": 0.2,
+      "reasoningEffort": "default",
+      "hasApiKey": false,
+      "apiKeyMasked": "",
+      "providerError": null
+    },
+    "mode": "build",
+    "permissionLevel": "auto",
+    "yolo": true,
+    "acceptEdits": false,
+    "busy": false,
+    "session": {
+      "id": "20261103-155106-pv5r",
+      "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+      "createdAt": "2026-11-03T07:51:06.858Z",
+      "file": ".mini-opencode/sessions/20261103-155106-pv5r.jsonl"
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "介绍一下你能做什么，以及面板上能观察哪些东西"
+      },
+      {
+        "role": "assistant",
+        "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。"
+      }
+    ],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-pv5r",
+          "createdAt": "2026-11-03T07:51:06.858Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "user",
+          "content": "介绍一下你能做什么，以及面板上能观察哪些东西"
+        },
+        "at": "2026-11-03T07:51:06.867Z"
+      },
+      {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 971,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.867Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。"
+        },
+        "at": "2026-11-03T07:51:07.430Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。",
+        "toolCalls": [],
+        "at": "2026-11-03T07:51:07.430Z"
+      },
+      {
+        "type": "turn_end",
+        "steps": 1,
+        "usage": {
+          "prompt_tokens": 963,
+          "completion_tokens": 132,
+          "total_tokens": 1095
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 563,
+        "at": "2026-11-03T07:51:07.430Z"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "20261103-155106-pv5r",
+        "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+        "messageCount": 2,
+        "updatedAt": "2026-11-03T07:51:07.431Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155106-jcax",
+        "title": "用 todo 拆解一下这个任务",
+        "messageCount": 6,
+        "updatedAt": "2026-11-03T07:51:06.733Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155105-eu00",
+        "title": "帮我创建一个 hello.txt",
+        "messageCount": 8,
+        "updatedAt": "2026-11-03T07:51:06.329Z",
+        "archived": false
+      }
+    ],
+    "tools": [
+      {
+        "name": "read",
+        "description": "读取一个文本文件，返回带行号的内容。大文件请用 offset/limit 分段读取。改文件前一定要先 read，否则你可能基于过时内容做修改。",
+        "category": "read",
+        "summary": "读取文件内容（带行号、可分段）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录或绝对路径）"
+            },
+            "offset": {
+              "type": "integer",
+              "description": "从第几行开始读（1 开始），默认 1",
+              "minimum": 1
+            },
+            "limit": {
+              "type": "integer",
+              "description": "最多读多少行，默认 2000",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "glob",
+        "description": "按 glob 模式查找文件，例如 `src/**/*.ts`、`*.md`、`**/test*.ts`。返回相对工作目录的路径列表。找文件优先用它，比 bash find 更快更结构化。",
+        "category": "read",
+        "summary": "按模式找文件",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "glob 模式，例如 src/**/*.ts"
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录下找（默认工作目录），例如 src"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "grep",
+        "description": "在文件内容里用正则搜索，返回 `文件:行号: 内容`。适合找函数定义、变量名、TODO、报错信息。优先于 bash 的 grep/rg。",
+        "category": "read",
+        "summary": "按内容正则搜索",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "正则表达式，例如 `function\\s+main` 或 `TODO`",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录/文件里搜（默认工作目录）"
+            },
+            "include": {
+              "type": "string",
+              "description": "只搜匹配这个 glob 的文件，例如 `*.ts` 或 `src/**/*.ts`"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "webfetch",
+        "description": "抓取一个公开网页并返回纯文本（只读；用于查文档/资料，不支持内网地址）。",
+        "category": "read",
+        "summary": "抓取公开网页并转成纯文本",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "http(s) URL"
+            },
+            "max_chars": {
+              "type": "integer",
+              "description": "最多返回多少字符（1000~20000，默认 8000）"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "skill",
+        "description": "读取一个项目技能的完整说明（skills 列在系统提示词里；任务匹配时再读取，省上下文）。",
+        "category": "read",
+        "summary": "按需读取项目技能说明",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "技能名"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "write",
+        "description": "把完整内容写入一个文件（覆盖已有文件，自动创建目录）。修改已有文件请优先用 edit，避免把没读过的内容覆盖掉。",
+        "category": "write",
+        "summary": "创建/覆盖文件",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "content": {
+              "type": "string",
+              "description": "要写入的完整文本内容"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "edit",
+        "description": "在文件中做精确字符串替换：把 oldString 替换成 newString。oldString 必须与文件内容逐字符一致（包括空格/缩进/换行），且必须唯一匹配（除非 replaceAll=true）。修改前请先 read 确认内容。",
+        "category": "write",
+        "summary": "精确字符串替换（改代码主力）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "oldString": {
+              "type": "string",
+              "description": "要被替换的原文，必须和文件里的内容完全一致",
+              "minLength": 1
+            },
+            "newString": {
+              "type": "string",
+              "description": "替换后的新文本，可以为空字符串（表示删除）"
+            },
+            "replaceAll": {
+              "type": "boolean",
+              "description": "是否替换所有匹配项，默认 false（只允许唯一匹配）"
+            }
+          },
+          "required": [
+            "path",
+            "oldString",
+            "newString"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "bash",
+        "description": "在工作目录中执行一条 shell 命令并返回 stdout/stderr。用于运行测试、git、npm、查看目录等。每次调用只执行一个命令，不要用交互式命令（如 vim、top）。命令失败时会返回非零退出码，请根据 stderr 修正后重试。",
+        "category": "exec",
+        "summary": "执行 shell 命令（超时/进程组/环境变量清洗）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "要执行的 shell 命令，例如 `npm test` 或 `ls -la src`",
+              "minLength": 1
+            },
+            "timeout_ms": {
+              "type": "number",
+              "description": "超时时间（毫秒），默认 120000，最大 600000",
+              "minimum": 1000,
+              "maximum": 600000
+            },
+            "description": {
+              "type": "string",
+              "description": "用一句话说明这条命令要干什么（给人看的，会显示在 UI 上）"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "rewind",
+        "description": "回退最近一次 checkpoint：恢复被 write/edit 改过的文件（新文件会被删除）。可选 path 只回退某个文件。",
+        "category": "write",
+        "summary": "回退最近一次文件 checkpoint",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "只回退这个相对路径（可选）"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "todowrite",
+        "description": "创建/更新当前任务的待办清单。做多步骤复杂任务时先拆解成清单，每完成一步就更新状态。每次调用要传**完整的**清单（不是增量）。",
+        "category": "read",
+        "summary": "维护待办清单（Agent 的工作记忆）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "todos": {
+              "type": "array",
+              "description": "完整的待办清单",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "任务内容，一句话"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed"
+                    ],
+                    "description": "pending=待办，in_progress=进行中（同一时间建议只有一个），completed=已完成"
+                  }
+                },
+                "required": [
+                  "content",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "todos"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "task",
+        "description": "启动一个子 Agent 去做调研/搜索。子 Agent 有独立的上下文和只读工具（read/glob/grep），不会修改文件。适合回答“这个项目里 X 是怎么实现的”这类需要翻很多文件的问题。把你希望它回答的问题写清楚，它会返回一段总结。",
+        "category": "read",
+        "summary": "派子 Agent 做只读调研（上下文隔离）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "用 3-6 个词概括这次调研任务，用于 UI 显示，例如“调研权限系统”",
+              "minLength": 1
+            },
+            "prompt": {
+              "type": "string",
+              "description": "完整的任务描述，要具体：要找什么、关注哪些文件、希望回答什么",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "description",
+            "prompt"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "features": [
+      {
+        "title": "流式对话",
+        "detail": "模型逐字输出，前端实时渲染；支持中断（Stop）。",
+        "chapter": "第 1、9 章"
+      },
+      {
+        "title": "工具调用协议",
+        "detail": "模型只生成 tool_calls JSON，由服务端校验参数后真正执行。",
+        "chapter": "第 2 章"
+      },
+      {
+        "title": "Agent 循环",
+        "detail": "模型→工具→结果回填→再推理，带步数上限与错误自愈。",
+        "chapter": "第 3 章"
+      },
+      {
+        "title": "文件工具 read/write/edit",
+        "detail": "带行号读取、精确字符串替换、路径边界与符号链接防护。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "搜索工具 glob/grep",
+        "detail": "按文件名模式找文件、按正则搜内容，结果有上限。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "bash 执行",
+        "detail": "命令超时、杀进程组、输出截断、环境变量清洗。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "权限审批",
+        "detail": "allow/ask/deny 三档；浏览器里点允许/拒绝/始终允许；危险命令单独提示。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "上下文管理",
+        "detail": "token 估算、工具输出截断、整轮裁剪、LLM 摘要压缩，压缩后写快照。",
+        "chapter": "第 6 章"
+      },
+      {
+        "title": "会话持久化",
+        "detail": "每一步、每次工具调用都写 JSONL；支持恢复、回放、导出。",
+        "chapter": "第 7 章"
+      },
+      {
+        "title": "系统提示词 + AGENTS.md",
+        "detail": "项目规则自动注入；build / plan 两种模式双保险。",
+        "chapter": "第 8 章"
+      },
+      {
+        "title": "实时事件流",
+        "detail": "trace 事件按步记录上下文大小、工具、耗时，可当“黑匣子”排查。",
+        "chapter": "第 9 章"
+      },
+      {
+        "title": "todo 清单",
+        "detail": "Agent 用 todowrite 维护待办，界面上实时同步。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "子 Agent（task）",
+        "detail": "隔离上下文做只读调研，只把结论带回主 Agent。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "模型配置",
+        "detail": "支持 DeepSeek / 任意 OpenAI 兼容接口，也可用 mock 离线演示。",
+        "chapter": "第 1 章"
+      }
+    ],
+    "docs": [
+      {
+        "title": "00-从零理解Agent",
+        "file": "docs/00-从零理解Agent.md"
+      },
+      {
+        "title": "01-最小可跑-第一次调用LLM",
+        "file": "docs/01-最小可跑-第一次调用LLM.md"
+      },
+      {
+        "title": "02-消息与工具调用协议",
+        "file": "docs/02-消息与工具调用协议.md"
+      },
+      {
+        "title": "03-Agent循环-把循环装进程序里",
+        "file": "docs/03-Agent循环-把循环装进程序里.md"
+      },
+      {
+        "title": "04-文件工具与路径安全",
+        "file": "docs/04-文件工具与路径安全.md"
+      },
+      {
+        "title": "05-bash与权限系统",
+        "file": "docs/05-bash与权限系统.md"
+      },
+      {
+        "title": "06-上下文管理",
+        "file": "docs/06-上下文管理.md"
+      },
+      {
+        "title": "07-会话持久化与恢复",
+        "file": "docs/07-会话持久化与恢复.md"
+      },
+      {
+        "title": "08-系统提示词工程",
+        "file": "docs/08-系统提示词工程.md"
+      },
+      {
+        "title": "09-终端UI与交互",
+        "file": "docs/09-终端UI与交互.md"
+      },
+      {
+        "title": "10-进阶-子Agent模式与MCP",
+        "file": "docs/10-进阶-子Agent模式与MCP.md"
+      },
+      {
+        "title": "11-对照真实opencode源码",
+        "file": "docs/11-对照真实opencode源码.md"
+      },
+      {
+        "title": "12-Web可视化与真实模型接入",
+        "file": "docs/12-Web可视化与真实模型接入.md"
+      },
+      {
+        "title": "13-轮数步数与真实干活-对照三家Agent",
+        "file": "docs/13-轮数步数与真实干活-对照三家Agent.md"
+      },
+      {
+        "title": "14-MCP与工具生态",
+        "file": "docs/14-MCP与工具生态.md"
+      },
+      {
+        "title": "99-术语表与常见坑",
+        "file": "docs/99-术语表与常见坑.md"
+      },
+      {
+        "title": "代码地图-函数清单",
+        "file": "docs/代码地图-函数清单.md"
+      }
+    ],
+    "pendingApprovals": [],
+    "todos": [],
+    "contextUsage": {
+      "system": 942,
+      "tools": 2117,
+      "messages": 165,
+      "total": 3224,
+      "budget": 112000
+    }
+  },
+  "sseEvents": [
+    {
+      "seq": 173,
+      "ts": 1793692266867,
+      "type": "run_state",
+      "data": {
+        "busy": true
+      }
+    },
+    {
+      "seq": 174,
+      "ts": 1793692266867,
+      "type": "user_message",
+      "data": {
+        "text": "介绍一下你能做什么，以及面板上能观察哪些东西",
+        "images": [],
+        "content": "介绍一下你能做什么，以及面板上能观察哪些东西"
+      }
+    },
+    {
+      "seq": 175,
+      "ts": 1793692266867,
+      "type": "run_start",
+      "data": {
+        "model": "mock-model",
+        "mode": "build",
+        "mock": true
+      }
+    },
+    {
+      "seq": 176,
+      "ts": 1793692266867,
+      "type": "trace",
+      "data": {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 971,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ]
+      }
+    },
+    {
+      "seq": 177,
+      "ts": 1793692266867,
+      "type": "assistant_start",
+      "data": {}
+    },
+    {
+      "seq": 178,
+      "ts": 1793692266876,
+      "type": "assistant_delta",
+      "data": {
+        "text": "我是 "
+      }
+    },
+    {
+      "seq": 179,
+      "ts": 1793692266886,
+      "type": "assistant_delta",
+      "data": {
+        "text": "moc"
+      }
+    },
+    {
+      "seq": 180,
+      "ts": 1793692266894,
+      "type": "assistant_delta",
+      "data": {
+        "text": "k 模"
+      }
+    },
+    {
+      "seq": 181,
+      "ts": 1793692266903,
+      "type": "assistant_delta",
+      "data": {
+        "text": "型 —"
+      }
+    },
+    {
+      "seq": 182,
+      "ts": 1793692266913,
+      "type": "assistant_delta",
+      "data": {
+        "text": "— 不"
+      }
+    },
+    {
+      "seq": 183,
+      "ts": 1793692266922,
+      "type": "assistant_delta",
+      "data": {
+        "text": "联网、"
+      }
+    },
+    {
+      "seq": 184,
+      "ts": 1793692266931,
+      "type": "assistant_delta",
+      "data": {
+        "text": "不花钱"
+      }
+    },
+    {
+      "seq": 185,
+      "ts": 1793692266941,
+      "type": "assistant_delta",
+      "data": {
+        "text": "、只会"
+      }
+    },
+    {
+      "seq": 186,
+      "ts": 1793692266948,
+      "type": "assistant_delta",
+      "data": {
+        "text": "演剧本"
+      }
+    },
+    {
+      "seq": 187,
+      "ts": 1793692266958,
+      "type": "assistant_delta",
+      "data": {
+        "text": "。\n不"
+      }
+    },
+    {
+      "seq": 188,
+      "ts": 1793692266967,
+      "type": "assistant_delta",
+      "data": {
+        "text": "过 A"
+      }
+    },
+    {
+      "seq": 189,
+      "ts": 1793692266977,
+      "type": "assistant_delta",
+      "data": {
+        "text": "gen"
+      }
+    },
+    {
+      "seq": 190,
+      "ts": 1793692266985,
+      "type": "assistant_delta",
+      "data": {
+        "text": "t 循"
+      }
+    },
+    {
+      "seq": 191,
+      "ts": 1793692266995,
+      "type": "assistant_delta",
+      "data": {
+        "text": "环、工"
+      }
+    },
+    {
+      "seq": 192,
+      "ts": 1793692267003,
+      "type": "assistant_delta",
+      "data": {
+        "text": "具调用"
+      }
+    },
+    {
+      "seq": 193,
+      "ts": 1793692267012,
+      "type": "assistant_delta",
+      "data": {
+        "text": "、权限"
+      }
+    },
+    {
+      "seq": 194,
+      "ts": 1793692267022,
+      "type": "assistant_delta",
+      "data": {
+        "text": "审批、"
+      }
+    },
+    {
+      "seq": 195,
+      "ts": 1793692267030,
+      "type": "assistant_delta",
+      "data": {
+        "text": "会话记"
+      }
+    },
+    {
+      "seq": 196,
+      "ts": 1793692267039,
+      "type": "assistant_delta",
+      "data": {
+        "text": "录，全"
+      }
+    },
+    {
+      "seq": 197,
+      "ts": 1793692267048,
+      "type": "assistant_delta",
+      "data": {
+        "text": "都是真"
+      }
+    },
+    {
+      "seq": 198,
+      "ts": 1793692267058,
+      "type": "assistant_delta",
+      "data": {
+        "text": "的。\n"
+      }
+    },
+    {
+      "seq": 199,
+      "ts": 1793692267067,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n试试"
+      }
+    },
+    {
+      "seq": 200,
+      "ts": 1793692267078,
+      "type": "assistant_delta",
+      "data": {
+        "text": "这两句"
+      }
+    },
+    {
+      "seq": 201,
+      "ts": 1793692267087,
+      "type": "assistant_delta",
+      "data": {
+        "text": "话（会"
+      }
+    },
+    {
+      "seq": 202,
+      "ts": 1793692267096,
+      "type": "assistant_delta",
+      "data": {
+        "text": "触发不"
+      }
+    },
+    {
+      "seq": 203,
+      "ts": 1793692267105,
+      "type": "assistant_delta",
+      "data": {
+        "text": "同的剧"
+      }
+    },
+    {
+      "seq": 204,
+      "ts": 1793692267115,
+      "type": "assistant_delta",
+      "data": {
+        "text": "本）："
+      }
+    },
+    {
+      "seq": 205,
+      "ts": 1793692267125,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n  "
+      }
+    },
+    {
+      "seq": 206,
+      "ts": 1793692267132,
+      "type": "assistant_delta",
+      "data": {
+        "text": "· 帮"
+      }
+    },
+    {
+      "seq": 207,
+      "ts": 1793692267143,
+      "type": "assistant_delta",
+      "data": {
+        "text": "我创建"
+      }
+    },
+    {
+      "seq": 208,
+      "ts": 1793692267155,
+      "type": "assistant_delta",
+      "data": {
+        "text": "一个 "
+      }
+    },
+    {
+      "seq": 209,
+      "ts": 1793692267164,
+      "type": "assistant_delta",
+      "data": {
+        "text": "hel"
+      }
+    },
+    {
+      "seq": 210,
+      "ts": 1793692267174,
+      "type": "assistant_delta",
+      "data": {
+        "text": "lo."
+      }
+    },
+    {
+      "seq": 211,
+      "ts": 1793692267183,
+      "type": "assistant_delta",
+      "data": {
+        "text": "txt"
+      }
+    },
+    {
+      "seq": 212,
+      "ts": 1793692267192,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n  "
+      }
+    },
+    {
+      "seq": 213,
+      "ts": 1793692267202,
+      "type": "assistant_delta",
+      "data": {
+        "text": "· 用"
+      }
+    },
+    {
+      "seq": 214,
+      "ts": 1793692267212,
+      "type": "assistant_delta",
+      "data": {
+        "text": " to"
+      }
+    },
+    {
+      "seq": 215,
+      "ts": 1793692267222,
+      "type": "assistant_delta",
+      "data": {
+        "text": "do "
+      }
+    },
+    {
+      "seq": 216,
+      "ts": 1793692267237,
+      "type": "assistant_delta",
+      "data": {
+        "text": "拆解一"
+      }
+    },
+    {
+      "seq": 217,
+      "ts": 1793692267247,
+      "type": "assistant_delta",
+      "data": {
+        "text": "下这个"
+      }
+    },
+    {
+      "seq": 218,
+      "ts": 1793692267256,
+      "type": "assistant_delta",
+      "data": {
+        "text": "任务\n"
+      }
+    },
+    {
+      "seq": 219,
+      "ts": 1793692267266,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n想接"
+      }
+    },
+    {
+      "seq": 220,
+      "ts": 1793692267275,
+      "type": "assistant_delta",
+      "data": {
+        "text": "真模型"
+      }
+    },
+    {
+      "seq": 221,
+      "ts": 1793692267284,
+      "type": "assistant_delta",
+      "data": {
+        "text": "？把项"
+      }
+    },
+    {
+      "seq": 222,
+      "ts": 1793692267293,
+      "type": "assistant_delta",
+      "data": {
+        "text": "目根目"
+      }
+    },
+    {
+      "seq": 223,
+      "ts": 1793692267301,
+      "type": "assistant_delta",
+      "data": {
+        "text": "录的 "
+      }
+    },
+    {
+      "seq": 224,
+      "ts": 1793692267310,
+      "type": "assistant_delta",
+      "data": {
+        "text": ".en"
+      }
+    },
+    {
+      "seq": 225,
+      "ts": 1793692267318,
+      "type": "assistant_delta",
+      "data": {
+        "text": "v 填"
+      }
+    },
+    {
+      "seq": 226,
+      "ts": 1793692267328,
+      "type": "assistant_delta",
+      "data": {
+        "text": "上 D"
+      }
+    },
+    {
+      "seq": 227,
+      "ts": 1793692267336,
+      "type": "assistant_delta",
+      "data": {
+        "text": "EEP"
+      }
+    },
+    {
+      "seq": 228,
+      "ts": 1793692267346,
+      "type": "assistant_delta",
+      "data": {
+        "text": "SEE"
+      }
+    },
+    {
+      "seq": 229,
+      "ts": 1793692267356,
+      "type": "assistant_delta",
+      "data": {
+        "text": "K_A"
+      }
+    },
+    {
+      "seq": 230,
+      "ts": 1793692267365,
+      "type": "assistant_delta",
+      "data": {
+        "text": "PI_"
+      }
+    },
+    {
+      "seq": 231,
+      "ts": 1793692267374,
+      "type": "assistant_delta",
+      "data": {
+        "text": "KEY"
+      }
+    },
+    {
+      "seq": 232,
+      "ts": 1793692267383,
+      "type": "assistant_delta",
+      "data": {
+        "text": "，然后"
+      }
+    },
+    {
+      "seq": 233,
+      "ts": 1793692267394,
+      "type": "assistant_delta",
+      "data": {
+        "text": "去掉 "
+      }
+    },
+    {
+      "seq": 234,
+      "ts": 1793692267404,
+      "type": "assistant_delta",
+      "data": {
+        "text": "--m"
+      }
+    },
+    {
+      "seq": 235,
+      "ts": 1793692267413,
+      "type": "assistant_delta",
+      "data": {
+        "text": "ock"
+      }
+    },
+    {
+      "seq": 236,
+      "ts": 1793692267421,
+      "type": "assistant_delta",
+      "data": {
+        "text": " 重启"
+      }
+    },
+    {
+      "seq": 237,
+      "ts": 1793692267430,
+      "type": "assistant_delta",
+      "data": {
+        "text": "。"
+      }
+    },
+    {
+      "seq": 238,
+      "ts": 1793692267430,
+      "type": "assistant_end",
+      "data": {}
+    },
+    {
+      "seq": 239,
+      "ts": 1793692267430,
+      "type": "trace",
+      "data": {
+        "type": "assistant_message",
+        "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。",
+        "toolCalls": []
+      }
+    },
+    {
+      "seq": 240,
+      "ts": 1793692267431,
+      "type": "turn_end",
+      "data": {
+        "steps": 1,
+        "usage": {
+          "prompt_tokens": 963,
+          "completion_tokens": 132,
+          "total_tokens": 1095
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 563
+      }
+    },
+    {
+      "seq": 241,
+      "ts": 1793692267431,
+      "type": "usage",
+      "data": {
+        "promptTokens": 963,
+        "completionTokens": 132,
+        "cacheHitTokens": 0,
+        "cacheMissTokens": 0,
+        "steps": 1,
+        "durationMs": 563
+      }
+    },
+    {
+      "seq": 242,
+      "ts": 1793692267431,
+      "type": "run_state",
+      "data": {
+        "busy": false
+      }
+    },
+    {
+      "seq": 243,
+      "ts": 1793692267431,
+      "type": "sessions",
+      "data": {
+        "sessions": [
+          {
+            "id": "20261103-155106-pv5r",
+            "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+            "messageCount": 2,
+            "updatedAt": "2026-11-03T07:51:07.431Z",
+            "archived": false
+          },
+          {
+            "id": "20261103-155106-jcax",
+            "title": "用 todo 拆解一下这个任务",
+            "messageCount": 6,
+            "updatedAt": "2026-11-03T07:51:06.733Z",
+            "archived": false
+          },
+          {
+            "id": "20261103-155105-eu00",
+            "title": "帮我创建一个 hello.txt",
+            "messageCount": 8,
+            "updatedAt": "2026-11-03T07:51:06.329Z",
+            "archived": false
+          },
+          {
+            "id": "20261103-155105-noyp",
+            "title": "(空会话)",
+            "messageCount": 0,
+            "updatedAt": "2026-11-03T07:51:05.359Z",
+            "archived": false
+          }
+        ]
+      }
+    },
+    {
+      "seq": 244,
+      "ts": 1793692267431,
+      "type": "todos",
+      "data": {
+        "todos": []
+      }
+    },
+    {
+      "seq": 245,
+      "ts": 1793692267431,
+      "type": "turn_complete",
+      "data": {
+        "sessionId": "20261103-155106-pv5r"
+      }
+    }
+  ],
+  "session": {
+    "session": {
+      "id": "20261103-155106-pv5r",
+      "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+      "createdAt": "2026-11-03T07:51:06.858Z",
+      "model": "mock-model"
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "介绍一下你能做什么，以及面板上能观察哪些东西"
+      },
+      {
+        "role": "assistant",
+        "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。"
+      }
+    ],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-pv5r",
+          "createdAt": "2026-11-03T07:51:06.858Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "user",
+          "content": "介绍一下你能做什么，以及面板上能观察哪些东西"
+        },
+        "at": "2026-11-03T07:51:06.867Z"
+      },
+      {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 971,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.867Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。"
+        },
+        "at": "2026-11-03T07:51:07.430Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。",
+        "toolCalls": [],
+        "at": "2026-11-03T07:51:07.430Z"
+      },
+      {
+        "type": "turn_end",
+        "steps": 1,
+        "usage": {
+          "prompt_tokens": 963,
+          "completion_tokens": 132,
+          "total_tokens": 1095
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 563,
+        "at": "2026-11-03T07:51:07.430Z"
+      }
+    ]
+  }
+}

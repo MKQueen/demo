@@ -1,0 +1,23 @@
+[
+  {
+    "id": "20261103-155106-pv5r",
+    "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+    "messageCount": 2,
+    "updatedAt": "2026-11-03T07:51:07.431Z",
+    "archived": false
+  },
+  {
+    "id": "20261103-155106-jcax",
+    "title": "用 todo 拆解一下这个任务",
+    "messageCount": 6,
+    "updatedAt": "2026-11-03T07:51:06.733Z",
+    "archived": false
+  },
+  {
+    "id": "20261103-155105-eu00",
+    "title": "帮我创建一个 hello.txt",
+    "messageCount": 8,
+    "updatedAt": "2026-11-03T07:51:06.329Z",
+    "archived": false
+  }
+]

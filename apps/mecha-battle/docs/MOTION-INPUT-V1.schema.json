@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:steel-dawn:motion-input:v1",
+  "title": "Steel Dawn local motion input frame",
+  "type": "object",
+  "required": ["version", "sequence", "timestampMs", "playerId", "tracking", "controlReady", "quality", "calibration", "controls", "body", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"const": 1},
+    "sequence": {"type": "integer", "minimum": 1},
+    "timestampMs": {"type": "number", "minimum": 0, "description": "Sender monotonic milliseconds, not wall-clock time."},
+    "playerId": {"type": "integer", "minimum": 0, "description": "Lock generation within this provider process, not a persistent person identity."},
+    "tracking": {"type": "string", "enum": ["searching", "acquiring", "tracked", "calibrating", "active", "lost", "skeleton-lost", "stale", "camera-ended", "camera-muted", "inference-error"]},
+    "controlReady": {"type": "boolean"},
+    "quality": {"type": "number", "minimum": 0, "maximum": 1},
+    "calibration": {"type": "number", "minimum": 0, "maximum": 1},
+    "controls": {
+      "type": "object", "additionalProperties": false,
+      "required": ["move", "strafe", "lean", "speed", "blocking", "running"],
+      "properties": {
+        "move": {"type": "number"}, "strafe": {"type": "number"}, "lean": {"type": "number"}, "speed": {"type": "number"},
+        "blocking": {"type": "boolean"}, "running": {"type": "boolean"}
+      }
+    },
+    "body": {
+      "type": "object", "additionalProperties": false,
+      "required": ["leftArm", "rightArm", "shoulderTilt", "headX"],
+      "properties": {
+        "leftArm": {"$ref": "#/$defs/arm"}, "rightArm": {"$ref": "#/$defs/arm"},
+        "shoulderTilt": {"type": "number"}, "headX": {"type": "number"}
+      }
+    },
+    "events": {
+      "type": "array", "maxItems": 40,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["type", "at"],
+        "properties": {
+          "type": {"enum": ["punch", "blast", "missile", "blade", "ultimate", "dodge"]},
+          "at": {"type": "number", "description": "Sender monotonic seconds (legacy GestureAnalyzer timebase)."},
+          "side": {"enum": ["left", "right", -1, 1]},
+          "power": {"type": "number"}, "speed": {"type": "number"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "arm": {
+      "type": "object", "additionalProperties": false, "required": ["lift", "out", "forward", "straight", "bend", "wristY"],
+      "properties": {
+        "lift": {"type": "number"}, "out": {"type": "number"}, "forward": {"type": "number"},
+        "straight": {"type": "number"}, "bend": {"type": "number"}, "wristY": {"type": "number"}
+      }
+    }
+  }
+}

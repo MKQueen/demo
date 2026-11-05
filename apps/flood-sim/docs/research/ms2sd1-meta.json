@@ -1,0 +1,58 @@
+{
+  "shadertoyId": "Ms2SD1",
+  "shadertoyUrl": "https://www.shadertoy.com/view/Ms2SD1",
+  "title": "Seascape",
+  "author": "Alexander Alekseev aka TDM",
+  "authorShadertoyHandle": "TDM",
+  "noteOnAuthor": "NOT by Dave Hoskins (Dave_Hoskins). The 'Ms2SD1' shortcode resolves to TDM's 'Seascape' (2014). Confirmed by two independent sources: the ISF auto-conversion embeds the header comment '// \"Seascape\" by Alexander Alekseev aka TDM - 2014', and the Godot port repo describes itself as 'The TDM Seascape Shadertoy shader ported to godot: https://www.shadertoy.com/view/Ms2SD1'.",
+  "year": 2014,
+  "license": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+  "type": "fragment shader, single pass (Image tab), raymarched heightfield ocean",
+  "uniformsUsed": [
+    "iResolution",
+    "iTime",
+    "iMouse"
+  ],
+  "channelsUsed": [],
+  "passes": 1,
+  "sourceUrl": "https://www.shadertoy.com/view/Ms2SD1",
+  "obtainedVia": "https://editor.isf.video/api/shaders/6769241c2909a9001a007182",
+  "obtainedViaDetail": "ISF.video (Interactive Shader Format web editor) auto-converts ShaderToy shaders and serves the converted fragment source as JSON: {\"title\":\"st_Ms2SD1.fs\",\"description\":\"Automatically converted from https://www.shadertoy.com/view/Ms2SD1\",\"rawFragmentSource\":\"...\"}. The ShaderToy page itself was unreachable (Cloudflare 403 for curl, headless Chromium, and headful real Chrome 156).",
+  "method": "1) web_search for 'Ms2SD1' surfaced https://editor.isf.video/shaders/6769241c2909a9001a007182 titled 'st_Ms2SD1.fs'. 2) The site is a React SPA, so Playwright was used to load it and capture XHR responses; the public JSON endpoint was identified. 3) Endpoint fetched directly with curl (no auth, no Cloudflare). 4) ShaderToy-specific identifiers were mechanically restored (RENDERSIZE->iResolution, TIME->iTime, ISF INPUT uniforms -> original const declarations, main()->mainImage()).",
+  "completeness": "complete",
+  "confidence": "high",
+  "verification": [
+    "Cross-checked against bteitler's annotated copy (https://github.com/eshnil2000/SeascapeGPUShader) - identical globals, identical declaration order, identical constants, identical function bodies.",
+    "Cross-checked against Godot port https://github.com/creikey/tdm-godot-ocean/blob/HEAD/src/TDMOpenOcean.shader (same structure and values, with art tweaks).",
+    "Cross-checked against Cesium port https://github.com/red-fire-code/cesium-water-polygon/blob/main/WaterPolygon.ts (same functions, same loop structure).",
+    "Brace/paren balance verified; no leftover ISF tokens outside the provenance comment block."
+  ],
+  "knownUncertainty": "SEA_TIME: the ISF auto-conversion and bteitler's copy both read 'float SEA_TIME = iTime * SEA_SPEED;' (global). Some later re-writes/ports (e.g. DarelCullen/3dshaders presets.js, red-fire-code Cesium port) use '#define SEA_TIME (1.0 + iTime * SEA_SPEED)'. This only shifts the wave phase by one time unit - visually identical. The file here uses the ISF/bteitler form.",
+  "files": {
+    "ms2sd1-source.glsl": "Restored ShaderToy Image-tab GLSL (mainImage entry point), 199 lines incl. provenance header.",
+    "ms2sd1-meta.json": "This file.",
+    "notes.md": "Method, reconstruction deltas, shader structure/techniques, Cesium/Three/Godot/HLSL port references.",
+    "raw/isf-ms2sd1.json": "Verbatim JSON response from the ISF API.",
+    "raw/isf-frag.glsl": "Verbatim rawFragmentSource exactly as served (ISF dialect, unmodified).",
+    "raw/cesium-fabric-material.glsl": "ShaderToy->Cesium Fabric material port extracted from WaterPolygon.ts.",
+    "raw/cesium-water-waterpolygon.ts": "Full Cesium port source (Cesium.Material fabric + custom vertex/fragment shaders).",
+    "raw/godot-tdm.shader": "Godot spatial-shader port (bteitler annotated lineage).",
+    "raw/eshnil-readme.md": "bteitler's annotated Seascape copy (verbatim original + documentation comments).",
+    "raw/ms2sd1-render.png": "Frame rendered from ms2sd1-source.glsl in headless Chromium (WebGL1) - visual proof of fidelity.",
+    "raw/render-test.mjs": "Headless render/readback harness.",
+    "raw/compile-test2.mjs": "WebGL1 vs WebGL2 compile validation."
+  },
+  "sha256": {
+    "ms2sd1-source.glsl": "ef34717934b0c7d7108a2eb9d0f39903d21ec16485aa6a93cb8864d716489771",
+    "raw/isf-frag.glsl": "9ca777f740c704758d7560147f6f7a7ddd7442b567997a2457055461c2ddde25"
+  },
+  "attributionString": "\"Seascape\" by Alexander Alekseev (TDM), 2014 - CC BY-NC-SA 3.0 - https://www.shadertoy.com/view/Ms2SD1",
+  "validation": {
+    "compiled": true,
+    "environment": "headless Chromium via Playwright, WebGL1 / GLSL ES 1.00",
+    "result": "compiles+links+renders; gl.getError()==0; mean luminance 150.8/255; 100% non-black pixels",
+    "renderProof": "raw/ms2sd1-render.png (640x360, iTime=12)",
+    "webgl2Note": "Fails under GLSL ES 3.00: 'global variable initializers must be constant expressions' at the EPSILON_NRM and SEA_TIME globals. Move them into mainImage when porting."
+  }
+}

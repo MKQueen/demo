@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>scene dev</title>
+    <script>
+      window.CESIUM_BASE_URL = new URL('/cesium/', location.href).href;
+    </script>
+    <style>html,body,#scene{margin:0;height:100%;overflow:hidden;background:#050b12;color:#cde;font:14px system-ui}</style>
+  </head>
+  <body>
+    <div id="scene"></div>
+    <script type="module" src="/src/cesium/dev-entry.js"></script>
+  </body>
+</html>

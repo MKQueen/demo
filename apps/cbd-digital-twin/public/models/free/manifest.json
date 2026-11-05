@@ -1,0 +1,122 @@
+[
+  {
+    "id": "cctv",
+    "name": "中央电视台总部大楼",
+    "en": "CCTV Headquarters",
+    "file": "models/free/cctv.glb",
+    "height": 234,
+    "rawHeight": 250.1,
+    "footprint": [
+      206,
+      206
+    ],
+    "author": "Jabhnko R.",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/86c01b70-f21b-4ec1-b51e-8eefc1a8c29c",
+    "attribution": "CCTV Headquarters by Jabhnko R., 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "86c01b70-f21b-4ec1-b51e-8eefc1a8c29c",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  },
+  {
+    "id": "citic",
+    "name": "中国尊 / 中信大厦",
+    "en": "CITIC Tower / China Zun",
+    "file": "models/free/citic.glb",
+    "height": 528,
+    "rawHeight": 529,
+    "footprint": [
+      100,
+      100
+    ],
+    "author": "Lonnie F.",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/3e1f3afc-dba0-4b6c-94e3-091fa5c5128d",
+    "attribution": "China Zun by Lonnie F., 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "3e1f3afc-dba0-4b6c-94e3-091fa5c5128d",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  },
+  {
+    "id": "forbidden-city",
+    "name": "故宫 / 紫禁城",
+    "en": "Forbidden City",
+    "file": "models/free/forbidden-city.glb",
+    "height": 30,
+    "rawHeight": 36.6,
+    "footprint": [
+      805,
+      918
+    ],
+    "author": "hongquan C.",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/9e17d918-c41e-46e0-8e43-40edef4e357c",
+    "attribution": "Forbidden City of Beijing by hongquan C., 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "9e17d918-c41e-46e0-8e43-40edef4e357c",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  },
+  {
+    "id": "temple-of-heaven",
+    "name": "天坛",
+    "en": "Temple of Heaven",
+    "file": "models/free/temple-of-heaven.glb",
+    "height": 38,
+    "rawHeight": 48.3,
+    "footprint": [
+      78,
+      80
+    ],
+    "author": "杨健宁",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/a752828ffe368d75e9ecd6a7ac7f3acf",
+    "attribution": "北京天坛祈年殿 by 杨健宁, 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "a752828ffe368d75e9ecd6a7ac7f3acf",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  },
+  {
+    "id": "birds-nest",
+    "name": "国家体育场 · 鸟巢",
+    "en": "National Stadium / Bird's Nest",
+    "file": "models/free/birds-nest.glb",
+    "height": 69,
+    "rawHeight": 73,
+    "footprint": [
+      355,
+      640
+    ],
+    "author": "anonymous",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/84d183bdc61408cf603eef2511b7237e",
+    "attribution": "北京国家体育场 by anonymous contributor, 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "84d183bdc61408cf603eef2511b7237e",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  },
+  {
+    "id": "tiananmen",
+    "name": "天安门",
+    "en": "Tiananmen Gate",
+    "file": "models/free/tiananmen.glb",
+    "height": 35,
+    "rawHeight": 36.7,
+    "footprint": [
+      117,
+      44
+    ],
+    "author": "Li J.",
+    "license": "3D Warehouse General Model License (GML, 2015-03-18)",
+    "sourceUrl": "https://3dwarehouse.sketchup.com/model/117a01a30f6b48df4df1932f12d5247b",
+    "attribution": "天安门 Tiananmen Gate by Li J., 3D Warehouse (Trimble)",
+    "licenseUrl": "https://3dwarehouse.sketchup.com/tou#license",
+    "entityId": "117a01a30f6b48df4df1932f12d5247b",
+    "retrievedAt": "2026-11-04",
+    "useNotice": "仅用于本地/内部演示；GML 不允许在 mapping/geographic application 中公开使用，公开部署前需 Trimble 书面许可或替换为 CC 授权资产。"
+  }
+]

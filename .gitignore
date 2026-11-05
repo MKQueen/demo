@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+site/
+site.zip
+
+# app-local generated / runtime artifacts
+apps/*/dist/
+apps/*/node_modules/
+apps/*/.env
+apps/*/.mini-opencode/
+apps/*/.demo-workspace/
+apps/*/.playwright-cli/
+apps/*/output/
+apps/*/playwright-report/
+apps/*/test-results/
+
+# misc
+.DS_Store
+.idea/
+*.log
+*.pid
+
+# 开发过程截图（保留 README 引用的封面/成品图）
+apps/flood-sim/screenshots/wip/
+screenshots/audit/

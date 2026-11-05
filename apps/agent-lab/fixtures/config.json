@@ -1,0 +1,15 @@
+{
+  "config": {
+    "model": "mock-model",
+    "baseUrl": "https://api.deepseek.com",
+    "mock": true,
+    "maxSteps": 24,
+    "maxToolCalls": 48,
+    "contextBudget": 112000,
+    "temperature": 0.2,
+    "reasoningEffort": "default",
+    "hasApiKey": false,
+    "apiKeyMasked": "",
+    "providerError": null
+  }
+}

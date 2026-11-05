@@ -1,0 +1,6 @@
+{"type":"meta","meta":{"id":"20261103-155106-pv5r","createdAt":"2026-11-03T07:51:06.858Z","cwd":"/tmp/mini-opencode-demo","model":"mock-model"}}
+{"type":"message","message":{"role":"user","content":"介绍一下你能做什么，以及面板上能观察哪些东西"},"at":"2026-11-03T07:51:06.867Z"}
+{"type":"step_start","step":1,"historyMessages":1,"contextTokens":971,"budget":112000,"tools":["read","glob","grep","webfetch","skill","write","edit","bash","rewind","todowrite","task"],"at":"2026-11-03T07:51:06.867Z"}
+{"type":"message","message":{"role":"assistant","content":"我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。"},"at":"2026-11-03T07:51:07.430Z"}
+{"type":"assistant_message","content":"我是 mock 模型 —— 不联网、不花钱、只会演剧本。\n不过 Agent 循环、工具调用、权限审批、会话记录，全都是真的。\n\n试试这两句话（会触发不同的剧本）：\n  · 帮我创建一个 hello.txt\n  · 用 todo 拆解一下这个任务\n\n想接真模型？把项目根目录的 .env 填上 DEEPSEEK_API_KEY，然后去掉 --mock 重启。","toolCalls":[],"at":"2026-11-03T07:51:07.430Z"}
+{"type":"turn_end","steps":1,"usage":{"prompt_tokens":963,"completion_tokens":132,"total_tokens":1095},"aborted":false,"hitStepLimit":false,"toolDenials":0,"durationMs":563,"at":"2026-11-03T07:51:07.430Z"}

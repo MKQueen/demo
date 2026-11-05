@@ -1,0 +1,16 @@
+{
+  "name": "building-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "富华大厦 · 建筑数字档案：Three.js + GLB 建筑重建，含楼层分层 / 每层平面布局",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0",
+    "vite": "^6.0.0"
+  }
+}

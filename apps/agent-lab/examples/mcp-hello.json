@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hello": {
+      "command": "node",
+      "args": ["./examples/04-mcp-server.mjs"]
+    }
+  }
+}

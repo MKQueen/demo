@@ -1,0 +1,22 @@
+{
+  // 这份 tsconfig 只服务于编辑器 / `npx tsc --noEmit` 类型检查，
+  // 运行时代码是由 Node 24 直接“剥掉类型”执行的（不需要编译）。
+  //
+  // 注意 erasableSyntaxOnly：它强制我们只使用“可以被擦除”的 TS 语法
+  // （不能用 enum、namespace、构造函数参数属性），否则 Node 跑不了。
+  // 这条规则是整个项目能做到“零构建”的关键。
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "examples/**/*.ts"]
+}

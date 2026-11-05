@@ -1,0 +1,28 @@
+{
+  "workspace": "/tmp/mini-opencode-demo",
+  "path": "/tmp/mini-opencode-demo",
+  "parent": "/tmp",
+  "home": "/home/demo",
+  "entries": [
+    {
+      "name": ".mini-opencode",
+      "path": "/tmp/mini-opencode-demo/.mini-opencode",
+      "isDir": true
+    },
+    {
+      "name": "docs",
+      "path": "/tmp/mini-opencode-demo/docs",
+      "isDir": true
+    }
+  ],
+  "roots": [
+    {
+      "name": "Home",
+      "path": "/home/demo"
+    },
+    {
+      "name": "根目录",
+      "path": "/"
+    }
+  ]
+}

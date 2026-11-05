@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "demo": {
+      "command": "node",
+      "args": ["./test/fixtures/mcp-echo-server.mjs"],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {},
+      "disabled": true
+    }
+  }
+}

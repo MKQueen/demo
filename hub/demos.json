@@ -1,0 +1,183 @@
+{
+  "site": {
+    "name": "DEMO LAB",
+    "title": "交互实验室 · 作品集",
+    "subtitle": "3D · WebGIS · 动态水淹 · 检索增强 · AI Agent",
+    "description": "六个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台，以及真调用模型、真读写文件的 mini-opencode Agent。六个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
+    "keywords": [
+      "Three.js",
+      "CesiumJS",
+      "WebGIS",
+      "数字孪生",
+      "3D Tiles",
+      "ShaderToy",
+      "水体渲染",
+      "RAG",
+      "AI Agent",
+      "纯静态构建",
+      "作品集"
+    ],
+    "stats": [
+      {
+        "value": "06",
+        "label": "独立 Demo"
+      },
+      {
+        "value": "04",
+        "label": "纯静态即完整运行"
+      },
+      {
+        "value": "02",
+        "label": "接本地真模型"
+      }
+    ],
+    "footer": "六个纯静态构建产物 · 两个本地真模型 Demo（RAG 观测台 + mini-opencode）"
+  },
+  "demos": [
+    {
+      "id": "cbd-digital-twin",
+      "name": "北京数字孪生",
+      "en": "BEIJING DIGITAL TWIN",
+      "kicker": "WebGIS · 城市数字孪生",
+      "tagline": "一次看一个区：从东城故宫到朝阳 CBD，再到密云水库与延庆长城。",
+      "description": "CesiumJS + Vue 3 的北京数字孪生：16 个行政区逐区探索，每区独立边界、相机、地标与点位；中心城区 86,706 个实例化体块、57 个 POI、6 个 3D Warehouse 免费地标（GML，仅本地/内部演示）。",
+      "tags": [
+        "CesiumJS",
+        "3D Tiles",
+        "OpenStreetMap",
+        "GPU Instancing"
+      ],
+      "highlights": [
+        "16 个行政区 · 一次看一个区",
+        "每区独立地标 / POI / 相机边界",
+        "朝阳 20,059 实例 + CBD 4,320 精细白模",
+        "6 个免费地标模型 + 三级画质"
+      ],
+      "accent": "#6ce5ff",
+      "cover": "thumbs/cbd-digital-twin.jpg",
+      "href": "demos/cbd-digital-twin/",
+      "cta": "选择行政区",
+      "meta": "Cesium · 本地数据"
+    },
+    {
+      "id": "flood-sim",
+      "name": "潮线 TIDELINE",
+      "en": "TIDELINE FLOOD SIM",
+      "kicker": "WebGIS · 动态水淹",
+      "tagline": "拨动水位看潮线吞没整座滨海城市；也能在山间框出一块方形水面。",
+      "description": "CesiumJS 滨海城市动态水淹模拟：程序化 DEM 地形 + 1067 栋本地 3D Tiles 建筑（老城/西城/北城/滨海新区/滨海 CBD，含 40 栋 70–150m 塔楼与 6 栋 150–190m 地标）+ ShaderToy「Seascape」移植的屏幕空间水面；滑块实时控制水位并同步淹没分析，还可在地形上框选矩形蓄水区、按设定水位填水并统计面积/蓄水量。",
+      "tags": [
+        "CesiumJS",
+        "3D Tiles",
+        "ShaderToy 水体",
+        "Vue 3"
+      ],
+      "highlights": [
+        "1067 栋建筑 + CBD 天际线",
+        "Seascape 波法线 · 屏幕空间水面",
+        "地形上框选方形蓄水区"
+      ],
+      "accent": "#4dd6e8",
+      "cover": "thumbs/flood-sim.jpg",
+      "href": "demos/flood-sim/",
+      "cta": "调节水位",
+      "meta": "离线 · 零 Key"
+    },
+    {
+      "id": "mecha-battle",
+      "name": "钢铁黎明",
+      "en": "STEEL DAWN",
+      "kicker": "3D 实时战斗",
+      "tagline": "驾驶二十米机甲，在新港市迎战巨兽。",
+      "description": "浏览器里的机甲 Boss 战：摄像头体感与键盘双操作、固定步长战斗模拟、骨骼动画、建筑坍塌与技能演出。",
+      "tags": [
+        "Three.js",
+        "Rapier3D",
+        "MediaPipe 体感"
+      ],
+      "highlights": [
+        "体感 / 键盘双操作",
+        "60Hz 固定步长战斗",
+        "可破坏城市与撤离任务",
+        "鼠标自由环绕视角"
+      ],
+      "accent": "#7dd3fc",
+      "cover": "thumbs/mecha-battle.jpg",
+      "href": "demos/mecha-battle/",
+      "cta": "进入战场",
+      "meta": "单人 · 3D · 实时"
+    },
+    {
+      "id": "building-atlas",
+      "name": "富华大厦",
+      "en": "FUHUA MANSION",
+      "kicker": "建筑数字档案 · 街区语境",
+      "tagline": "六座一庭的建筑档案，放进东四十条的真实街区。",
+      "description": "影像驱动建筑重建 + 楼层分层 + 东四十条街区语境：OSM 周边白模、路网、绿地与地标，地标聚焦 / 白模透视、昼夜三态、场地景观与街区鸟瞰，全部离线可跑。",
+      "tags": [
+        "Three.js",
+        "OSM 白模",
+        "楼层剖切",
+        "数字档案"
+      ],
+      "highlights": [
+        "楼层炸开 / 逐层平面",
+        "东四十条 OSM 街区白模",
+        "地标聚焦 · 白模透视",
+        "日景 / 黄昏 / 夜景三态"
+      ],
+      "accent": "#f4b35b",
+      "cover": "thumbs/building-atlas.jpg",
+      "href": "demos/building-atlas/",
+      "cta": "查看楼宇",
+      "meta": "六座楼 · 街区语境"
+    },
+    {
+      "id": "rag-lab",
+      "name": "RAG 观测台",
+      "en": "RAG OBSERVATORY",
+      "kicker": "检索增强生成",
+      "tagline": "把 RAG 的每一步摊开给你看：浏览器内完整检索，真实大模型来回答。",
+      "description": "查询理解 → 向量召回 → BM25 → RRF 融合 → Prompt 拼装 → 真实大模型流式回答，六页签逐段可视化；8 篇知识库、48 个检索块、哈希向量 / BM25 / RRF / PCA 全部在浏览器内真实运行，本地服务器只提供一层极薄的模型转发。",
+      "tags": [
+        "RAG",
+        "向量检索",
+        "数据可视化",
+        "真实大模型"
+      ],
+      "highlights": [
+        "双路召回 + RRF 融合",
+        "48 块向量空间散点",
+        "真实模型流式回答 · 引用角标"
+      ],
+      "accent": "#22d3ee",
+      "cover": "thumbs/rag-lab.jpg",
+      "href": "demos/rag-lab/",
+      "cta": "打开观测台",
+      "meta": "6 页签 · 真模型生成"
+    },
+    {
+      "id": "agent-lab",
+      "name": "mini-opencode",
+      "en": "AGENT OBSERVATORY",
+      "kicker": "AI Agent 原理",
+      "tagline": "真模型、真工具、真文件——Agent 在你眼前干活。",
+      "description": "手搓 coding agent 的可观测面板：模型流式输出、工具调用、上下文预算、权限审批与会话轨迹。面板连接本机真实后端：任务会真的读写文件、执行命令、等你批准。",
+      "tags": [
+        "AI Agent",
+        "工具调用",
+        "本地真实运行"
+      ],
+      "highlights": [
+        "真实模型 + 真实工具执行",
+        "上下文 / Token 可视化",
+        "15 章原理文档"
+      ],
+      "accent": "#a78bfa",
+      "cover": "thumbs/agent-lab.jpg",
+      "href": "demos/agent-lab/",
+      "cta": "真机体验",
+      "meta": "教学项目 · 本地真跑"
+    }
+  ]
+}

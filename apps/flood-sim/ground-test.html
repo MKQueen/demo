@@ -1,0 +1,10 @@
+<!doctype html><html><body style="margin:0;background:#111">
+<canvas id="c"></canvas>
+<script type="module">
+import { createGroundImagery } from '/src/cesium/groundTexture.js';
+const g = await createGroundImagery({ onProgress: () => {} });
+window.__ground = g;
+document.body.innerHTML = '';
+document.body.appendChild(g.canvas);
+window.__done = true;
+</script></body></html>

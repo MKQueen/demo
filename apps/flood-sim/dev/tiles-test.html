@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>澜屿港 3D Tiles 自测页（tiles-dev）</title>
+    <script>
+      // CesiumJS 静态资源（Workers/Assets/Widgets）位置：dev 页在 /dev/ 下，public/cesium 由 Vite 挂在 /cesium/
+      window.CESIUM_BASE_URL = new URL('../cesium/', document.baseURI).href;
+
+      // 收集页面错误 / console.error，供 Playwright 断言「无 console error」
+      window.__PAGE_ERRORS__ = [];
+      function __describeError(e) {
+        if (!e) return String(e);
+        if (typeof e === 'string') return e;
+        const name = e.name || (e.constructor && e.constructor.name) || 'Error';
+        const msg = e.message || '';
+        const stack = e.stack ? '\n' + String(e.stack).split('\n').slice(0, 6).join('\n') : '';
+        try {
+          return name + ': ' + msg + stack;
+        } catch (_) {
+          return String(e);
+        }
+      }
+      window.__describeError = __describeError;
+      window.addEventListener('error', (e) => {
+        window.__PAGE_ERRORS__.push('error: ' + __describeError(e.error || e.message || e));
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        window.__PAGE_ERRORS__.push('unhandledrejection: ' + __describeError(e.reason));
+      });
+      (function () {
+        const orig = console.error;
+        console.error = function (...args) {
+          window.__PAGE_ERRORS__.push('console.error: ' + args.map(String).join(' '));
+          return orig.apply(console, args);
+        };
+      })();
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a1118;
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+      }
+      #cesium {
+        position: absolute;
+        inset: 0;
+      }
+      #hud {
+        position: absolute;
+        left: 16px;
+        top: 14px;
+        z-index: 10;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(8, 16, 24, 0.72);
+        border: 1px solid rgba(120, 190, 220, 0.25);
+        color: #cfe6f2;
+        font-size: 12px;
+        line-height: 1.65;
+        backdrop-filter: blur(6px);
+        pointer-events: none;
+        max-width: 460px;
+      }
+      #hud b {
+        color: #7ee0f0;
+        font-weight: 600;
+      }
+      #hud .ok {
+        color: #8fe08a;
+      }
+      #hud .bad {
+        color: #f18a7c;
+      }
+      #hud pre {
+        margin: 4px 0 0;
+        font-size: 11px;
+        color: #9db7c6;
+        white-space: pre-wrap;
+      }
+      .cesium-widget-credits {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cesium"></div>
+    <div id="hud">
+      <div><b>澜屿港 3D Tiles 自测</b> · tiles-dev</div>
+      <div id="hud-status">加载中…</div>
+      <pre id="hud-detail"></pre>
+    </div>
+    <script type="module">
+      import 'cesium/Source/Widgets/widgets.css';
+      import * as Cesium from 'cesium';
+      import {
+        SCENE,
+        VILLAGE,
+        WATER,
+        heightAtLocal,
+        lonLatToLocal,
+        localRectToDegrees,
+        localToLonLat,
+        RIVER_PATH,
+        ELEVATION_BANDS,
+        M_PER_DEG_LON,
+        M_PER_DEG_LAT,
+      } from '../src/geo/terrainModel.js';
+      import { generateVillageLayout, VILLAGE_CENTER } from '../src/geo/villageLayout.js';
+
+      // =====================================================================
+      // 页面状态（Playwright 读取）
+      // =====================================================================
+      const T = {
+        status: 'loading', // loading | ready | error
+        stage: 'start',
+        errors: window.__PAGE_ERRORS__,
+        checks: {},
+        terrain: { loaded: false, tilesLoaded: false },
+        tileset: null,
+        layout: null,
+        views: [],
+        checksRunAt: null,
+      };
+      window.__TILES_TEST__ = T;
+      const hudStatus = document.getElementById('hud-status');
+      const hudDetail = document.getElementById('hud-detail');
+      function setStatus(text) {
+        hudStatus.textContent = text;
+      }
+      function setDetail(text) {
+        hudDetail.textContent = text;
+      }
+
+      // =====================================================================
+      // 1. 村庄布局（与生成脚本共用同一模块，验证确定性一致）
+      // =====================================================================
+      T.stage = 'layout';
+      const layout = generateVillageLayout();
+      T.layout = {
+        seed: layout.seed,
+        buildingCount: layout.buildings.length,
+        stats: layout.stats,
+      };
+
+      const centerLon = VILLAGE.centerLon;
+      const centerLat = VILLAGE.centerLat;
+      const centerGround = heightAtLocal(VILLAGE.centerX, VILLAGE.centerY);
+      /** 城镇规划中心（老城 + 新区 的综合中心，场景局部米） */
+      const TOWN_CENTER = { x: 500, y: 950 };
+      const groundAt = (x, y) => heightAtLocal(x, y);
+
+      /** 建筑本地坐标（相对村庄中心 ENU）→ 世界 ECEF（与 tileset root.transform 约定一致） */
+      const enuAtVillage = Cesium.Transforms.eastNorthUpToFixedFrame(
+        Cesium.Cartesian3.fromDegrees(centerLon, centerLat, 0),
+      );
+      function buildingWorld(b, zLocal) {
+        const local = new Cesium.Cartesian3(
+          b.localX,
+          b.localY,
+          b.groundHeight + (zLocal ?? 0),
+        );
+        return Cesium.Matrix4.multiplyByPoint(enuAtVillage, local, new Cesium.Cartesian3());
+      }
+      function sceneLocalToCartesian(x, y, h) {
+        const ll = localToLonLat(x, y);
+        return Cesium.Cartesian3.fromDegrees(ll.lon, ll.lat, h);
+      }
+
+      // =====================================================================
+      // 2. 程序化地形 Provider（高程真值 = heightAtLocal，与最终 app 一致）
+      // =====================================================================
+      const HM_SIZE = 65;
+      const tilingScheme = new Cesium.GeographicTilingScheme();
+      const flatTile = new Float32Array(HM_SIZE * HM_SIZE);
+
+      function terrainCallback(x, y, level) {
+        const rect = tilingScheme.tileXYToRectangle(x, y, level);
+        const west = Cesium.Math.toDegrees(rect.west);
+        const east = Cesium.Math.toDegrees(rect.east);
+        const north = Cesium.Math.toDegrees(rect.north);
+        const south = Cesium.Math.toDegrees(rect.south);
+        // 整个地球都按 heightAtLocal 程序化生成（纯本地计算，无网络）
+        const out = new Float32Array(HM_SIZE * HM_SIZE);
+        const dx = (east - west) / (HM_SIZE - 1);
+        const dy = (north - south) / (HM_SIZE - 1);
+        let k = 0;
+        for (let j = 0; j < HM_SIZE; j++) {
+          const lat = north - dy * j; // 行 0 = 北
+          for (let i = 0; i < HM_SIZE; i++) {
+            const lon = west + dx * i;
+            const local = lonLatToLocal(lon, lat);
+            out[k++] = heightAtLocal(local.x, local.y);
+          }
+        }
+        return out;
+      }
+      const terrainProvider = new Cesium.CustomHeightmapTerrainProvider({
+        width: HM_SIZE,
+        height: HM_SIZE,
+        tilingScheme,
+        callback: terrainCallback,
+      });
+
+      // =====================================================================
+      // 3. Viewer
+      // =====================================================================
+      T.stage = 'viewer';
+      setStatus('创建 Cesium Viewer…');
+      const viewer = new Cesium.Viewer('cesium', {
+        baseLayer: false,
+        terrainProvider,
+        animation: false,
+        timeline: false,
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        baseLayerPicker: false,
+        navigationHelpButton: false,
+        fullscreenButton: false,
+        vrButton: false,
+        infoBox: false,
+        selectionIndicator: false,
+        requestRenderMode: false,
+      });
+      const scene = viewer.scene;
+      const camera = viewer.camera;
+      scene.globe.baseColor = Cesium.Color.fromCssColorString('#586b4d');
+      scene.globe.enableLighting = true;
+      scene.globe.depthTestAgainstTerrain = true;
+      scene.globe.showGroundAtmosphere = true;
+      scene.fog.enabled = true;
+      scene.fog.density = 0.00008;
+      scene.sun.show = true;
+
+      // 光照时间：闽东夏日正午（11:40 本地 = 03:40Z），顶光便于校验朝向与着色
+      viewer.clock.currentTime = Cesium.JulianDate.fromIso8601('2026-06-21T03:40:00Z');
+      viewer.clock.shouldAnimate = false;
+
+      // =====================================================================
+      // 4. 程序化地表贴图（纯本地 canvas，无网络）——让截图能看出道路/地形
+      // =====================================================================
+      function heightColor(h) {
+        for (const band of ELEVATION_BANDS) {
+          if (h >= band.min && h < band.max) {
+            const n = parseInt(band.color.slice(1), 16);
+            return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+          }
+        }
+        return [200, 200, 200];
+      }
+
+      const LIGHT = (() => {
+        const v = [0.55, 0.68, 0.48];
+        const l = Math.hypot(...v);
+        return [v[0] / l, v[1] / l, v[2] / l];
+      })();
+
+      /**
+       * 生成一张地表贴图：
+       * - 低分辨率高度网格算色带 + 山体阴影，drawImage 平滑放大
+       * - drawRoads=true 时按 roads.json 坐标画路面；plazas 画广场
+       */
+      function paintGroundCanvas(bounds, size, { drawRoads = false, gridN = 384 } = {}) {
+        const { x0, y0, x1, y1 } = bounds;
+        const heights = new Float32Array(gridN * gridN);
+        const gw = x1 - x0;
+        const gh = y1 - y0;
+        for (let j = 0; j < gridN; j++) {
+          const y = y1 - (j / (gridN - 1)) * gh; // 行 0 = 北
+          for (let i = 0; i < gridN; i++) {
+            const x = x0 + (i / (gridN - 1)) * gw;
+            heights[j * gridN + i] = heightAtLocal(x, y);
+          }
+        }
+        const small = document.createElement('canvas');
+        small.width = gridN;
+        small.height = gridN;
+        const sctx = small.getContext('2d');
+        const img = sctx.createImageData(gridN, gridN);
+        for (let j = 0; j < gridN; j++) {
+          for (let i = 0; i < gridN; i++) {
+            const k = j * gridN + i;
+            const h = heights[k];
+            const hl = heights[j * gridN + Math.max(0, i - 1)];
+            const hr = heights[j * gridN + Math.min(gridN - 1, i + 1)];
+            const hu = heights[Math.max(0, j - 1) * gridN + i];
+            const hd = heights[Math.min(gridN - 1, j + 1) * gridN + i];
+            const dzdx = ((hr - hl) * (gridN - 1)) / gw;
+            const dzdy = ((hu - hd) * (gridN - 1)) / gh;
+            const nx = -dzdx;
+            const ny = -dzdy;
+            const nz = 1;
+            const nl = Math.hypot(nx, ny, nz);
+            let shade = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / (nl * 1);
+            shade = Math.max(0.55, Math.min(1.25, shade * 1.15));
+            const base = heightColor(h);
+            img.data[k * 4] = Math.min(255, base[0] * shade);
+            img.data[k * 4 + 1] = Math.min(255, base[1] * shade);
+            img.data[k * 4 + 2] = Math.min(255, base[2] * shade);
+            img.data[k * 4 + 3] = 255;
+          }
+        }
+        sctx.putImageData(img, 0, 0);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(small, 0, 0, size, size);
+
+        if (drawRoads) {
+          const sx = size / gw;
+          const sy = size / gh;
+          const toPx = (x, y) => [(x - x0) * sx, (y1 - y) * sy];
+          // 河流（暗色河床带）
+          const drawRiverStroke = new URLSearchParams(location.search).get('riverstroke') !== '0';
+          ctx.strokeStyle = 'rgba(38, 78, 96, 0.85)';
+          ctx.lineWidth = 4;
+          if (drawRiverStroke) {
+            ctx.beginPath();
+            RIVER_PATH.forEach((p, i) => {
+              const [px, py] = toPx(p.x, p.y);
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            });
+            ctx.stroke();
+          }
+          // 道路
+          for (const road of layout.roads) {
+            const isMain = road.kind === 'main' || road.kind === 'boulevard';
+            ctx.strokeStyle = isMain ? 'rgba(196,186,158,0.92)' : 'rgba(178,168,142,0.85)';
+            ctx.lineWidth = Math.max(1.1, road.width * 0.75 * sx);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            road.points.forEach((p, i) => {
+              // roads.json.points 已是场景局部米
+              const [px, py] = toPx(p.x, p.y);
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            });
+            ctx.stroke();
+          }
+          // 广场（布局模块给出的是场景局部米，直接画）
+          ctx.fillStyle = 'rgba(206, 192, 160, 0.85)';
+          for (const p of layout.plazas || []) {
+            const cxL = p.x;
+            const cyL = p.y;
+            const [px, py] = toPx(cxL, cyL);
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(-p.rotation);
+            ctx.fillRect(
+              (-p.width / 2) * sx,
+              (-p.depth / 2) * sy,
+              p.width * sx,
+              p.depth * sy,
+            );
+            ctx.restore();
+          }
+        }
+        return canvas;
+      }
+
+      /** canvas → Cesium 单张影像层（dataURL，无网络请求） */
+      function addCanvasImagery(canvas, bounds) {
+        const deg = localRectToDegrees(bounds.x0, bounds.y0, bounds.x1, bounds.y1);
+        const provider = new Cesium.SingleTileImageryProvider({
+          url: canvas.toDataURL('image/png'),
+          rectangle: Cesium.Rectangle.fromDegrees(deg.west, deg.south, deg.east, deg.north),
+          tileWidth: canvas.width,
+          tileHeight: canvas.height,
+        });
+        viewer.imageryLayers.addImageryProvider(provider);
+        return provider;
+      }
+
+      T.stage = 'texture';
+      window.__groundCanvases__ = {};
+      setStatus('绘制程序化地表贴图…');
+      await nextFrame(); // 让 HUD 先刷新一次
+      // 全场景底图
+      const baseBounds = { x0: -5200, y0: -3200, x1: 4600, y1: 3600 };
+      const baseCanvas = paintGroundCanvas(baseBounds, 1024, { gridN: 384 });
+      window.__groundCanvases__.base = baseCanvas;
+      addCanvasImagery(baseCanvas, baseBounds);
+      // 城镇范围高精度贴图（含道路/广场/河流）
+      const detailBounds = { x0: -1500, y0: -400, x1: 2600, y1: 2150 };
+      const detailCanvas = paintGroundCanvas(detailBounds, 2048, {
+        drawRoads: true,
+        gridN: 640,
+      });
+      window.__groundCanvases__.detail = detailCanvas;
+      addCanvasImagery(detailCanvas, detailBounds);
+
+      function nextFrame() {
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      }
+      async function renderFrames(n = 2) {
+        for (let i = 0; i < n; i++) await nextFrame();
+      }
+
+      // =====================================================================
+      // 5. 加载 3D Tiles（village.b3dm）
+      // =====================================================================
+      T.stage = 'tileset-fetch';
+      setStatus('加载 3D Tiles…');
+      let tileset;
+      try {
+        tileset = await Cesium.Cesium3DTileset.fromUrl(
+          new URL('../generated/village/tileset.json', document.baseURI).href,
+          {
+            maximumScreenSpaceError: 6,
+            cullWithChildrenBounds: false,
+            shadows: Cesium.ShadowMode.DISABLED,
+          },
+        );
+        scene.primitives.add(tileset);
+      } catch (err) {
+        T.status = 'error';
+        T.errors.push('tileset 加载失败: ' + err);
+        setStatus('✗ tileset 加载失败: ' + err.message);
+        throw err;
+      }
+
+      window.__tileset__ = tileset;
+      // 先看向村庄再等待内容加载（3D Tiles 内容是可见性驱动的，不看就不会请求）
+      setView('overview');
+      T.stage = 'tileset-wait';
+      async function waitForTileset() {
+        const start = performance.now();
+        while (performance.now() - start < 15000) {
+          const stats = tileset.statistics;
+          T.tilesetStats = {
+            ready: stats.numberOfTilesWithContentReady,
+            total: stats.numberOfTilesTotal,
+            pending: stats.numberOfPendingRequests,
+            attempted: stats.numberOfAttemptedRequests,
+            visiting: stats.numberOfTilesVisited,
+            selected: stats.numberOfTilesSelected,
+            ms: Math.round(performance.now() - start),
+          };
+          if (stats.numberOfTilesWithContentReady >= 1 && stats.numberOfPendingRequests === 0) {
+            return true;
+          }
+          await nextFrame();
+        }
+        return false;
+      }
+      T.stage = 'tileset-waiting';
+      const tilesetReady = await waitForTileset();
+      T.stage = 'tileset-ready';
+      T.tileset = {
+        ready: tilesetReady,
+        tilesWithContent: tileset.statistics.numberOfTilesWithContentReady,
+        totalTiles: tileset.statistics.numberOfTilesTotal,
+        geometricError: tileset.root?.geometricError,
+        boundingSphereRadius: tileset.boundingSphere?.radius,
+        children: tileset.root?.children?.length ?? 0,
+      };
+
+      // =====================================================================
+      // 6. 校验（相机切到俯视做 pick / 高程 / 对齐检查）
+      // =====================================================================
+      function setView(name) {
+        const V = {
+          // 城市总览：从南往北看（西城-老城在左，滨海新区/CBD 在右，东侧是海）
+          overview: {
+            target: sceneLocalToCartesian(TOWN_CENTER.x, TOWN_CENTER.y, groundAt(TOWN_CENTER.x, TOWN_CENTER.y) + 60),
+            heading: 0,
+            pitch: -31,
+            range: 8200,
+          },
+          // 老城平视：向东回看老城 + 远处西侧山体（相机在老城东侧看向西）
+          oldtown: {
+            target: sceneLocalToCartesian(-620, 790, 14),
+            heading: 268,
+            pitch: -4,
+            range: 420,
+          },
+          // 老城俯视
+          oldtop: {
+            target: sceneLocalToCartesian(-450, 760, groundAt(-450, 760)),
+            heading: 0,
+            pitch: -89.0,
+            range: 1500,
+          },
+          // 滨海新区：从西向东看（滨海大道 + 地标塔楼 + 码头 + 海）
+          harbor: {
+            target: sceneLocalToCartesian(1720, 640, 8),
+            heading: 78,
+            pitch: -13,
+            range: 620,
+          },
+          // 新区近景
+          harborclose: {
+            target: sceneLocalToCartesian(1760, 700, 22),
+            heading: 55,
+            pitch: -10,
+            range: 330,
+          },
+          // CBD 天际线：从海面回看 150~190m 塔楼群
+          cbd: {
+            target: sceneLocalToCartesian(1650, 700, 70),
+            heading: 278,
+            pitch: 6,
+            range: 1250,
+          },
+          // 地标塔楼近景（大酒店 / 港务大厦）
+          landmark: {
+            target: sceneLocalToCartesian(1750, 700, 30),
+            heading: 62,
+            pitch: -10,
+            range: 620,
+          },
+          // 码头近景：从海侧回看城镇与栈桥
+          pier: {
+            target: sceneLocalToCartesian(1950, 830, 8),
+            heading: 258,
+            pitch: -7,
+            range: 380,
+          },
+          // 新区俯视（滨海大道 + 码头 + 海）
+          harbortop: {
+            target: sceneLocalToCartesian(1450, 500, groundAt(1450, 500)),
+            heading: 0,
+            pitch: -89.0,
+            range: 1700,
+          },
+          // 俯视整个城市（含海/河/CBD）
+          top: {
+            target: sceneLocalToCartesian(TOWN_CENTER.x, TOWN_CENTER.y, groundAt(TOWN_CENTER.x, TOWN_CENTER.y)),
+            heading: 0,
+            pitch: -89.0,
+            range: 9000,
+          },
+        }[name];
+        if (!V) return false;
+        camera.lookAt(
+          V.target,
+          new Cesium.HeadingPitchRange(
+            Cesium.Math.toRadians(V.heading),
+            Cesium.Math.toRadians(V.pitch),
+            V.range,
+          ),
+        );
+        camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        return true;
+      }
+      window.__setCamera = setView;
+      window.__scene__ = scene;
+      window.__camera__ = camera;
+      window.__viewer__ = viewer;
+      window.__viewInfo = () => ({
+        position: camera.positionWC,
+        heading: camera.heading,
+        pitch: camera.pitch,
+      });
+
+      /** 等待若干帧 + 地形瓦片加载稳定 */
+      async function waitRender(ms = 400) {
+        const start = performance.now();
+        while (performance.now() - start < ms) await nextFrame();
+      }
+
+      T.stage = 'terrain-wait';
+      setStatus('运行检查：加载地形…');
+      setView('overview');
+      await waitRender(2500);
+
+      // --- 6.1 地形高度对齐：globe.getHeight vs heightAtLocal ---
+      const terrainChecks = [];
+      for (const b of layout.buildings.filter((_, i) => i % 11 === 0)) {
+        const carto = Cesium.Cartographic.fromDegrees(b.lon, b.lat, 0);
+        const gh = scene.globe.getHeight(carto);
+        terrainChecks.push({
+          id: b.id,
+          groundHeight: b.groundHeight,
+          terrainHeight: gh === undefined ? null : Math.round(gh * 100) / 100,
+          ok: gh !== undefined && Math.abs(gh - b.groundHeight) < 2.0,
+        });
+      }
+      T.checks.terrainHeights = {
+        ok: terrainChecks.every((c) => c.ok),
+        samples: terrainChecks,
+      };
+      T.terrain.tilesLoaded = scene.globe.tilesLoaded;
+
+      // --- 6.2 俯视 pick：验证坐标映射 / 位置 / 可拾取 / batch table 属性 ---
+      T.stage = 'picks';
+      setStatus('运行检查：3D Tiles 拾取与坐标映射…');
+      setView('top');
+      await waitRender(1200);
+
+      // 按类别均匀抽样（覆盖 4 个 b3dm tile、两个街区、所有 kind）
+      const byKind = {};
+      for (const b of layout.buildings) {
+        (byKind[b.kind] = byKind[b.kind] || []).push(b);
+      }
+      const sampleBuildings = [];
+      for (const kind of ['house', 'shop', 'apartment', 'public', 'landmark', 'pier']) {
+        const arr = byKind[kind] || [];
+        if (!arr.length) continue;
+        const take = Math.min(5, arr.length);
+        for (let i = 0; i < take; i++) {
+          const idx = Math.floor((i + 0.5) * arr.length / take);
+          sampleBuildings.push(arr[Math.min(arr.length - 1, idx)]);
+        }
+      }
+      // 四至建筑（覆盖所有 tile）
+      const sortedByX = [...layout.buildings].sort((a, b) => a.localX - b.localX);
+      const sortedByY = [...layout.buildings].sort((a, b) => a.localY - b.localY);
+      sampleBuildings.push(sortedByX[0], sortedByX[sortedByX.length - 1]);
+      sampleBuildings.push(sortedByY[0], sortedByY[sortedByY.length - 1]);
+      const uniqueSamples = [...new Set(sampleBuildings)];
+
+      await renderFrames(3);
+      const pickResults = [];
+      let propertySample = null;
+      for (const b of uniqueSamples) {
+        const world = buildingWorld(b, b.height - 0.4); // 屋顶中心
+        const win = Cesium.SceneTransforms.worldToWindowCoordinates(scene, world);
+        if (!win) {
+          pickResults.push({ id: b.id, ok: false, reason: 'offscreen' });
+          continue;
+        }
+        let picked = null;
+        let pickError = null;
+        try {
+          picked = scene.pick(win);
+        } catch (err) {
+          pickError = window.__describeError ? window.__describeError(err) : String(err);
+          T.errors.push('pick: ' + pickError);
+        }
+        const isFeature = picked instanceof Cesium.Cesium3DTileFeature;
+        const pickedId = isFeature ? picked.getProperty('id') : null;
+        const ok = isFeature && pickedId === b.id;
+        const r = {
+          id: b.id,
+          type: b.type,
+          kind: b.kind,
+          expectedWorld: [world.x, world.y, world.z].map((v) => Math.round(v)),
+          screen: [Math.round(win.x), Math.round(win.y)],
+          pickedId,
+          ok,
+          ...(pickError ? { pickError } : {}),
+        };
+        if (ok && !propertySample) {
+          propertySample = {
+            id: picked.getProperty('id'),
+            name: picked.getProperty('name'),
+            type: picked.getProperty('type'),
+            height: picked.getProperty('height'),
+            floors: picked.getProperty('floors'),
+            minGround: picked.getProperty('minGround'),
+            area: picked.getProperty('area'),
+          };
+        }
+        pickResults.push(r);
+      }
+      const pickOkCount = pickResults.filter((r) => r.ok).length;
+      const batchTableOk =
+        propertySample !== null &&
+        typeof propertySample.name === 'string' &&
+        propertySample.name.length > 0 &&
+        Number.isFinite(propertySample.height) &&
+        Number.isFinite(propertySample.floors) &&
+        Number.isFinite(propertySample.minGround) &&
+        Number.isFinite(propertySample.area);
+      T.checks.picks = {
+        ok: pickOkCount === pickResults.length && batchTableOk,
+        sampled: pickResults.length,
+        matched: pickOkCount,
+        batchTableOk,
+        propertySample,
+        details: pickResults,
+      };
+
+      // --- 6.3 tileset 世界位置：包围球中心应落在村庄中心附近 ---
+      const sphere = tileset.boundingSphere;
+      const sphereCarto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(sphere.center);
+      const sphereLon = Cesium.Math.toDegrees(sphereCarto.longitude);
+      const sphereLat = Cesium.Math.toDegrees(sphereCarto.latitude);
+      const dLonM = (sphereLon - centerLon) * 99287;
+      const dLatM = (sphereLat - centerLat) * 110803;
+      const childrenCount = tileset.root?.children?.length ?? 0;
+      T.checks.tilesetWorld = {
+        ok:
+          Math.hypot(dLonM, dLatM) < 4500 &&
+          sphere.radius > 1500 &&
+          sphere.radius < 4200 &&
+          childrenCount >= 6 &&
+          childrenCount <= 10,
+        sphereCenterLonLat: [sphereLon, sphereLat],
+        offsetFromVillageCenterM: [Math.round(dLonM), Math.round(dLatM)],
+        radius: Math.round(sphere.radius),
+        children: childrenCount,
+        tilesWithContent: tileset.statistics.numberOfTilesWithContentReady,
+      };
+
+      // --- 6.3b 初始水位 2.5m 时不应有（非栈桥）建筑被淹 ---
+      const initiallyFlooded = layout.buildings.filter(
+        (b) => b.kind !== 'pier' && b.minGround <= WATER.initial + 0.15,
+      );
+      T.checks.initialWater = {
+        ok: initiallyFlooded.length === 0,
+        floodedAtInitial: initiallyFlooded.length,
+        sample: initiallyFlooded.slice(0, 5).map((b) => ({ id: b.id, kind: b.kind, minGround: b.minGround })),
+      };
+
+      // --- 6.4 buildings.json 与布局模块一致性（artifact 是否最新/可复现） ---
+      T.stage = 'artifacts';
+      setStatus('运行检查：读取 buildings.json / roads.json…');
+      const buildingsJson = await (await fetch(
+        new URL('../generated/village/buildings.json', document.baseURI).href,
+      )).json();
+      const roadsJson = await (await fetch(
+        new URL('../generated/village/roads.json', document.baseURI).href,
+      )).json();
+      let artifactMatch = buildingsJson.buildings.length === layout.buildings.length;
+      let artifactMismatch = null;
+      if (artifactMatch) {
+        for (let i = 0; i < layout.buildings.length; i++) {
+          const a = buildingsJson.buildings[i];
+          const b = layout.buildings[i];
+          if (
+            a.id !== b.id ||
+            a.kind !== b.kind ||
+            a.district !== b.district ||
+            Math.abs(a.localX - b.localX) > 0.02 ||
+            Math.abs(a.localY - b.localY) > 0.02 ||
+            Math.abs(a.groundHeight - b.groundHeight) > 0.02 ||
+            Math.abs(a.minGround - b.minGround) > 0.02 ||
+            Math.abs(a.rotation - b.rotation) > 1e-4
+          ) {
+            artifactMatch = false;
+            artifactMismatch = { id: a.id, expectedId: b.id };
+            break;
+          }
+        }
+      }
+      const districtCounts = {};
+      for (const b of buildingsJson.buildings) {
+        districtCounts[b.district] = (districtCounts[b.district] || 0) + 1;
+      }
+      T.checks.artifacts = {
+        ok:
+          artifactMatch &&
+          buildingsJson.buildings.length >= 1000 &&
+          buildingsJson.buildings.length <= 1150 &&
+          (districtCounts.old || 0) >= 200 &&
+          (districtCounts.west || 0) >= 280 &&
+          (districtCounts.north || 0) >= 170 &&
+          (districtCounts.harbor || 0) >= 220 &&
+          (districtCounts.cbd || 0) >= 40 &&
+          Array.isArray(roadsJson.roads) &&
+          roadsJson.roads.length >= 45 &&
+          roadsJson.roads.length <= 50 &&
+          roadsJson.roads.every((r) => r.width > 0 && r.points.length >= 2),
+        buildingCount: buildingsJson.buildings.length,
+        roadCount: roadsJson.roads.length,
+        districtCounts,
+        artifactMatch,
+        artifactMismatch,
+        tilesetField: buildingsJson.tileset,
+        villageCenter: buildingsJson.villageCenter,
+      };
+
+      // --- 6.5 汇总 ---
+      T.checks.pageErrors = { ok: window.__PAGE_ERRORS__.length === 0, errors: window.__PAGE_ERRORS__ };
+      const allChecks = [
+        'terrainHeights',
+        'picks',
+        'tilesetWorld',
+        'initialWater',
+        'artifacts',
+        'pageErrors',
+      ];
+      const allOk = allChecks.every((k) => T.checks[k] && T.checks[k].ok);
+      T.allOk = allOk;
+      T.checksRunAt = new Date().toISOString();
+
+      // 恢复默认视角（overview）
+      setView(new URLSearchParams(location.search).get('view') || 'overview');
+      await waitRender(600);
+
+      T.views = ['overview', 'oldtown', 'oldtop', 'harbor', 'harborclose', 'harbortop', 'cbd', 'landmark', 'pier', 'top'];
+      T.stage = 'ready';
+      T.status = 'ready';
+      setStatus(allOk ? '✓ 全部检查通过 · 视角可切换' : '⚠ 有检查未通过，见下方');
+      const summarize = (k, v) => `${T.checks[k].ok ? '✓' : '✗'} ${v}`;
+      setDetail(
+        [
+          summarize('terrainHeights', `地形高程对齐（${terrainChecks.length} 采样）`),
+          summarize(
+            'picks',
+            `拾取/坐标映射 ${pickOkCount}/${pickResults.length}${batchTableOk ? ' + batch table ✓' : ' + batch table ✗'}`,
+          ),
+          summarize('tilesetWorld', `tileset 世界位置 ${T.checks.tilesetWorld.radius}m / ${childrenCount} 个 tile`),
+          summarize('initialWater', `初始水位 2.5m 淹没非栈桥建筑 ${T.checks.initialWater.floodedAtInitial} 栋`),
+          summarize(
+            'artifacts',
+            `buildings.json ${buildingsJson.buildings.length} 栋（老城 ${districtCounts.old || 0} / 新区 ${districtCounts.harbor || 0}）/ roads ${roadsJson.roads.length} 条`,
+          ),
+          summarize('pageErrors', `页面错误 ${window.__PAGE_ERRORS__.length} 条`),
+          '',
+          `瓦片: ${tileset.statistics.numberOfTilesWithContentReady} 就绪 / ${tileset.statistics.numberOfTilesTotal} 总数`,
+          `建筑: ${layout.stats.byKind.house} 民居 / ${layout.stats.byKind.shop} 商铺商住 / ${layout.stats.byKind.apartment} 公寓酒店 / ${layout.stats.byKind.public} 公共 / ${layout.stats.byKind.landmark} 地标 / ${layout.stats.byKind.pier} 码头`,
+          `URL: __setCamera('overview'|'village'|'street'|'closeup'|'pier'|'top')`,
+        ].join('\n'),
+      );
+      console.log('[tiles-test] ready', JSON.stringify(T.checks, null, 0).slice(0, 800));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2203 @@
+{
+  "key": "demo-todo",
+  "title": "todo 拆解任务",
+  "description": "todowrite 两轮更新待办清单，演示 Agent 的工作记忆与会话状态",
+  "task": "用 todo 拆解一下这个任务",
+  "permissionLevel": "auto",
+  "sessionId": "20261103-155106-jcax",
+  "recordedAt": "2026-11-03T07:51:06.858Z",
+  "durationMs": 389,
+  "toolCalls": 2,
+  "approvalCount": 0,
+  "initialState": {
+    "version": "0.2.0",
+    "cwd": "/tmp/mini-opencode-demo",
+    "workspace": {
+      "path": "/tmp/mini-opencode-demo"
+    },
+    "startedAt": 1793692265357,
+    "config": {
+      "model": "mock-model",
+      "baseUrl": "https://api.deepseek.com",
+      "mock": true,
+      "maxSteps": 24,
+      "maxToolCalls": 48,
+      "contextBudget": 112000,
+      "temperature": 0.2,
+      "reasoningEffort": "default",
+      "hasApiKey": false,
+      "apiKeyMasked": "",
+      "providerError": null
+    },
+    "mode": "build",
+    "permissionLevel": "auto",
+    "yolo": true,
+    "acceptEdits": false,
+    "busy": false,
+    "session": {
+      "id": "20261103-155106-jcax",
+      "title": "(空会话)",
+      "createdAt": "2026-11-03T07:51:06.459Z",
+      "file": ".mini-opencode/sessions/20261103-155106-jcax.jsonl"
+    },
+    "messages": [],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-jcax",
+          "createdAt": "2026-11-03T07:51:06.459Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      }
+    ],
+    "sessions": [
+      {
+        "id": "20261103-155106-pv5r",
+        "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+        "messageCount": 2,
+        "updatedAt": "2026-11-03T07:51:07.431Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155106-jcax",
+        "title": "用 todo 拆解一下这个任务",
+        "messageCount": 6,
+        "updatedAt": "2026-11-03T07:51:06.733Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155105-eu00",
+        "title": "帮我创建一个 hello.txt",
+        "messageCount": 8,
+        "updatedAt": "2026-11-03T07:51:06.329Z",
+        "archived": false
+      }
+    ],
+    "tools": [
+      {
+        "name": "read",
+        "description": "读取一个文本文件，返回带行号的内容。大文件请用 offset/limit 分段读取。改文件前一定要先 read，否则你可能基于过时内容做修改。",
+        "category": "read",
+        "summary": "读取文件内容（带行号、可分段）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录或绝对路径）"
+            },
+            "offset": {
+              "type": "integer",
+              "description": "从第几行开始读（1 开始），默认 1",
+              "minimum": 1
+            },
+            "limit": {
+              "type": "integer",
+              "description": "最多读多少行，默认 2000",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "glob",
+        "description": "按 glob 模式查找文件，例如 `src/**/*.ts`、`*.md`、`**/test*.ts`。返回相对工作目录的路径列表。找文件优先用它，比 bash find 更快更结构化。",
+        "category": "read",
+        "summary": "按模式找文件",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "glob 模式，例如 src/**/*.ts"
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录下找（默认工作目录），例如 src"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "grep",
+        "description": "在文件内容里用正则搜索，返回 `文件:行号: 内容`。适合找函数定义、变量名、TODO、报错信息。优先于 bash 的 grep/rg。",
+        "category": "read",
+        "summary": "按内容正则搜索",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "正则表达式，例如 `function\\s+main` 或 `TODO`",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录/文件里搜（默认工作目录）"
+            },
+            "include": {
+              "type": "string",
+              "description": "只搜匹配这个 glob 的文件，例如 `*.ts` 或 `src/**/*.ts`"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "webfetch",
+        "description": "抓取一个公开网页并返回纯文本（只读；用于查文档/资料，不支持内网地址）。",
+        "category": "read",
+        "summary": "抓取公开网页并转成纯文本",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "http(s) URL"
+            },
+            "max_chars": {
+              "type": "integer",
+              "description": "最多返回多少字符（1000~20000，默认 8000）"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "skill",
+        "description": "读取一个项目技能的完整说明（skills 列在系统提示词里；任务匹配时再读取，省上下文）。",
+        "category": "read",
+        "summary": "按需读取项目技能说明",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "技能名"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "write",
+        "description": "把完整内容写入一个文件（覆盖已有文件，自动创建目录）。修改已有文件请优先用 edit，避免把没读过的内容覆盖掉。",
+        "category": "write",
+        "summary": "创建/覆盖文件",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "content": {
+              "type": "string",
+              "description": "要写入的完整文本内容"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "edit",
+        "description": "在文件中做精确字符串替换：把 oldString 替换成 newString。oldString 必须与文件内容逐字符一致（包括空格/缩进/换行），且必须唯一匹配（除非 replaceAll=true）。修改前请先 read 确认内容。",
+        "category": "write",
+        "summary": "精确字符串替换（改代码主力）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "oldString": {
+              "type": "string",
+              "description": "要被替换的原文，必须和文件里的内容完全一致",
+              "minLength": 1
+            },
+            "newString": {
+              "type": "string",
+              "description": "替换后的新文本，可以为空字符串（表示删除）"
+            },
+            "replaceAll": {
+              "type": "boolean",
+              "description": "是否替换所有匹配项，默认 false（只允许唯一匹配）"
+            }
+          },
+          "required": [
+            "path",
+            "oldString",
+            "newString"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "bash",
+        "description": "在工作目录中执行一条 shell 命令并返回 stdout/stderr。用于运行测试、git、npm、查看目录等。每次调用只执行一个命令，不要用交互式命令（如 vim、top）。命令失败时会返回非零退出码，请根据 stderr 修正后重试。",
+        "category": "exec",
+        "summary": "执行 shell 命令（超时/进程组/环境变量清洗）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "要执行的 shell 命令，例如 `npm test` 或 `ls -la src`",
+              "minLength": 1
+            },
+            "timeout_ms": {
+              "type": "number",
+              "description": "超时时间（毫秒），默认 120000，最大 600000",
+              "minimum": 1000,
+              "maximum": 600000
+            },
+            "description": {
+              "type": "string",
+              "description": "用一句话说明这条命令要干什么（给人看的，会显示在 UI 上）"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "rewind",
+        "description": "回退最近一次 checkpoint：恢复被 write/edit 改过的文件（新文件会被删除）。可选 path 只回退某个文件。",
+        "category": "write",
+        "summary": "回退最近一次文件 checkpoint",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "只回退这个相对路径（可选）"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "todowrite",
+        "description": "创建/更新当前任务的待办清单。做多步骤复杂任务时先拆解成清单，每完成一步就更新状态。每次调用要传**完整的**清单（不是增量）。",
+        "category": "read",
+        "summary": "维护待办清单（Agent 的工作记忆）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "todos": {
+              "type": "array",
+              "description": "完整的待办清单",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "任务内容，一句话"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed"
+                    ],
+                    "description": "pending=待办，in_progress=进行中（同一时间建议只有一个），completed=已完成"
+                  }
+                },
+                "required": [
+                  "content",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "todos"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "task",
+        "description": "启动一个子 Agent 去做调研/搜索。子 Agent 有独立的上下文和只读工具（read/glob/grep），不会修改文件。适合回答“这个项目里 X 是怎么实现的”这类需要翻很多文件的问题。把你希望它回答的问题写清楚，它会返回一段总结。",
+        "category": "read",
+        "summary": "派子 Agent 做只读调研（上下文隔离）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "用 3-6 个词概括这次调研任务，用于 UI 显示，例如“调研权限系统”",
+              "minLength": 1
+            },
+            "prompt": {
+              "type": "string",
+              "description": "完整的任务描述，要具体：要找什么、关注哪些文件、希望回答什么",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "description",
+            "prompt"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "features": [
+      {
+        "title": "流式对话",
+        "detail": "模型逐字输出，前端实时渲染；支持中断（Stop）。",
+        "chapter": "第 1、9 章"
+      },
+      {
+        "title": "工具调用协议",
+        "detail": "模型只生成 tool_calls JSON，由服务端校验参数后真正执行。",
+        "chapter": "第 2 章"
+      },
+      {
+        "title": "Agent 循环",
+        "detail": "模型→工具→结果回填→再推理，带步数上限与错误自愈。",
+        "chapter": "第 3 章"
+      },
+      {
+        "title": "文件工具 read/write/edit",
+        "detail": "带行号读取、精确字符串替换、路径边界与符号链接防护。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "搜索工具 glob/grep",
+        "detail": "按文件名模式找文件、按正则搜内容，结果有上限。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "bash 执行",
+        "detail": "命令超时、杀进程组、输出截断、环境变量清洗。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "权限审批",
+        "detail": "allow/ask/deny 三档；浏览器里点允许/拒绝/始终允许；危险命令单独提示。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "上下文管理",
+        "detail": "token 估算、工具输出截断、整轮裁剪、LLM 摘要压缩，压缩后写快照。",
+        "chapter": "第 6 章"
+      },
+      {
+        "title": "会话持久化",
+        "detail": "每一步、每次工具调用都写 JSONL；支持恢复、回放、导出。",
+        "chapter": "第 7 章"
+      },
+      {
+        "title": "系统提示词 + AGENTS.md",
+        "detail": "项目规则自动注入；build / plan 两种模式双保险。",
+        "chapter": "第 8 章"
+      },
+      {
+        "title": "实时事件流",
+        "detail": "trace 事件按步记录上下文大小、工具、耗时，可当“黑匣子”排查。",
+        "chapter": "第 9 章"
+      },
+      {
+        "title": "todo 清单",
+        "detail": "Agent 用 todowrite 维护待办，界面上实时同步。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "子 Agent（task）",
+        "detail": "隔离上下文做只读调研，只把结论带回主 Agent。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "模型配置",
+        "detail": "支持 DeepSeek / 任意 OpenAI 兼容接口，也可用 mock 离线演示。",
+        "chapter": "第 1 章"
+      }
+    ],
+    "docs": [
+      {
+        "title": "00-从零理解Agent",
+        "file": "docs/00-从零理解Agent.md"
+      },
+      {
+        "title": "01-最小可跑-第一次调用LLM",
+        "file": "docs/01-最小可跑-第一次调用LLM.md"
+      },
+      {
+        "title": "02-消息与工具调用协议",
+        "file": "docs/02-消息与工具调用协议.md"
+      },
+      {
+        "title": "03-Agent循环-把循环装进程序里",
+        "file": "docs/03-Agent循环-把循环装进程序里.md"
+      },
+      {
+        "title": "04-文件工具与路径安全",
+        "file": "docs/04-文件工具与路径安全.md"
+      },
+      {
+        "title": "05-bash与权限系统",
+        "file": "docs/05-bash与权限系统.md"
+      },
+      {
+        "title": "06-上下文管理",
+        "file": "docs/06-上下文管理.md"
+      },
+      {
+        "title": "07-会话持久化与恢复",
+        "file": "docs/07-会话持久化与恢复.md"
+      },
+      {
+        "title": "08-系统提示词工程",
+        "file": "docs/08-系统提示词工程.md"
+      },
+      {
+        "title": "09-终端UI与交互",
+        "file": "docs/09-终端UI与交互.md"
+      },
+      {
+        "title": "10-进阶-子Agent模式与MCP",
+        "file": "docs/10-进阶-子Agent模式与MCP.md"
+      },
+      {
+        "title": "11-对照真实opencode源码",
+        "file": "docs/11-对照真实opencode源码.md"
+      },
+      {
+        "title": "12-Web可视化与真实模型接入",
+        "file": "docs/12-Web可视化与真实模型接入.md"
+      },
+      {
+        "title": "13-轮数步数与真实干活-对照三家Agent",
+        "file": "docs/13-轮数步数与真实干活-对照三家Agent.md"
+      },
+      {
+        "title": "14-MCP与工具生态",
+        "file": "docs/14-MCP与工具生态.md"
+      },
+      {
+        "title": "99-术语表与常见坑",
+        "file": "docs/99-术语表与常见坑.md"
+      },
+      {
+        "title": "代码地图-函数清单",
+        "file": "docs/代码地图-函数清单.md"
+      }
+    ],
+    "pendingApprovals": [],
+    "todos": [],
+    "contextUsage": {
+      "system": 942,
+      "tools": 2117,
+      "messages": 0,
+      "total": 3059,
+      "budget": 112000
+    }
+  },
+  "finalState": {
+    "version": "0.2.0",
+    "cwd": "/tmp/mini-opencode-demo",
+    "workspace": {
+      "path": "/tmp/mini-opencode-demo"
+    },
+    "startedAt": 1793692265357,
+    "config": {
+      "model": "mock-model",
+      "baseUrl": "https://api.deepseek.com",
+      "mock": true,
+      "maxSteps": 24,
+      "maxToolCalls": 48,
+      "contextBudget": 112000,
+      "temperature": 0.2,
+      "reasoningEffort": "default",
+      "hasApiKey": false,
+      "apiKeyMasked": "",
+      "providerError": null
+    },
+    "mode": "build",
+    "permissionLevel": "auto",
+    "yolo": true,
+    "acceptEdits": false,
+    "busy": false,
+    "session": {
+      "id": "20261103-155106-jcax",
+      "title": "用 todo 拆解一下这个任务",
+      "createdAt": "2026-11-03T07:51:06.459Z",
+      "file": ".mini-opencode/sessions/20261103-155106-jcax.jsonl"
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "用 todo 拆解一下这个任务"
+      },
+      {
+        "role": "assistant",
+        "content": "好，我先把任务拆成几步。\n",
+        "tool_calls": [
+          {
+            "id": "call_mock_todo_1",
+            "type": "function",
+            "function": {
+              "name": "todowrite",
+              "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_mock_todo_1",
+        "name": "todowrite",
+        "content": "[~] 1. 阅读现有代码，理解结构\n[ ] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+      },
+      {
+        "role": "assistant",
+        "content": "第一步完成，继续下一步。\n",
+        "tool_calls": [
+          {
+            "id": "call_mock_todo_2",
+            "type": "function",
+            "function": {
+              "name": "todowrite",
+              "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_mock_todo_2",
+        "name": "todowrite",
+        "content": "[x] 1. 阅读现有代码，理解结构\n[~] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+      },
+      {
+        "role": "assistant",
+        "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）"
+      }
+    ],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-jcax",
+          "createdAt": "2026-11-03T07:51:06.459Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "user",
+          "content": "用 todo 拆解一下这个任务"
+        },
+        "at": "2026-11-03T07:51:06.465Z"
+      },
+      {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 958,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.466Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "好，我先把任务拆成几步。\n",
+          "tool_calls": [
+            {
+              "id": "call_mock_todo_1",
+              "type": "function",
+              "function": {
+                "name": "todowrite",
+                "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+              }
+            }
+          ]
+        },
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "好，我先把任务拆成几步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_1",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "todos",
+        "todos": [
+          {
+            "content": "阅读现有代码，理解结构",
+            "status": "in_progress"
+          },
+          {
+            "content": "设计改动方案",
+            "status": "pending"
+          },
+          {
+            "content": "实现并跑测试",
+            "status": "pending"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "tool",
+          "tool_call_id": "call_mock_todo_1",
+          "name": "todowrite",
+          "content": "[~] 1. 阅读现有代码，理解结构\n[ ] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+        },
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "tool",
+        "name": "todowrite",
+        "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}",
+        "isError": false,
+        "durationMs": 0,
+        "at": "2026-11-03T07:51:06.511Z"
+      },
+      {
+        "type": "step_start",
+        "step": 2,
+        "historyMessages": 3,
+        "contextTokens": 1082,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.511Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "第一步完成，继续下一步。\n",
+          "tool_calls": [
+            {
+              "id": "call_mock_todo_2",
+              "type": "function",
+              "function": {
+                "name": "todowrite",
+                "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+              }
+            }
+          ]
+        },
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "第一步完成，继续下一步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_2",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "todos",
+        "todos": [
+          {
+            "content": "阅读现有代码，理解结构",
+            "status": "completed"
+          },
+          {
+            "content": "设计改动方案",
+            "status": "in_progress"
+          },
+          {
+            "content": "实现并跑测试",
+            "status": "pending"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "tool",
+          "tool_call_id": "call_mock_todo_2",
+          "name": "todowrite",
+          "content": "[x] 1. 阅读现有代码，理解结构\n[~] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+        },
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "tool",
+        "name": "todowrite",
+        "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}",
+        "isError": false,
+        "durationMs": 0,
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "step_start",
+        "step": 3,
+        "historyMessages": 5,
+        "contextTokens": 1206,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）"
+        },
+        "at": "2026-11-03T07:51:06.731Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）",
+        "toolCalls": [],
+        "at": "2026-11-03T07:51:06.731Z"
+      },
+      {
+        "type": "turn_end",
+        "steps": 3,
+        "usage": {
+          "prompt_tokens": 2988,
+          "completion_tokens": 87,
+          "total_tokens": 3075
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 266,
+        "at": "2026-11-03T07:51:06.732Z"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "20261103-155106-pv5r",
+        "title": "介绍一下你能做什么，以及面板上能观察哪些东西",
+        "messageCount": 2,
+        "updatedAt": "2026-11-03T07:51:07.431Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155106-jcax",
+        "title": "用 todo 拆解一下这个任务",
+        "messageCount": 6,
+        "updatedAt": "2026-11-03T07:51:06.733Z",
+        "archived": false
+      },
+      {
+        "id": "20261103-155105-eu00",
+        "title": "帮我创建一个 hello.txt",
+        "messageCount": 8,
+        "updatedAt": "2026-11-03T07:51:06.329Z",
+        "archived": false
+      }
+    ],
+    "tools": [
+      {
+        "name": "read",
+        "description": "读取一个文本文件，返回带行号的内容。大文件请用 offset/limit 分段读取。改文件前一定要先 read，否则你可能基于过时内容做修改。",
+        "category": "read",
+        "summary": "读取文件内容（带行号、可分段）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录或绝对路径）"
+            },
+            "offset": {
+              "type": "integer",
+              "description": "从第几行开始读（1 开始），默认 1",
+              "minimum": 1
+            },
+            "limit": {
+              "type": "integer",
+              "description": "最多读多少行，默认 2000",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "glob",
+        "description": "按 glob 模式查找文件，例如 `src/**/*.ts`、`*.md`、`**/test*.ts`。返回相对工作目录的路径列表。找文件优先用它，比 bash find 更快更结构化。",
+        "category": "read",
+        "summary": "按模式找文件",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "glob 模式，例如 src/**/*.ts"
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录下找（默认工作目录），例如 src"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "grep",
+        "description": "在文件内容里用正则搜索，返回 `文件:行号: 内容`。适合找函数定义、变量名、TODO、报错信息。优先于 bash 的 grep/rg。",
+        "category": "read",
+        "summary": "按内容正则搜索",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "正则表达式，例如 `function\\s+main` 或 `TODO`",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "description": "在哪个目录/文件里搜（默认工作目录）"
+            },
+            "include": {
+              "type": "string",
+              "description": "只搜匹配这个 glob 的文件，例如 `*.ts` 或 `src/**/*.ts`"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "webfetch",
+        "description": "抓取一个公开网页并返回纯文本（只读；用于查文档/资料，不支持内网地址）。",
+        "category": "read",
+        "summary": "抓取公开网页并转成纯文本",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "http(s) URL"
+            },
+            "max_chars": {
+              "type": "integer",
+              "description": "最多返回多少字符（1000~20000，默认 8000）"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "skill",
+        "description": "读取一个项目技能的完整说明（skills 列在系统提示词里；任务匹配时再读取，省上下文）。",
+        "category": "read",
+        "summary": "按需读取项目技能说明",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "技能名"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "write",
+        "description": "把完整内容写入一个文件（覆盖已有文件，自动创建目录）。修改已有文件请优先用 edit，避免把没读过的内容覆盖掉。",
+        "category": "write",
+        "summary": "创建/覆盖文件",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "content": {
+              "type": "string",
+              "description": "要写入的完整文本内容"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "edit",
+        "description": "在文件中做精确字符串替换：把 oldString 替换成 newString。oldString 必须与文件内容逐字符一致（包括空格/缩进/换行），且必须唯一匹配（除非 replaceAll=true）。修改前请先 read 确认内容。",
+        "category": "write",
+        "summary": "精确字符串替换（改代码主力）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "文件路径（相对工作目录）"
+            },
+            "oldString": {
+              "type": "string",
+              "description": "要被替换的原文，必须和文件里的内容完全一致",
+              "minLength": 1
+            },
+            "newString": {
+              "type": "string",
+              "description": "替换后的新文本，可以为空字符串（表示删除）"
+            },
+            "replaceAll": {
+              "type": "boolean",
+              "description": "是否替换所有匹配项，默认 false（只允许唯一匹配）"
+            }
+          },
+          "required": [
+            "path",
+            "oldString",
+            "newString"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "bash",
+        "description": "在工作目录中执行一条 shell 命令并返回 stdout/stderr。用于运行测试、git、npm、查看目录等。每次调用只执行一个命令，不要用交互式命令（如 vim、top）。命令失败时会返回非零退出码，请根据 stderr 修正后重试。",
+        "category": "exec",
+        "summary": "执行 shell 命令（超时/进程组/环境变量清洗）",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "要执行的 shell 命令，例如 `npm test` 或 `ls -la src`",
+              "minLength": 1
+            },
+            "timeout_ms": {
+              "type": "number",
+              "description": "超时时间（毫秒），默认 120000，最大 600000",
+              "minimum": 1000,
+              "maximum": 600000
+            },
+            "description": {
+              "type": "string",
+              "description": "用一句话说明这条命令要干什么（给人看的，会显示在 UI 上）"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "rewind",
+        "description": "回退最近一次 checkpoint：恢复被 write/edit 改过的文件（新文件会被删除）。可选 path 只回退某个文件。",
+        "category": "write",
+        "summary": "回退最近一次文件 checkpoint",
+        "defaultDecision": "ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "只回退这个相对路径（可选）"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "todowrite",
+        "description": "创建/更新当前任务的待办清单。做多步骤复杂任务时先拆解成清单，每完成一步就更新状态。每次调用要传**完整的**清单（不是增量）。",
+        "category": "read",
+        "summary": "维护待办清单（Agent 的工作记忆）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "todos": {
+              "type": "array",
+              "description": "完整的待办清单",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "任务内容，一句话"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed"
+                    ],
+                    "description": "pending=待办，in_progress=进行中（同一时间建议只有一个），completed=已完成"
+                  }
+                },
+                "required": [
+                  "content",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "todos"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "task",
+        "description": "启动一个子 Agent 去做调研/搜索。子 Agent 有独立的上下文和只读工具（read/glob/grep），不会修改文件。适合回答“这个项目里 X 是怎么实现的”这类需要翻很多文件的问题。把你希望它回答的问题写清楚，它会返回一段总结。",
+        "category": "read",
+        "summary": "派子 Agent 做只读调研（上下文隔离）",
+        "defaultDecision": "allow",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "用 3-6 个词概括这次调研任务，用于 UI 显示，例如“调研权限系统”",
+              "minLength": 1
+            },
+            "prompt": {
+              "type": "string",
+              "description": "完整的任务描述，要具体：要找什么、关注哪些文件、希望回答什么",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "description",
+            "prompt"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "features": [
+      {
+        "title": "流式对话",
+        "detail": "模型逐字输出，前端实时渲染；支持中断（Stop）。",
+        "chapter": "第 1、9 章"
+      },
+      {
+        "title": "工具调用协议",
+        "detail": "模型只生成 tool_calls JSON，由服务端校验参数后真正执行。",
+        "chapter": "第 2 章"
+      },
+      {
+        "title": "Agent 循环",
+        "detail": "模型→工具→结果回填→再推理，带步数上限与错误自愈。",
+        "chapter": "第 3 章"
+      },
+      {
+        "title": "文件工具 read/write/edit",
+        "detail": "带行号读取、精确字符串替换、路径边界与符号链接防护。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "搜索工具 glob/grep",
+        "detail": "按文件名模式找文件、按正则搜内容，结果有上限。",
+        "chapter": "第 4 章"
+      },
+      {
+        "title": "bash 执行",
+        "detail": "命令超时、杀进程组、输出截断、环境变量清洗。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "权限审批",
+        "detail": "allow/ask/deny 三档；浏览器里点允许/拒绝/始终允许；危险命令单独提示。",
+        "chapter": "第 5 章"
+      },
+      {
+        "title": "上下文管理",
+        "detail": "token 估算、工具输出截断、整轮裁剪、LLM 摘要压缩，压缩后写快照。",
+        "chapter": "第 6 章"
+      },
+      {
+        "title": "会话持久化",
+        "detail": "每一步、每次工具调用都写 JSONL；支持恢复、回放、导出。",
+        "chapter": "第 7 章"
+      },
+      {
+        "title": "系统提示词 + AGENTS.md",
+        "detail": "项目规则自动注入；build / plan 两种模式双保险。",
+        "chapter": "第 8 章"
+      },
+      {
+        "title": "实时事件流",
+        "detail": "trace 事件按步记录上下文大小、工具、耗时，可当“黑匣子”排查。",
+        "chapter": "第 9 章"
+      },
+      {
+        "title": "todo 清单",
+        "detail": "Agent 用 todowrite 维护待办，界面上实时同步。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "子 Agent（task）",
+        "detail": "隔离上下文做只读调研，只把结论带回主 Agent。",
+        "chapter": "第 10 章"
+      },
+      {
+        "title": "模型配置",
+        "detail": "支持 DeepSeek / 任意 OpenAI 兼容接口，也可用 mock 离线演示。",
+        "chapter": "第 1 章"
+      }
+    ],
+    "docs": [
+      {
+        "title": "00-从零理解Agent",
+        "file": "docs/00-从零理解Agent.md"
+      },
+      {
+        "title": "01-最小可跑-第一次调用LLM",
+        "file": "docs/01-最小可跑-第一次调用LLM.md"
+      },
+      {
+        "title": "02-消息与工具调用协议",
+        "file": "docs/02-消息与工具调用协议.md"
+      },
+      {
+        "title": "03-Agent循环-把循环装进程序里",
+        "file": "docs/03-Agent循环-把循环装进程序里.md"
+      },
+      {
+        "title": "04-文件工具与路径安全",
+        "file": "docs/04-文件工具与路径安全.md"
+      },
+      {
+        "title": "05-bash与权限系统",
+        "file": "docs/05-bash与权限系统.md"
+      },
+      {
+        "title": "06-上下文管理",
+        "file": "docs/06-上下文管理.md"
+      },
+      {
+        "title": "07-会话持久化与恢复",
+        "file": "docs/07-会话持久化与恢复.md"
+      },
+      {
+        "title": "08-系统提示词工程",
+        "file": "docs/08-系统提示词工程.md"
+      },
+      {
+        "title": "09-终端UI与交互",
+        "file": "docs/09-终端UI与交互.md"
+      },
+      {
+        "title": "10-进阶-子Agent模式与MCP",
+        "file": "docs/10-进阶-子Agent模式与MCP.md"
+      },
+      {
+        "title": "11-对照真实opencode源码",
+        "file": "docs/11-对照真实opencode源码.md"
+      },
+      {
+        "title": "12-Web可视化与真实模型接入",
+        "file": "docs/12-Web可视化与真实模型接入.md"
+      },
+      {
+        "title": "13-轮数步数与真实干活-对照三家Agent",
+        "file": "docs/13-轮数步数与真实干活-对照三家Agent.md"
+      },
+      {
+        "title": "14-MCP与工具生态",
+        "file": "docs/14-MCP与工具生态.md"
+      },
+      {
+        "title": "99-术语表与常见坑",
+        "file": "docs/99-术语表与常见坑.md"
+      },
+      {
+        "title": "代码地图-函数清单",
+        "file": "docs/代码地图-函数清单.md"
+      }
+    ],
+    "pendingApprovals": [],
+    "todos": [
+      {
+        "content": "阅读现有代码，理解结构",
+        "status": "completed"
+      },
+      {
+        "content": "设计改动方案",
+        "status": "in_progress"
+      },
+      {
+        "content": "实现并跑测试",
+        "status": "pending"
+      }
+    ],
+    "contextUsage": {
+      "system": 942,
+      "tools": 2117,
+      "messages": 327,
+      "total": 3386,
+      "budget": 112000
+    }
+  },
+  "sseEvents": [
+    {
+      "seq": 117,
+      "ts": 1793692266465,
+      "type": "run_state",
+      "data": {
+        "busy": true
+      }
+    },
+    {
+      "seq": 118,
+      "ts": 1793692266466,
+      "type": "user_message",
+      "data": {
+        "text": "用 todo 拆解一下这个任务",
+        "images": [],
+        "content": "用 todo 拆解一下这个任务"
+      }
+    },
+    {
+      "seq": 119,
+      "ts": 1793692266466,
+      "type": "run_start",
+      "data": {
+        "model": "mock-model",
+        "mode": "build",
+        "mock": true
+      }
+    },
+    {
+      "seq": 120,
+      "ts": 1793692266466,
+      "type": "trace",
+      "data": {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 958,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ]
+      }
+    },
+    {
+      "seq": 121,
+      "ts": 1793692266466,
+      "type": "assistant_start",
+      "data": {}
+    },
+    {
+      "seq": 122,
+      "ts": 1793692266474,
+      "type": "assistant_delta",
+      "data": {
+        "text": "好，我"
+      }
+    },
+    {
+      "seq": 123,
+      "ts": 1793692266484,
+      "type": "assistant_delta",
+      "data": {
+        "text": "先把任"
+      }
+    },
+    {
+      "seq": 124,
+      "ts": 1793692266492,
+      "type": "assistant_delta",
+      "data": {
+        "text": "务拆成"
+      }
+    },
+    {
+      "seq": 125,
+      "ts": 1793692266502,
+      "type": "assistant_delta",
+      "data": {
+        "text": "几步。"
+      }
+    },
+    {
+      "seq": 126,
+      "ts": 1793692266510,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n"
+      }
+    },
+    {
+      "seq": 127,
+      "ts": 1793692266510,
+      "type": "assistant_end",
+      "data": {}
+    },
+    {
+      "seq": 128,
+      "ts": 1793692266510,
+      "type": "trace",
+      "data": {
+        "type": "assistant_message",
+        "content": "好，我先把任务拆成几步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_1",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 129,
+      "ts": 1793692266510,
+      "type": "tool_start",
+      "data": {
+        "name": "todowrite",
+        "argsPreview": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"…"
+      }
+    },
+    {
+      "seq": 130,
+      "ts": 1793692266510,
+      "type": "tool_end",
+      "data": {
+        "name": "todowrite",
+        "title": "更新待办（0/3 完成）",
+        "output": "[~] 1. 阅读现有代码，理解结构\n[ ] 2. 设计改动方案\n[ ] 3. 实现并跑测试",
+        "isError": false,
+        "durationMs": 0
+      }
+    },
+    {
+      "seq": 131,
+      "ts": 1793692266511,
+      "type": "trace",
+      "data": {
+        "type": "step_start",
+        "step": 2,
+        "historyMessages": 3,
+        "contextTokens": 1082,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ]
+      }
+    },
+    {
+      "seq": 132,
+      "ts": 1793692266511,
+      "type": "assistant_start",
+      "data": {}
+    },
+    {
+      "seq": 133,
+      "ts": 1793692266520,
+      "type": "assistant_delta",
+      "data": {
+        "text": "第一步"
+      }
+    },
+    {
+      "seq": 134,
+      "ts": 1793692266528,
+      "type": "assistant_delta",
+      "data": {
+        "text": "完成，"
+      }
+    },
+    {
+      "seq": 135,
+      "ts": 1793692266538,
+      "type": "assistant_delta",
+      "data": {
+        "text": "继续下"
+      }
+    },
+    {
+      "seq": 136,
+      "ts": 1793692266546,
+      "type": "assistant_delta",
+      "data": {
+        "text": "一步。"
+      }
+    },
+    {
+      "seq": 137,
+      "ts": 1793692266556,
+      "type": "assistant_delta",
+      "data": {
+        "text": "\n"
+      }
+    },
+    {
+      "seq": 138,
+      "ts": 1793692266556,
+      "type": "assistant_end",
+      "data": {}
+    },
+    {
+      "seq": 139,
+      "ts": 1793692266556,
+      "type": "trace",
+      "data": {
+        "type": "assistant_message",
+        "content": "第一步完成，继续下一步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_2",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 140,
+      "ts": 1793692266556,
+      "type": "tool_start",
+      "data": {
+        "name": "todowrite",
+        "argsPreview": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\"…"
+      }
+    },
+    {
+      "seq": 141,
+      "ts": 1793692266556,
+      "type": "tool_end",
+      "data": {
+        "name": "todowrite",
+        "title": "更新待办（1/3 完成）",
+        "output": "[x] 1. 阅读现有代码，理解结构\n[~] 2. 设计改动方案\n[ ] 3. 实现并跑测试",
+        "isError": false,
+        "durationMs": 0
+      }
+    },
+    {
+      "seq": 142,
+      "ts": 1793692266557,
+      "type": "trace",
+      "data": {
+        "type": "step_start",
+        "step": 3,
+        "historyMessages": 5,
+        "contextTokens": 1206,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ]
+      }
+    },
+    {
+      "seq": 143,
+      "ts": 1793692266557,
+      "type": "assistant_start",
+      "data": {}
+    },
+    {
+      "seq": 144,
+      "ts": 1793692266565,
+      "type": "assistant_delta",
+      "data": {
+        "text": "任务已"
+      }
+    },
+    {
+      "seq": 145,
+      "ts": 1793692266574,
+      "type": "assistant_delta",
+      "data": {
+        "text": "经拆好"
+      }
+    },
+    {
+      "seq": 146,
+      "ts": 1793692266587,
+      "type": "assistant_delta",
+      "data": {
+        "text": "了，清"
+      }
+    },
+    {
+      "seq": 147,
+      "ts": 1793692266603,
+      "type": "assistant_delta",
+      "data": {
+        "text": "单在上"
+      }
+    },
+    {
+      "seq": 148,
+      "ts": 1793692266612,
+      "type": "assistant_delta",
+      "data": {
+        "text": "面的工"
+      }
+    },
+    {
+      "seq": 149,
+      "ts": 1793692266622,
+      "type": "assistant_delta",
+      "data": {
+        "text": "具结果"
+      }
+    },
+    {
+      "seq": 150,
+      "ts": 1793692266631,
+      "type": "assistant_delta",
+      "data": {
+        "text": "里。\n"
+      }
+    },
+    {
+      "seq": 151,
+      "ts": 1793692266642,
+      "type": "assistant_delta",
+      "data": {
+        "text": "（真实"
+      }
+    },
+    {
+      "seq": 152,
+      "ts": 1793692266650,
+      "type": "assistant_delta",
+      "data": {
+        "text": "模型会"
+      }
+    },
+    {
+      "seq": 153,
+      "ts": 1793692266660,
+      "type": "assistant_delta",
+      "data": {
+        "text": "按这个"
+      }
+    },
+    {
+      "seq": 154,
+      "ts": 1793692266668,
+      "type": "assistant_delta",
+      "data": {
+        "text": "清单一"
+      }
+    },
+    {
+      "seq": 155,
+      "ts": 1793692266677,
+      "type": "assistant_delta",
+      "data": {
+        "text": "步步用"
+      }
+    },
+    {
+      "seq": 156,
+      "ts": 1793692266687,
+      "type": "assistant_delta",
+      "data": {
+        "text": "工具干"
+      }
+    },
+    {
+      "seq": 157,
+      "ts": 1793692266695,
+      "type": "assistant_delta",
+      "data": {
+        "text": "活，你"
+      }
+    },
+    {
+      "seq": 158,
+      "ts": 1793692266704,
+      "type": "assistant_delta",
+      "data": {
+        "text": "可以看"
+      }
+    },
+    {
+      "seq": 159,
+      "ts": 1793692266714,
+      "type": "assistant_delta",
+      "data": {
+        "text": "它怎么"
+      }
+    },
+    {
+      "seq": 160,
+      "ts": 1793692266723,
+      "type": "assistant_delta",
+      "data": {
+        "text": "更新进"
+      }
+    },
+    {
+      "seq": 161,
+      "ts": 1793692266731,
+      "type": "assistant_delta",
+      "data": {
+        "text": "度。）"
+      }
+    },
+    {
+      "seq": 162,
+      "ts": 1793692266731,
+      "type": "assistant_end",
+      "data": {}
+    },
+    {
+      "seq": 163,
+      "ts": 1793692266732,
+      "type": "trace",
+      "data": {
+        "type": "assistant_message",
+        "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）",
+        "toolCalls": []
+      }
+    },
+    {
+      "seq": 164,
+      "ts": 1793692266732,
+      "type": "turn_end",
+      "data": {
+        "steps": 3,
+        "usage": {
+          "prompt_tokens": 2988,
+          "completion_tokens": 87,
+          "total_tokens": 3075
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 266
+      }
+    },
+    {
+      "seq": 165,
+      "ts": 1793692266732,
+      "type": "usage",
+      "data": {
+        "promptTokens": 2988,
+        "completionTokens": 87,
+        "cacheHitTokens": 0,
+        "cacheMissTokens": 0,
+        "steps": 3,
+        "durationMs": 266
+      }
+    },
+    {
+      "seq": 166,
+      "ts": 1793692266732,
+      "type": "run_state",
+      "data": {
+        "busy": false
+      }
+    },
+    {
+      "seq": 167,
+      "ts": 1793692266732,
+      "type": "sessions",
+      "data": {
+        "sessions": [
+          {
+            "id": "20261103-155106-jcax",
+            "title": "用 todo 拆解一下这个任务",
+            "messageCount": 6,
+            "updatedAt": "2026-11-03T07:51:06.733Z",
+            "archived": false
+          },
+          {
+            "id": "20261103-155105-eu00",
+            "title": "帮我创建一个 hello.txt",
+            "messageCount": 8,
+            "updatedAt": "2026-11-03T07:51:06.329Z",
+            "archived": false
+          },
+          {
+            "id": "20261103-155105-noyp",
+            "title": "(空会话)",
+            "messageCount": 0,
+            "updatedAt": "2026-11-03T07:51:05.359Z",
+            "archived": false
+          }
+        ]
+      }
+    },
+    {
+      "seq": 168,
+      "ts": 1793692266732,
+      "type": "todos",
+      "data": {
+        "todos": [
+          {
+            "content": "阅读现有代码，理解结构",
+            "status": "completed"
+          },
+          {
+            "content": "设计改动方案",
+            "status": "in_progress"
+          },
+          {
+            "content": "实现并跑测试",
+            "status": "pending"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 169,
+      "ts": 1793692266732,
+      "type": "turn_complete",
+      "data": {
+        "sessionId": "20261103-155106-jcax"
+      }
+    }
+  ],
+  "session": {
+    "session": {
+      "id": "20261103-155106-jcax",
+      "title": "用 todo 拆解一下这个任务",
+      "createdAt": "2026-11-03T07:51:06.459Z",
+      "model": "mock-model"
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "用 todo 拆解一下这个任务"
+      },
+      {
+        "role": "assistant",
+        "content": "好，我先把任务拆成几步。\n",
+        "tool_calls": [
+          {
+            "id": "call_mock_todo_1",
+            "type": "function",
+            "function": {
+              "name": "todowrite",
+              "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_mock_todo_1",
+        "name": "todowrite",
+        "content": "[~] 1. 阅读现有代码，理解结构\n[ ] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+      },
+      {
+        "role": "assistant",
+        "content": "第一步完成，继续下一步。\n",
+        "tool_calls": [
+          {
+            "id": "call_mock_todo_2",
+            "type": "function",
+            "function": {
+              "name": "todowrite",
+              "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_mock_todo_2",
+        "name": "todowrite",
+        "content": "[x] 1. 阅读现有代码，理解结构\n[~] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+      },
+      {
+        "role": "assistant",
+        "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）"
+      }
+    ],
+    "events": [
+      {
+        "type": "meta",
+        "meta": {
+          "id": "20261103-155106-jcax",
+          "createdAt": "2026-11-03T07:51:06.459Z",
+          "cwd": "/tmp/mini-opencode-demo",
+          "model": "mock-model"
+        }
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "user",
+          "content": "用 todo 拆解一下这个任务"
+        },
+        "at": "2026-11-03T07:51:06.465Z"
+      },
+      {
+        "type": "step_start",
+        "step": 1,
+        "historyMessages": 1,
+        "contextTokens": 958,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.466Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "好，我先把任务拆成几步。\n",
+          "tool_calls": [
+            {
+              "id": "call_mock_todo_1",
+              "type": "function",
+              "function": {
+                "name": "todowrite",
+                "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+              }
+            }
+          ]
+        },
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "好，我先把任务拆成几步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_1",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "todos",
+        "todos": [
+          {
+            "content": "阅读现有代码，理解结构",
+            "status": "in_progress"
+          },
+          {
+            "content": "设计改动方案",
+            "status": "pending"
+          },
+          {
+            "content": "实现并跑测试",
+            "status": "pending"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "tool",
+          "tool_call_id": "call_mock_todo_1",
+          "name": "todowrite",
+          "content": "[~] 1. 阅读现有代码，理解结构\n[ ] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+        },
+        "at": "2026-11-03T07:51:06.510Z"
+      },
+      {
+        "type": "tool",
+        "name": "todowrite",
+        "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"in_progress\"},{\"content\":\"设计改动方案\",\"status\":\"pending\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}",
+        "isError": false,
+        "durationMs": 0,
+        "at": "2026-11-03T07:51:06.511Z"
+      },
+      {
+        "type": "step_start",
+        "step": 2,
+        "historyMessages": 3,
+        "contextTokens": 1082,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.511Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "第一步完成，继续下一步。\n",
+          "tool_calls": [
+            {
+              "id": "call_mock_todo_2",
+              "type": "function",
+              "function": {
+                "name": "todowrite",
+                "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+              }
+            }
+          ]
+        },
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "第一步完成，继续下一步。\n",
+        "toolCalls": [
+          {
+            "id": "call_mock_todo_2",
+            "name": "todowrite",
+            "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "todos",
+        "todos": [
+          {
+            "content": "阅读现有代码，理解结构",
+            "status": "completed"
+          },
+          {
+            "content": "设计改动方案",
+            "status": "in_progress"
+          },
+          {
+            "content": "实现并跑测试",
+            "status": "pending"
+          }
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "tool",
+          "tool_call_id": "call_mock_todo_2",
+          "name": "todowrite",
+          "content": "[x] 1. 阅读现有代码，理解结构\n[~] 2. 设计改动方案\n[ ] 3. 实现并跑测试"
+        },
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "tool",
+        "name": "todowrite",
+        "arguments": "{\"todos\":[{\"content\":\"阅读现有代码，理解结构\",\"status\":\"completed\"},{\"content\":\"设计改动方案\",\"status\":\"in_progress\"},{\"content\":\"实现并跑测试\",\"status\":\"pending\"}]}",
+        "isError": false,
+        "durationMs": 0,
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "step_start",
+        "step": 3,
+        "historyMessages": 5,
+        "contextTokens": 1206,
+        "budget": 112000,
+        "tools": [
+          "read",
+          "glob",
+          "grep",
+          "webfetch",
+          "skill",
+          "write",
+          "edit",
+          "bash",
+          "rewind",
+          "todowrite",
+          "task"
+        ],
+        "at": "2026-11-03T07:51:06.556Z"
+      },
+      {
+        "type": "message",
+        "message": {
+          "role": "assistant",
+          "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）"
+        },
+        "at": "2026-11-03T07:51:06.731Z"
+      },
+      {
+        "type": "assistant_message",
+        "content": "任务已经拆好了，清单在上面的工具结果里。\n（真实模型会按这个清单一步步用工具干活，你可以看它怎么更新进度。）",
+        "toolCalls": [],
+        "at": "2026-11-03T07:51:06.731Z"
+      },
+      {
+        "type": "turn_end",
+        "steps": 3,
+        "usage": {
+          "prompt_tokens": 2988,
+          "completion_tokens": 87,
+          "total_tokens": 3075
+        },
+        "aborted": false,
+        "hitStepLimit": false,
+        "toolDenials": 0,
+        "durationMs": 266,
+        "at": "2026-11-03T07:51:06.732Z"
+      }
+    ]
+  }
+}

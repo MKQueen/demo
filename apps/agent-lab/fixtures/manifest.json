@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-03T07:51:07.566Z",
+  "generator": "apps/agent-lab/scripts/record-fixtures.mjs",
+  "runtime": {
+    "node": "v24.22.1",
+    "platform": "darwin"
+  },
+  "project": "mini-opencode",
+  "version": "0.2.0",
+  "model": "mock-model",
+  "mock": true,
+  "cleanWorkspace": "/tmp/mini-opencode-demo",
+  "replay": {
+    "minGapMs": 15,
+    "maxGapMs": 40,
+    "note": "静态回放把录制时的事件间隔压缩到 15~40ms，保留“流式”观感"
+  },
+  "note": "所有会话由项目自带的 mock 模型（剧本式假模型）真实跑出；不含 API key 与真实用户目录。",
+  "scenarios": [
+    {
+      "index": 0,
+      "key": "demo-create-file",
+      "title": "创建 hello.txt",
+      "description": "bash 查看目录 → write 创建文件 → read 验证内容，含一次真实的权限审批",
+      "task": "帮我创建一个 hello.txt",
+      "permissionLevel": "accept-edits",
+      "sessionId": "20261103-155105-eu00",
+      "eventCount": 110,
+      "toolCalls": 3,
+      "approvalCount": 1,
+      "durationMs": 1066,
+      "file": "fixtures/scenario-1.json",
+      "jsonl": "fixtures/raw/20261103-155105-eu00.jsonl"
+    },
+    {
+      "index": 1,
+      "key": "demo-todo",
+      "title": "todo 拆解任务",
+      "description": "todowrite 两轮更新待办清单，演示 Agent 的工作记忆与会话状态",
+      "task": "用 todo 拆解一下这个任务",
+      "permissionLevel": "auto",
+      "sessionId": "20261103-155106-jcax",
+      "eventCount": 53,
+      "toolCalls": 2,
+      "approvalCount": 0,
+      "durationMs": 389,
+      "file": "fixtures/scenario-2.json",
+      "jsonl": "fixtures/raw/20261103-155106-jcax.jsonl"
+    },
+    {
+      "index": 2,
+      "key": "demo-chat",
+      "title": "纯文本对话",
+      "description": "不触发工具时的流式回复，演示 mock 模型的默认剧本",
+      "task": "介绍一下你能做什么，以及面板上能观察哪些东西",
+      "permissionLevel": "auto",
+      "sessionId": "20261103-155106-pv5r",
+      "eventCount": 73,
+      "toolCalls": 0,
+      "approvalCount": 0,
+      "durationMs": 686,
+      "file": "fixtures/scenario-3.json",
+      "jsonl": "fixtures/raw/20261103-155106-pv5r.jsonl"
+    }
+  ]
+}

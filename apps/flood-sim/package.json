@@ -1,0 +1,23 @@
+{
+  "name": "flood-sim",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "3D 动态水淹模拟分析系统 · Cesium 1.147 + Vue 3 + 自研水面 Shader（ShaderToy Ms2SD1 移植）",
+  "scripts": {
+    "postinstall": "node scripts/copy-cesium-assets.mjs",
+    "dev": "vite --host 0.0.0.0 --port 5182",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4182",
+    "predev": "node scripts/generate-village-tiles.mjs",
+    "prebuild": "node scripts/generate-village-tiles.mjs"
+  },
+  "dependencies": {
+    "cesium": "1.147.0",
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.10",
+    "vite": "^6.4.5"
+  }
+}

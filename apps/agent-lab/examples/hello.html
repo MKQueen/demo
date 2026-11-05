@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>mini-opencode · Agent 循环演示</title>
+  <!--
+    这是一个零依赖的静态示例页：
+    - 不引任何 CDN / 框架 / 构建工具，双击文件就能打开
+    - 所有动态内容用 textContent 写入 DOM（防 XSS），不拼 innerHTML
+    - 手写样式，方便对照 docs/03-Agent循环-把循环装进程序里.md 理解概念
+  -->
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #262b36;
+      --text: #e6e9ef;
+      --dim: #8b93a7;
+      --accent: #6ea8fe;
+      --ok: #4ade80;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+    }
+
+    .card {
+      width: min(560px, 100%);
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      color: var(--dim);
+      font-size: 13px;
+    }
+
+    button {
+      padding: 9px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #1f2430;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: .5; cursor: default; }
+
+    /* 步骤列表：等宽字体，一眼看清 "想法 → 工具 → 观察" 的循环 */
+    ol {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+
+    li {
+      display: flex;
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #12151b;
+    }
+
+    .tag { flex: none; width: 68px; color: var(--dim); }
+    .tag.ok { color: var(--ok); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Agent 循环演示</h1>
+    <p class="sub">
+      点一下按钮，观察一次 “思考 → 调用工具 → 读取结果” 的循环。
+    </p>
+
+    <button id="run" type="button">运行一轮循环</button>
+    <ol id="log" aria-live="polite"></ol>
+  </main>
+
+  <script>
+    // 每一步都是一个 [标签, 内容] 对。真实 Agent 里，
+    // "think" 是模型产出，tool/observe 是程序执行的结果。
+    const STEPS = [
+      ["think", "用户想看天气，我需要调用 get_weather 工具"],
+      ["tool",  "get_weather({ city: \"Shanghai\" })"],
+      ["observe", "{\"temp\": 23, \"sky\": \"clear\"}"],
+      ["think", "拿到结果了，可以给用户最终回答"],
+    ];
+
+    const runBtn = document.getElementById("run");
+    const logEl = document.getElementById("log");
+
+    // 用 setTimeout 串行地一步接一步追加，纯粹为了演示“循环是顺序的”。
+    function runLoop() {
+      runBtn.disabled = true;
+      logEl.textContent = ""; // 清空上一轮
+
+      STEPS.forEach(([tag, text], i) => {
+        setTimeout(() => {
+          const li = document.createElement("li");
+          const tagEl = document.createElement("span");
+          tagEl.className = "tag" + (tag === "observe" ? " ok" : "");
+          // 关键：用 textContent 而不是 innerHTML，模型/工具输出永远不会被当成 HTML 执行
+          tagEl.textContent = tag;
+          const bodyEl = document.createElement("span");
+          bodyEl.textContent = text;
+
+          li.append(tagEl, bodyEl);
+          logEl.appendChild(li);
+
+          if (i === STEPS.length - 1) runBtn.disabled = false;
+        }, i * 450);
+      });
+    }
+
+    runBtn.addEventListener("click", runLoop);
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+node_modules/
+.env
+.scratch/
+
+# Agent 自己产生的会话记录（每跑一次 chat 会长出来）
+.mini-opencode/
+# 演示站给 Agent 用的沙盒工作区（种子文件由 scripts/agent-backend.mjs 生成）
+.demo-workspace/
+
+# 本地 MCP 配置可能含密钥/本机路径，不提交；模板见 mcp.example.json
+mcp.json

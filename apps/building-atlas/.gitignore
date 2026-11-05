@@ -1,0 +1,8 @@
+# 依赖与构建产物
+node_modules/
+dist/
+
+# 原 Blender 源文件（每个 10MB，不随静态站点分发，见 README）
+source-assets/
+
+.DS_Store
