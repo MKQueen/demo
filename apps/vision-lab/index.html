@@ -71,6 +71,7 @@
               <span>快速体验</span>
               <button data-sample="./samples/traffic.jpg" type="button">街景车流</button>
               <button data-sample="./samples/meeting.jpg" type="button">会议场景</button>
+              <button data-video-sample="./samples/street-pan.webm" type="button">示例视频</button>
             </div>
 
             <div class="source-actions">
@@ -95,8 +96,8 @@
               </div>
             </div>
             <label class="control">
-              <span>置信度阈值 <b id="threshold-value">0.40</b></span>
-              <input id="threshold" type="range" min="0.15" max="0.9" step="0.05" value="0.4" />
+              <span>置信度阈值 <b id="threshold-value">0.45</b></span>
+              <input id="threshold" type="range" min="0.15" max="0.9" step="0.05" value="0.45" />
             </label>
             <label class="control">
               <span>最多目标 <b id="max-value">15</b></span>
@@ -127,7 +128,7 @@
             <div class="empty-state" id="empty">
               <div class="reticle" aria-hidden="true"><i></i><i></i><i></i><span></span></div>
               <h2>看到什么，就标出什么。</h2>
-              <p>打开摄像头，或上传视频 / 图片。检测由浏览器里的 AI 模型逐帧完成，不需要后端；<br />需要更准确时切「高精度」模型，或用右侧「AI 精读」。</p>
+              <p>打开摄像头，或上传视频 / 图片。检测由浏览器里的 AI 模型逐帧完成，不需要后端；<br />没有素材也可以点左侧「示例视频」直接看多目标跟踪效果。</p>
               <div class="empty-actions">
                 <button class="cta" data-source="camera" type="button">开启摄像头</button>
                 <button class="cta ghost" data-source="video" type="button">上传视频</button>
@@ -141,6 +142,11 @@
               <span id="loading-sub">首次加载约 40 MB（模型 + WASM），之后走浏览器缓存</span>
             </div>
 
+            <div class="ai-caption" id="ai-caption" hidden>
+              <span class="ai-caption-label">AI 观察</span>
+              <span id="ai-caption-text"></span>
+            </div>
+
             <div class="stage-hud">
               <div class="hud-left">
                 <span class="live-dot" id="live-dot"></span><b id="hud-status">待机</b>
@@ -149,7 +155,8 @@
               <div class="hud-right">
                 <span><em>FPS</em><b id="hud-fps">—</b></span>
                 <span><em>LATENCY</em><b id="hud-latency">—</b></span>
-                <span><em>OBJECTS</em><b id="hud-count">0</b></span>
+                <span><em>TRACKS</em><b id="hud-count">0</b></span>
+                <span><em>TOTAL</em><b id="hud-total">0</b></span>
                 <span><em>RES</em><b id="hud-res">—</b></span>
               </div>
             </div>
@@ -162,21 +169,32 @@
           </div>
           <p class="stage-caption">
             <span><i></i> 输入视频流 → 逐帧 AI 检测 → 画布叠加标注</span>
-            <span>MODEL / EfficientDet-Lite0 · 320×320 · COCO 80</span>
+            <span id="model-caption">MODEL / EfficientDet-Lite2 · 448×448 · COCO 80</span>
           </p>
         </section>
 
         <!-- ================= 右侧结果面板 ================= -->
         <aside class="panel panel-right">
           <section class="panel-block detections-block">
-            <h2 class="panel-title"><span>03</span>检测结果 <em>OBJECTS</em><b id="detections-count">0</b></h2>
+            <h2 class="panel-title"><span>03</span>检测结果 <em>TRACKS</em><b id="detections-count">0</b></h2>
+            <div class="track-summary" id="track-summary">当前 0 个目标 · 累计 0</div>
             <ul id="detection-list" class="detection-list">
               <li class="empty-row">等待画面…</li>
             </ul>
           </section>
 
+          <section class="panel-block events-block">
+            <h2 class="panel-title">
+              <span>04</span>事件流 <em>EVENTS</em>
+              <button class="mini-btn" id="events-clear" type="button">清空</button>
+            </h2>
+            <ul class="event-list" id="event-list">
+              <li class="empty-row">暂无事件</li>
+            </ul>
+          </section>
+
           <section class="panel-block ai-block">
-            <h2 class="panel-title"><span>04</span>AI 场景解读 <em>AI INSIGHT</em></h2>
+            <h2 class="panel-title"><span>05</span>AI 场景解读 <em>AI INSIGHT</em></h2>
             <p class="ai-note" id="ai-note">正在检查本地模型服务…</p>
             <div class="ai-actions">
               <button class="ai-btn" id="ai-ask" type="button" disabled>标签解读（不上传画面）</button>
@@ -184,8 +202,15 @@
                 AI 精读画面（上传当前帧）
               </button>
             </div>
-            <p class="ai-privacy">检测完全本地；只有点击「AI 精读」时才会把当前帧上传到你配置的模型网关。</p>
+            <label class="switch ai-auto">
+              <input id="ai-auto" type="checkbox" />
+              <span>自动观察 · 每 8 秒一句话</span>
+            </label>
+            <p class="ai-privacy">
+              检测完全本地；只有点击「AI 精读」或开启「自动观察」时才会把当前帧上传到你配置的模型网关。
+            </p>
             <div class="ai-answer" id="ai-answer" hidden></div>
+            <ul class="ai-log" id="ai-log"></ul>
           </section>
         </aside>
       </main>
@@ -204,6 +229,7 @@
           <li><b>调参数：</b>置信度阈值越高越严格；帧率受设备性能影响，CPU 推理通常 8–15 FPS。</li>
           <li><b>AI 解读（可选）：</b>本地运行 <code>npm run serve</code> 并配置模型 Key 后可用。「标签解读」只把识别标签发给模型；「AI 精读」会把当前帧压缩后上传，换来更准的物体清单与场景描述。静态部署时这两个按钮会显示未连接。</li>
           <li><b>检测模型：</b>「高精度」用 EfficientDet-Lite2（448 输入，小目标更准）；「快速」用 Lite0（320 输入，更省算力）。COCO 80 类之外、遮挡严重或过小的物体仍可能漏检。</li>
+          <li><b>跟踪与事件：</b>同一目标跨帧会保持稳定 <code>#ID</code>（IoU 匹配 + 框平滑），右侧记录进入/离开画面与停留时长；这不是生产级 MOT，目标交叉或快速运动时 ID 可能切换。</li>
         </ol>
         <p class="dialog-note">
           模型：MediaPipe EfficientDet-Lite0 / Lite2（COCO 80 类），WASM + Worker 本地推理；摄像头画面不会离开你的电脑（AI 精读除外，需你主动点击并上传到本地模型网关）。

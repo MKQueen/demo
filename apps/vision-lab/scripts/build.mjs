@@ -68,16 +68,17 @@ copy(path.join(ROOT, 'index.html'), path.join(DIST, 'index.html'));
 copy(path.join(PUBLIC, 'favicon.svg'), path.join(DIST, 'favicon.svg'));
 copy(path.join(SRC, 'app.js'), path.join(DIST, 'app.js'));
 copy(path.join(SRC, 'labels.js'), path.join(DIST, 'labels.js'));
+copy(path.join(SRC, 'tracker.js'), path.join(DIST, 'tracker.js'));
 copy(path.join(SRC, 'style.css'), path.join(DIST, 'style.css'));
 copy(path.join(SRC, 'detector.worker.js'), path.join(MP_OUT, 'detector.worker.js'));
 copy(bundle, path.join(MP_OUT, 'vision_bundle.js'));
 copy(model, path.join(MP_OUT, 'person_detector.tflite'));
 copy(accurateModel, path.join(MP_OUT, 'efficientdet_lite2.tflite'));
 
-// 两张示例图（Pexels License，见 README）
+// 示例素材：两张图片（Pexels License）+ 一段自动生成的街道平移视频
 fs.mkdirSync(path.join(DIST, 'samples'), { recursive: true });
 for (const name of fs.readdirSync(path.join(PUBLIC, 'samples'))) {
-  if (!/\.(jpe?g|png|webp)$/i.test(name)) continue;
+  if (name.startsWith('.')) continue;
   copy(path.join(PUBLIC, 'samples', name), path.join(DIST, 'samples', name));
 }
 
@@ -88,6 +89,7 @@ const required = [
   'index.html',
   'app.js',
   'labels.js',
+  'tracker.js',
   'style.css',
   'mp/detector.worker.js',
   'mp/vision_bundle.js',

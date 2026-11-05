@@ -1,4 +1,5 @@
 import { colorFor, positionHint, resolveCategoryName, zhLabel } from './labels.js';
+import { Tracker, nms } from './tracker.js';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -46,9 +47,11 @@ const dom = {
   hudFps: $('#hud-fps'),
   hudLatency: $('#hud-latency'),
   hudCount: $('#hud-count'),
+  hudTotal: $('#hud-total'),
   hudRes: $('#hud-res'),
   hudStatus: $('#hud-status'),
   hudSource: $('#hud-source'),
+  modelCaption: $('#model-caption'),
   liveDot: $('#live-dot'),
   detectionList: $('#detection-list'),
   detectionsCount: $('#detections-count'),
@@ -71,7 +74,14 @@ const dom = {
   aiNote: $('#ai-note'),
   aiAsk: $('#ai-ask'),
   aiVision: $('#ai-vision'),
+  aiAuto: $('#ai-auto'),
   aiAnswer: $('#ai-answer'),
+  aiLog: $('#ai-log'),
+  aiCaption: $('#ai-caption'),
+  aiCaptionText: $('#ai-caption-text'),
+  trackSummary: $('#track-summary'),
+  eventList: $('#event-list'),
+  eventsClear: $('#events-clear'),
   toast: $('#toast'),
   helpDialog: $('#help-dialog'),
   helpOpen: $('#help-open'),
@@ -88,10 +98,15 @@ const state = {
   sourceToken: 0,
   imageWarmupToken: 0,
   detections: [],
-  selectedEn: '',
+  selectedTrackId: 0,
+  tracker: new Tracker(),
+  totalTracks: 0,
+  events: [],
+  aiAutoTimer: 0,
+  aiLog: [],
   model: 'accurate',
   modelBeforeSwitch: 'accurate',
-  threshold: 0.4,
+  threshold: 0.45,
   maxObjects: 15,
   mirror: true,
   showLabels: true,
@@ -263,6 +278,9 @@ function ensureEngine() {
 function applyModelUi() {
   const model = MODELS[state.model] || MODELS.accurate;
   dom.modelNote.textContent = model.note;
+  if (dom.modelCaption) {
+    dom.modelCaption.textContent = `MODEL / EfficientDet-${model.short} · ${model.short === 'Lite2' ? '448×448' : '320×320'} · COCO 80`;
+  }
   $$('[data-model]').forEach((button) => {
     button.classList.toggle('is-active', button.dataset.model === state.model);
   });
@@ -336,7 +354,8 @@ function stopSource() {
   state.pending = false;
   state.detections = [];
   state.detectedCount = 0;
-  state.selectedEn = '';
+  state.selectedTrackId = 0;
+  resetAnalyzer();
   dom.btnPause.hidden = true;
   dom.btnStop.hidden = true;
   dom.videoControls.hidden = true;
@@ -551,29 +570,59 @@ function handleResult(data) {
   state.latency = Math.round(data.latency || 0);
   state.detectedCount = (data.detections || []).length;
 
-  state.detections = (data.detections || []).map((item, index) => {
-    const en = resolveCategoryName(item.name, item.index);
-    return {
-      key: `${en || 'object'}-${index}`,
-      en: en || 'object',
-      zh: zhLabel(en),
-      color: colorFor(en),
-      score: item.score,
-      x: item.x,
-      y: item.y,
-      w: item.w,
-      h: item.h,
-    };
-  });
+  // 同类别 NMS 去掉重复框，再用 IoU 跟踪串成稳定 #ID
+  const clean = nms(
+    (data.detections || []).map((item) => {
+      const en = resolveCategoryName(item.name, item.index);
+      return {
+        en: en || 'object',
+        zh: zhLabel(en),
+        score: item.score,
+        x: item.x,
+        y: item.y,
+        w: item.w,
+        h: item.h,
+      };
+    }),
+  );
+  const tracked = state.tracker.update(clean);
+  state.totalTracks = tracked.total;
+  for (const track of tracked.entered) {
+    pushEvent({ type: 'enter', id: track.id, zh: track.zh, en: track.en, at: track.firstSeen, duration: 0 });
+  }
+  for (const track of tracked.exited) {
+    pushEvent({
+      type: 'exit',
+      id: track.id,
+      zh: track.zh,
+      en: track.en,
+      at: track.lastSeen,
+      duration: track.durationMs,
+    });
+  }
 
-  // 选中类别如果不在新结果里，自动取消
-  if (state.selectedEn && !state.detections.some((item) => item.en === state.selectedEn)) {
-    state.selectedEn = '';
+  state.detections = tracked.tracks.map((track) => ({
+    id: track.id,
+    en: track.en,
+    zh: track.zh,
+    color: colorFor(track.en),
+    score: track.score,
+    x: track.x,
+    y: track.y,
+    w: track.w,
+    h: track.h,
+    durationMs: track.durationMs,
+    trail: track.trail,
+  }));
+
+  if (state.selectedTrackId && !state.detections.some((item) => item.id === state.selectedTrackId)) {
+    state.selectedTrackId = 0;
   }
 
   paintOverlay();
   renderList();
   updateHud();
+  updateSummary();
 }
 
 /* ------------------------------------------------------------------ */
@@ -607,6 +656,27 @@ function paintOverlay() {
   const offsetY = (rect.height - drawHeight) / 2;
   const mirrored = state.source === 'camera' && state.mirror;
 
+  // 运动轨迹：把每个目标最近的中心点连成渐隐折线，视频/摄像头才有
+  if (state.source !== 'image') {
+    for (const detection of state.detections) {
+      const trail = detection.trail || [];
+      if (trail.length < 3) continue;
+      ctx.save();
+      ctx.strokeStyle = detection.color;
+      ctx.lineWidth = detection.id === state.selectedTrackId ? 2 : 1.2;
+      ctx.globalAlpha = 0.42;
+      ctx.beginPath();
+      trail.forEach((point, index) => {
+        const px = offsetX + (mirrored ? 1 - point.x : point.x) * drawWidth;
+        const py = offsetY + point.y * drawHeight;
+        if (index === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
   for (const detection of state.detections) {
     let x = detection.x;
     if (mirrored) x = 1 - detection.x - detection.w;
@@ -620,7 +690,7 @@ function paintOverlay() {
 }
 
 function drawBox(ctx, detection, x, y, width, height, maxWidth = 0) {
-  const selected = detection.en === state.selectedEn;
+  const selected = detection.id === state.selectedTrackId;
   const color = detection.color;
   const line = selected ? 2.4 : 1.4;
   ctx.save();
@@ -652,7 +722,7 @@ function drawBox(ctx, detection, x, y, width, height, maxWidth = 0) {
   }
 
   if (state.showLabels) {
-    const text = `${detection.zh} ${detection.en}`;
+    const text = `#${String(detection.id).padStart(2, '0')} ${detection.zh} ${detection.en}`;
     const scoreText = `${Math.round(detection.score * 100)}%`;
     ctx.font = '600 11px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
     const textWidth = ctx.measureText(text).width;
@@ -734,19 +804,22 @@ function renderList(force = false) {
     const item = document.createElement('li');
     item.className = 'detection-item';
     item.style.setProperty('--dot-color', detection.color);
-    item.dataset.en = detection.en;
-    if (detection.en === state.selectedEn) item.classList.add('is-selected');
+    item.dataset.trackId = String(detection.id);
+    if (detection.id === state.selectedTrackId) item.classList.add('is-selected');
 
     const dot = document.createElement('span');
     dot.className = 'dot';
 
     const name = document.createElement('span');
     name.className = 'name';
+    const idTag = document.createElement('i');
+    idTag.className = 'track-id';
+    idTag.textContent = `#${String(detection.id).padStart(2, '0')}`;
     const zh = document.createElement('b');
     zh.textContent = detection.zh;
     const en = document.createElement('em');
     en.textContent = detection.en;
-    name.append(zh, en);
+    name.append(idTag, zh, en);
 
     const bar = document.createElement('span');
     bar.className = 'score-bar';
@@ -760,7 +833,7 @@ function renderList(force = false) {
 
     item.append(dot, name, bar, score);
     item.addEventListener('click', () => {
-      state.selectedEn = state.selectedEn === detection.en ? '' : detection.en;
+      state.selectedTrackId = state.selectedTrackId === detection.id ? 0 : detection.id;
       renderList(true);
       paintOverlay();
     });
@@ -778,7 +851,74 @@ function updateHud(force = false) {
   dom.hudFps.textContent = state.source === 'image' ? '—' : fps ? fps.toFixed(0) : '—';
   dom.hudLatency.textContent = state.latency ? `${state.latency}ms` : '—';
   dom.hudCount.textContent = String(state.detections.length);
+  dom.hudTotal.textContent = String(state.totalTracks || 0);
   dom.hudRes.textContent = state.sourceWidth && state.sourceHeight ? `${state.sourceWidth}×${state.sourceHeight}` : '—';
+}
+
+function pushEvent(event) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('zh-CN', { hour12: false });
+  state.events.unshift({
+    ...event,
+    time,
+    duration: event.duration || 0,
+  });
+  if (state.events.length > 40) state.events.length = 40;
+  renderEvents();
+}
+
+function renderEvents() {
+  const host = dom.eventList;
+  if (!host) return;
+  host.textContent = '';
+  if (!state.events.length) {
+    const row = document.createElement('li');
+    row.className = 'empty-row';
+    row.textContent = '暂无事件 · 目标进入/离开画面时记录';
+    host.appendChild(row);
+    return;
+  }
+  for (const event of state.events.slice(0, 10)) {
+    const row = document.createElement('li');
+    row.className = `event-item is-${event.type}`;
+    const time = document.createElement('span');
+    time.className = 'event-time';
+    time.textContent = event.time;
+    const id = document.createElement('span');
+    id.className = 'event-id';
+    id.textContent = `#${String(event.id).padStart(2, '0')}`;
+    const body = document.createElement('span');
+    body.className = 'event-body';
+    const detail =
+      event.type === 'enter'
+        ? `进入画面 · ${event.zh}`
+        : `离开画面 · ${event.zh} · 停留 ${(event.duration / 1000).toFixed(1)}s`;
+    body.textContent = detail;
+    row.append(time, id, body);
+    host.appendChild(row);
+  }
+}
+
+function updateSummary() {
+  if (!dom.trackSummary) return;
+  const counts = new Map();
+  for (const detection of state.detections) {
+    counts.set(detection.zh, (counts.get(detection.zh) || 0) + 1);
+  }
+  const top = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name, count]) => `${name} ×${count}`)
+    .join(' · ');
+  dom.trackSummary.textContent = `当前 ${state.detections.length} 个目标 · 累计 ${state.totalTracks || 0}${top ? ' · ' + top : ''}`;
+}
+
+function resetAnalyzer() {
+  state.tracker.reset();
+  state.totalTracks = 0;
+  state.events = [];
+  renderEvents();
+  updateSummary();
 }
 
 /* ------------------------------------------------------------------ */
@@ -944,6 +1084,105 @@ async function askAi() {
   }
 }
 
+function stopAiAuto() {
+  if (state.aiAutoTimer) {
+    window.clearInterval(state.aiAutoTimer);
+    state.aiAutoTimer = 0;
+  }
+}
+
+async function startAiAuto() {
+  stopAiAuto();
+  const available = await checkAi();
+  if (!available) {
+    dom.aiAuto.checked = false;
+    toast('AI 自动观察需要本地 npm run serve + 模型 Key');
+    return;
+  }
+  if (state.source === 'none') {
+    toast('先打开摄像头 / 视频 / 图片，再开启自动观察');
+    dom.aiAuto.checked = false;
+    return;
+  }
+  toast('已开启 AI 自动观察：每 8 秒把当前帧发给本地模型，描述一句话');
+  state.aiAutoTimer = window.setInterval(() => void observeOnce(), 8000);
+  void observeOnce();
+}
+
+async function observeOnce() {
+  if (state.ai.busy || state.ai.observing) return;
+  if (!state.ai.configured || state.source === 'none') return;
+  const frame = captureFrameJpeg(560, 0.7);
+  if (!frame) return;
+  state.ai.observing = true;
+  const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  try {
+    const response = await fetch('/api/llm/chat/completions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: state.ai.model || undefined,
+        messages: [
+          {
+            role: 'system',
+            content: '你是实时视觉观察助手，用一句简短中文描述画面里正在发生什么，不超过 40 字，不要列清单。',
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: '一句话描述这张画面。' },
+              { type: 'image_url', image_url: { url: frame.dataUrl } },
+            ],
+          },
+        ],
+        temperature: 0.4,
+        max_tokens: 120,
+        stream: false,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data?.error?.message || `HTTP ${response.status}`);
+    const text = String(data?.choices?.[0]?.message?.content || '').trim();
+    if (!text) return;
+    state.aiLog.unshift({ time, text });
+    if (state.aiLog.length > 6) state.aiLog.length = 6;
+    renderAiLog();
+  } catch (error) {
+    state.aiLog.unshift({ time, text: `观察失败：${error.message}`, error: true });
+    if (state.aiLog.length > 6) state.aiLog.length = 6;
+    renderAiLog();
+    stopAiAuto();
+    dom.aiAuto.checked = false;
+  } finally {
+    state.ai.observing = false;
+  }
+}
+
+function renderAiLog() {
+  if (dom.aiCaption) {
+    const latest = state.aiLog.find((item) => !item.error);
+    if (latest) {
+      dom.aiCaption.hidden = false;
+      dom.aiCaptionText.textContent = latest.text;
+    } else {
+      dom.aiCaption.hidden = true;
+    }
+  }
+  if (!dom.aiLog) return;
+  dom.aiLog.textContent = '';
+  for (const item of state.aiLog) {
+    const row = document.createElement('li');
+    row.className = `ai-log-item${item.error ? ' is-error' : ''}`;
+    const time = document.createElement('span');
+    time.className = 'ai-log-time';
+    time.textContent = item.time;
+    const text = document.createElement('span');
+    text.textContent = item.text;
+    row.append(time, text);
+    dom.aiLog.appendChild(row);
+  }
+}
+
 async function askVisionAi() {
   if (state.ai.busy) return;
   if (state.source === 'none') {
@@ -1045,6 +1284,21 @@ function bindEvents() {
     });
   });
 
+  $$('[data-video-sample]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const url = new URL(button.dataset.videoSample, document.baseURI).href;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const file = new File([blob], 'street-pan.webm', { type: blob.type || 'video/webm' });
+        await startVideoFile(file);
+      } catch (error) {
+        toast(`示例视频加载失败：${error.message}`);
+      }
+    });
+  });
+
   dom.fileImage.addEventListener('change', () => {
     const file = dom.fileImage.files?.[0];
     dom.fileImage.value = '';
@@ -1131,6 +1385,14 @@ function bindEvents() {
 
   dom.aiAsk.addEventListener('click', () => void askAi());
   dom.aiVision.addEventListener('click', () => void askVisionAi());
+  dom.eventsClear?.addEventListener('click', () => {
+    state.events = [];
+    renderEvents();
+  });
+  dom.aiAuto?.addEventListener('change', () => {
+    if (dom.aiAuto.checked) startAiAuto();
+    else stopAiAuto();
+  });
 
   dom.helpOpen.addEventListener('click', () => dom.helpDialog.showModal());
   dom.helpClose.addEventListener('click', () => dom.helpDialog.close());
@@ -1163,6 +1425,8 @@ function boot() {
   applyModelUi();
   dom.threshold.value = String(state.threshold);
   dom.thresholdValue.textContent = state.threshold.toFixed(2);
+  renderEvents();
+  updateSummary();
   paintOverlay();
   updateHud(true);
 }
