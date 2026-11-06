@@ -357,7 +357,7 @@ export const VIEWS = {
   homes: { target: [-10.0, 1.8, -8.0], radius: 24, az: 0.65, el: 0.9, fov: 36 },
   shrine: { target: [-18.0, 2.0, 6.2], radius: 19, az: 0.95, el: 0.78, fov: 38 },
   rail: { target: [17.8, 1.8, 2.0], radius: 17, az: 1.3, el: 0.9, fov: 36 },
-  school: { target: [-7.0, 2.6, -18.4], radius: 28, az: 0.32, el: 0.62, fov: 36 },
+  school: { target: [-7.0, 3.0, -17.2], radius: 30, az: 0.42, el: 1.05, fov: 36 },
   river: { target: [0.0, 1.4, 16.8], radius: 26, az: 0.45, el: 0.82, fov: 36 },
   top: { target: [0, 1.0, 0.2], radius: 112, az: 0.55, el: 0.5, fov: 33 },
   inside: { target: [5.6, 1.3, -5.4], radius: 4.8, az: 0.14, el: 1.42, fov: 44 },

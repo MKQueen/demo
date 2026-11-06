@@ -93,6 +93,42 @@ function hedge(parent, { x, z, w, d, h = 0.5 }) {
   }
 }
 
+/* 正确的四坡屋顶：矩形底面 + 屋脊，避免 ConeGeometry 非均匀缩放后旋转造成的歪斜和巨大出檐 */
+function hipRoof(w, d, rise, opts = {}) {
+  const overhang = opts.overhang ?? 0.3;
+  const ridge = opts.ridge ?? 0.28;
+  const color = opts.color || '#2f343c';
+  const hw = w / 2 + overhang;
+  const hd = d / 2 + overhang;
+  const alongX = w >= d;
+  const rh = Math.max(0.15, (alongX ? w : d) * ridge * 0.5);
+  const pos = alongX
+    ? [
+        -hw, 0, -hd,  hw, 0, -hd,  hw, 0, hd,  -hw, 0, hd,
+        -rh, rise, 0,  rh, rise, 0,
+      ]
+    : [
+        -hw, 0, -hd,  hw, 0, -hd,  hw, 0, hd,  -hw, 0, hd,
+        0, rise, -rh,  0, rise, rh,
+      ];
+  const idx = alongX
+    ? [0,1,5, 0,5,4, 2,3,4, 2,4,5, 3,0,4, 1,2,5]
+    : [0,1,4, 2,3,5, 3,0,4, 3,4,5, 1,2,5, 1,5,4];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const roof = new THREE.Mesh(geo, toon(color, { rim: 0.2, rimColor: '#8fa8c8', side: THREE.DoubleSide }));
+  roof.castShadow = true;
+  roof.receiveShadow = true;
+  // 屋脊
+  const ridgeMesh = box(alongX ? rh * 2 : 0.14, 0.08, alongX ? 0.14 : rh * 2, toon('#20242a', { rim: 0.16 }), {
+    y: rise + 0.02, parent: roof,
+  });
+  ridgeMesh.castShadow = false;
+  return roof;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  住宅                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -107,16 +143,13 @@ function house(parent, cfg) {
   box(w, h, d, wall, { y: h / 2, parent: g, cast: true, receive: true });
   // 基座
   box(w + 0.16, 0.18, d + 0.16, toon('#8a8170', { rim: 0.12 }), { y: 0.09, parent: g, cast: false });
-  // 屋顶
+  // 屋顶（四坡屋面，底面贴合建筑）
   const roofH = h * 0.32;
-  const roof = mesh(new THREE.ConeGeometry(1, 1, 4), toon(cfg.roofColor || '#2f343c', { rim: 0.2, rimColor: '#8fa8c8' }), {
-    y: h + roofH / 2, parent: g, cast: true,
+  const roof = hipRoof(w, d, roofH, {
+    overhang: 0.26, ridge: 0.34, color: cfg.roofColor || '#2f343c',
   });
-  roof.scale.set(w * 0.78, roofH, d * 0.82);
-  roof.rotation.y = Math.PI / 4;
-  if (cfg.roof === 'gable') {
-    box(w * 0.9, roofH * 0.35, d * 0.12, toon('#2a3038', { rim: 0.18 }), { y: h + roofH * 0.55, parent: g, cast: false });
-  }
+  roof.position.y = h + 0.04;
+  g.add(roof);
   // 正门 + 窗
   const zf = d / 2 + 0.01;
   box(0.7, 1.45, 0.08, toon('#6a4a32', { rim: 0.14 }), { z: zf, y: 0.8, parent: g, cast: false });
@@ -248,12 +281,11 @@ function shop(parent, cfg) {
   parent.add(g);
   box(w, h, d, toon('#b8ac98', { rim: 0.16, rimColor: '#a8c4e4', gradient: 'soft' }), { y: h / 2, parent: g, cast: true, receive: true });
   box(w + 0.16, 0.16, d + 0.16, toon('#6a6558', { rim: 0.12 }), { y: 0.08, parent: g, cast: false });
-  // 屋顶：坡屋顶 + 屋脊
-  const roofH = Math.max(0.7, w * 0.22);
-  const shopRoof = mesh(new THREE.ConeGeometry(1, 1, 4), toon('#2f343c', { rim: 0.2, rimColor: '#8fa8c8' }), { y: h + roofH / 2, parent: g, cast: true });
-  shopRoof.scale.set(w * 0.74, roofH, d * 0.72);
-  shopRoof.rotation.y = Math.PI / 4;
-  box(w * 0.86, roofH * 0.22, d * 0.1, toon('#20242a', { rim: 0.16 }), { y: h + roofH * 0.55, parent: g, cast: false });
+  // 屋顶：四坡屋面 + 屋脊
+  const roofH = Math.max(0.65, w * 0.2);
+  const shopRoof = hipRoof(w, d, roofH, { overhang: 0.32, ridge: 0.24, color: '#2f343c' });
+  shopRoof.position.y = h + 0.04;
+  g.add(shopRoof);
   // 一层店面玻璃
   const glassW = w - 0.5;
   const glassH = 2.3;
@@ -338,10 +370,10 @@ function schoolCampus(parent) {
   cyl(0.16, 0.22, 4.0, 8, toon('#d8d4c8', { rim: 0.18 }), { x: -s.w * 0.36, y: s.h + 2.0, z: 0, parent: sg, cast: true });
   box(0.5, 0.5, 0.5, toon('#f0ece0', { rim: 0.2 }), { x: -s.w * 0.36, y: s.h + 4.1, z: 0, parent: sg, cast: true });
   cyl(0.19, 0.19, 0.04, 16, toon('#2a3038', { rim: 0.2 }), { x: -s.w * 0.36, y: s.h + 4.18, z: 0.24, rx: Math.PI / 2, parent: sg, cast: false });
-  // 大屋顶 + 栏杆
-  const schoolRoof = mesh(new THREE.ConeGeometry(1, 1, 4), toon('#2a3038', { rim: 0.2, rimColor: '#8fa8c8' }), { y: s.h + 1.1, parent: sg, cast: true });
-  schoolRoof.scale.set(s.w * 0.76, 2.2, s.d * 0.82);
-  schoolRoof.rotation.y = Math.PI / 4;
+  // 大屋顶（贴合校舍轮廓）
+  const schoolRoof = hipRoof(s.w + 0.4, s.d + 0.4, 2.2, { overhang: 0.55, ridge: 0.26, color: '#2a3038' });
+  schoolRoof.position.y = s.h + 0.08;
+  sg.add(schoolRoof);
   for (let i = 0; i < 8; i += 1) cyl(0.02, 0.02, 0.4, 4, toon('#5d636b', { rim: 0.1 }), { x: -s.w / 2 + 0.8 + i * ((s.w - 1.6) / 7), y: s.h + 0.2, z: s.d / 2 - 0.1, parent: sg, cast: false });
   box(s.w, 0.03, 0.03, toon('#5d636b', { rim: 0.1 }), { y: s.h + 0.4, z: s.d / 2 - 0.1, parent: sg, cast: false });
 
@@ -438,8 +470,9 @@ function shrine(parent) {
   g.add(shrineBody);
   box(4.0, 2.0, 2.8, toon('#8a6a4c', { rim: 0.16 }), { y: 1.0, parent: shrineBody, cast: true });
   box(4.8, 0.26, 3.4, toon('#3a3030', { rim: 0.2 }), { y: 2.15, parent: shrineBody, cast: true });
-  const roof = mesh(new THREE.ConeGeometry(1, 1, 4), toon('#3a3030', { rim: 0.2 }), { y: 2.8, parent: shrineBody, cast: true });
-  roof.scale.set(3.4, 1.3, 2.6); roof.rotation.y = Math.PI / 4;
+  const roof = hipRoof(4.0, 2.8, 1.25, { overhang: 0.5, ridge: 0.3, color: '#3a3030' });
+  roof.position.y = 2.15;
+  shrineBody.add(roof);
   // 注连绳 / 铃
   cyl(0.05, 0.05, 4.2, 8, toon('#d8d4c8', { rim: 0.12 }), { y: 2.05, z: 1.5, rx: Math.PI / 2, parent: shrineBody, cast: false });
   for (const dx of [-0.5, 0.5]) chochin(shrineBody, { x: dx, y: 1.75, z: 1.6, r: 0.13, color: '#e8dcc0', text: '献灯', glowSize: 0.8 });
@@ -1250,9 +1283,9 @@ function cottage(parent, x, z, ry, color) {
   box(w, h, d, toon(color, { rim: 0.14, rimColor: '#a8c4e4', gradient: 'soft' }), { y: h / 2, parent: g, cast: true });
   box(w + 0.12, 0.14, d + 0.12, toon('#6a6558', { rim: 0.1 }), { y: 0.07, parent: g, cast: false });
   const roofH = h * 0.34;
-  const roof = mesh(new THREE.ConeGeometry(1, 1, 4), toon('#2f343c', { rim: 0.18, rimColor: '#8fa8c8' }), { y: h + roofH / 2, parent: g, cast: true });
-  roof.scale.set(w * 0.78, roofH, d * 0.8);
-  roof.rotation.y = Math.PI / 4;
+  const roof = hipRoof(w, d, roofH, { overhang: 0.24, ridge: 0.3, color: '#2f343c' });
+  roof.position.y = h + 0.03;
+  g.add(roof);
   box(0.6, 1.3, 0.06, toon('#5a3f2c', { rim: 0.12 }), { z: d / 2 + 0.02, y: 0.72, parent: g, cast: false });
   litWindow(g, { x: -w * 0.26, y: 1.35, z: d / 2 + 0.03, w: 0.55, h: 0.5, color: rand() > 0.5 ? '#ffcf94' : '#ffd9a0', lit: 0.6 + rand() * 0.4 });
   litWindow(g, { x: w * 0.26, y: 1.35, z: d / 2 + 0.03, w: 0.55, h: 0.5, color: '#ffd9a0', lit: 0.45 + rand() * 0.4 });
