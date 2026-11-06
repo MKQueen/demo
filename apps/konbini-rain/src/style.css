@@ -1,0 +1,21 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #05070f;
+  color-scheme: dark;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+#scene {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  outline: none;
+}
+
+/* 这个 demo 强调「零 UI」的沉浸观看：隐藏作品集站在部署时注入的返回按钮。
+   DOM 节点仍然保留（合集站的返回入口校验通过），浏览器返回键仍然可用。 */
+.__back-home {
+  display: none !important;
+}

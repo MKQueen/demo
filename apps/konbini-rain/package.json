@@ -1,0 +1,16 @@
+{
+  "name": "konbini-rain",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "雨夜便利店 · 街角微缩模型：Three.js 三渲二夜景立体模型",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0",
+    "vite": "^6.0.0"
+  }
+}
