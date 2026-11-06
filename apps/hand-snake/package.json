@@ -1,0 +1,13 @@
+{
+  "name": "hand-snake",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "手势贪吃蛇 · HAND SNAKE：用摄像头捕捉手部 21 关键点，食指指尖控制蛇头，吃光点变长（MediaPipe 浏览器本地推理，纯静态）",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/dev.mjs"
+  }
+}
