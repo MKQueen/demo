@@ -94,7 +94,7 @@ function fxMesh(geometry, material, renderOrder) {
 /*  1. 降雨                                                                    */
 /* ========================================================================== */
 
-const RAIN_TOP = 10.0;
+const RAIN_TOP = 16.0;
 
 const RAIN_VERT = /* glsl */ `
   uniform float uTime;
@@ -197,12 +197,12 @@ const RAIN_FRAG = /* glsl */ `
 
 /** 会被雨丝"照亮"的光球（纯着色计算，不加真实光源） */
 const RAIN_LIGHTS = [
-  { p: [SO.dx + 0.3, 2.6, SO.dz + 3.0], r: 4.0, color: '#ffcf94', gain: 0.8 },
-  { p: [4.4, 2.4, 2.8], r: 3.0, color: '#ff8a5c', gain: 0.75 },
-  { p: [8.0, 2.4, 2.8], r: 3.0, color: '#ffb45e', gain: 0.7 },
-  { p: [-9.5, 2.6, 6.0], r: 3.2, color: '#ff6f5c', gain: 0.55 },
-  { p: [-6.7, 2.6, -2.9], r: 3.2, color: '#ffcf94', gain: 0.5 },
-  { p: [10.0, 2.6, 5.6], r: 2.8, color: '#9fd8ff', gain: 0.45 },
+  { p: [SO.dx + 0.3, 2.8, SO.dz + 3.0], r: 5.0, color: '#ffcf94', gain: 0.8 },
+  { p: [-2.6, 2.8, 8.0], r: 4.0, color: '#ff8a5c', gain: 0.7 },
+  { p: [-2.6, 2.8, 13.0], r: 3.6, color: '#ffb45e', gain: 0.65 },
+  { p: [-18.4, 2.8, 7.2], r: 4.0, color: '#ff6f5c', gain: 0.5 },
+  { p: [16.6, 3.0, 2.0], r: 3.6, color: '#9fd8ff', gain: 0.5 },
+  { p: [-10.5, 3.0, -9.8], r: 3.8, color: '#ffcf94', gain: 0.45 },
 ];
 
 function buildRain(quality) {
@@ -248,12 +248,12 @@ function buildRain(quality) {
       uStoreRoofY: { value: S.parapetY + 0.1 },
       uCanopyBox: { value: new THREE.Vector4(S.canopy.x0, S.canopy.x1, S.canopy.z0, S.canopy.z1) },
       uCanopyY: { value: S.canopy.y + 0.06 },
-      uBlockBox0: { value: new THREE.Vector4(2.8, 10.4, 2.8, 6.2) },
-      uBlockY0: { value: 3.4 },
+      uBlockBox0: { value: new THREE.Vector4(-6.6, -2.4, 3.2, 15.2) },
+      uBlockY0: { value: 7.0 },
       uBlockBox1: { value: new THREE.Vector4(E.bounds.minX, -2.6, E.bounds.minZ, -2.6) },
-      uBlockY1: { value: 4.2 },
+      uBlockY1: { value: 13.0 },
       uBlockBox2: { value: new THREE.Vector4(E.bounds.minX, -2.6, 2.8, E.river.minZ) },
-      uBlockY2: { value: 4.6 },
+      uBlockY2: { value: 9.0 },
       uAreaMin: { value: new THREE.Vector2(E.bounds.minX, E.bounds.minZ) },
       uAreaMax: { value: new THREE.Vector2(E.bounds.maxX, E.bounds.maxZ) },
       uBaseColor: { value: new THREE.Vector3(0.45, 0.57, 0.82) },

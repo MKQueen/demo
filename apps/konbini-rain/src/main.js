@@ -17,7 +17,7 @@ import { buildGround } from './world/ground.js';
 import { buildStore } from './world/store.js';
 import { buildInterior } from './world/interior.js';
 import { buildInteriorDetails } from './world/interior-details.js';
-import { buildTown } from './world/town.js';
+import { buildCity } from './world/city.js';
 import { buildFx } from './world/fx.js';
 
 /* -------------------------------------------------------------------------- */
@@ -51,7 +51,7 @@ renderer.shadowMap.enabled = QUALITY.shadows;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(C.fog, 0.009);
+scene.fog = new THREE.FogExp2(C.fog, 0.0065);
 
 const camera = new THREE.PerspectiveCamera(VIEWS.hero.fov, innerWidth / innerHeight, 0.08, 420);
 // layer 1 = 底座/地块这些「地面以下」的几何，平面反射相机（仅 layer 0）会跳过它们
@@ -102,7 +102,7 @@ scene.add(sky);
 // 底座下方的一团柔和投影，让模型「落在」暗色摄影棚里
 const blobTex = glowTexture();
 const blob = new THREE.Mesh(
-  new THREE.PlaneGeometry(52, 38),
+  new THREE.PlaneGeometry(88, 66),
   new THREE.MeshBasicMaterial({
     map: blobTex,
     color: '#01030a',
@@ -120,17 +120,17 @@ scene.add(blob);
 /*  灯光                                                                       */
 /* -------------------------------------------------------------------------- */
 
-const hemi = new THREE.HemisphereLight(C.hemiSky, C.hemiGround, 0.38);
+const hemi = new THREE.HemisphereLight(C.hemiSky, C.hemiGround, 0.5);
 scene.add(hemi);
 
-const moonLight = new THREE.DirectionalLight(C.moon, 0.72);
-moonLight.position.set(-6, 18, 14);
+const moonLight = new THREE.DirectionalLight(C.moon, 0.85);
+moonLight.position.set(-8, 22, 16);
 moonLight.castShadow = QUALITY.shadows;
 moonLight.shadow.mapSize.set(2048, 2048);
-moonLight.shadow.camera.left = -18;
-moonLight.shadow.camera.right = 18;
-moonLight.shadow.camera.top = 18;
-moonLight.shadow.camera.bottom = -18;
+moonLight.shadow.camera.left = -32;
+moonLight.shadow.camera.right = 32;
+moonLight.shadow.camera.top = 32;
+moonLight.shadow.camera.bottom = -32;
 moonLight.shadow.camera.near = 1;
 moonLight.shadow.camera.far = 60;
 moonLight.shadow.bias = -0.0005;
@@ -228,7 +228,7 @@ const detailsMod = params.get('details') !== '0' ? build('interior-details', bui
 for (const mod of [storeMod, interiorMod, detailsMod]) {
   if (mod && mod.group) mod.group.position.set(E.storeOffset.dx, 0, E.storeOffset.dz);
 }
-build('town', buildTown);
+build('city', buildCity);
 build('fx', buildFx);
 
 // 旧楼背面/西面的小壁灯：从模型后方观看时提供一点可读的暖光
@@ -282,7 +282,7 @@ function frameFor(v) {
   let target = v.target;
   if (aspect < 1.05) {
     fov = Math.max(fov, 48);
-    const targetWidth = 24.0;
+    const targetWidth = 44.0;
     const need = targetWidth / (2 * Math.tan((fov * Math.PI) / 360) * aspect);
     radius = Math.max(radius * 1.02, need);
     // 竖屏时把视觉重心往下放一点，别让模型顶在画面 1/3 处
@@ -309,7 +309,7 @@ controls.enablePan = false;
 controls.rotateSpeed = 0.55;
 controls.zoomSpeed = 0.85;
 controls.minDistance = 6.0;
-controls.maxDistance = 150;
+controls.maxDistance = 220;
 controls.minPolarAngle = 0.16;
 controls.maxPolarAngle = 1.43;
 controls.autoRotate = false;
@@ -393,10 +393,10 @@ else if (params.has('cam')) {
 /* -------------------------------------------------------------------------- */
 
 const post = createPost(renderer, scene, camera, {
-  exposure: 0.98,
-  bloomStrength: 0.26 * QUALITY.bloom,
+  exposure: 1.18,
+  bloomStrength: 0.36 * QUALITY.bloom,
   bloomRadius: 0.46,
-  bloomThreshold: 1.18,
+  bloomThreshold: 1.0,
   samples: QUALITY.isMobile ? 0 : 4,
   fadeMs: STILL ? 0 : 1900,
 });
