@@ -225,10 +225,10 @@ export const E = {
   // 把旧便利店整体移到东北角（front +Z 正对东西向主街）
   storeOffset: { dx: 5.0, dz: -2.5 },
 
-  // 东南商业街：复用街版店铺，压进小镇尺度（两家最抢眼的 + 花摊）
+  // 东南商业街：两家宽门面的锚点店（居酒屋 / 拉面）
   commercial: [
     {
-      id: 'izakaya', style: 'izakaya', position: { x: -2.6, z: 3.85 },
+      id: 'izakaya', style: 'izakaya', position: { x: -2.1, z: 3.55 },
       scale: { x: 0.5, y: 0.7, z: 0.56 }, rotation: Math.PI / 2,
       info: {
         id: 'izakaya', x0: -1.7, x1: 1.7, h: 4.6, floors: 2, style: 'izakaya',
@@ -237,7 +237,7 @@ export const E = {
       },
     },
     {
-      id: 'ramen', style: 'ramen', position: { x: -2.6, z: 5.8 },
+      id: 'ramen', style: 'ramen', position: { x: -2.1, z: 5.55 },
       scale: { x: 0.5, y: 0.7, z: 0.56 }, rotation: Math.PI / 2,
       info: {
         id: 'ramen', x0: -1.9, x1: 1.9, h: 5.2, floors: 2, style: 'ramen',
@@ -247,12 +247,28 @@ export const E = {
     },
   ],
 
+  // 东南商业街的第二排：理发店（窄门面）
+  barber: { x: -2.1, z: 6.22, width: 0.8, h: 2.25 },
+
+  // 西北街口的一排小门面（咖啡馆 / 药店 / 百元店，嵌在住宅楼下）
+  northShops: [
+    { id: 'cafe', kind: 'cafe', x: -6.78, w: 0.92, jp: '喫茶 ひかり', en: 'HIKARI', color: '#ffcf94', signBg: '#2a1c14', accent: '#ffd9a0' },
+    { id: 'pharmacy', kind: 'pharmacy', x: -5.78, w: 0.9, jp: 'くすり 月見', en: 'PHARMACY', color: '#c8f0ff', signBg: '#1a3a3a', accent: '#7dffc0' },
+    { id: 'books', kind: 'books', x: -4.78, w: 0.9, jp: '古書 かもめ', en: 'KAMOME BOOKS', color: '#ffe0a8', signBg: '#3a2a1e', accent: '#ffcf94' },
+    { id: 'barber', kind: 'barber', x: -3.78, w: 0.9, jp: '床屋 タカハシ', en: 'BARBER', color: '#cfe8ff', signBg: '#1e2a3a', accent: '#9fd8ff' },
+    { id: 'laundry', kind: 'laundry', x: -2.78, w: 0.9, jp: 'コインランドリー', en: 'LAUNDRY', color: '#d8fbff', signBg: '#1a3a4a', accent: '#7fe8e0' },
+  ],
+
+
+
   // 西北住宅区 + 学校 + 小公园（密度优先的微缩尺度）
   houses: [
     { id: 'house-1', x: -6.35, z: -3.15, w: 1.9, d: 1.9, h: 2.4, roof: 'gable', warm: '#ffcf94', garden: true },
     { id: 'house-2', x: -3.5, z: -6.45, w: 1.8, d: 2.0, h: 2.3, roof: 'hip', warm: '#ffd9a0', garden: false },
+    { id: 'house-3', x: -6.85, z: 3.55, w: 1.15, d: 1.8, h: 2.2, roof: 'gable', warm: '#ffcf94', garden: false },
+    { id: 'house-4', x: -6.85, z: 5.5, w: 1.15, d: 1.8, h: 2.2, roof: 'hip', warm: '#ffd9a0', garden: false },
   ],
-  apartment: { id: 'apartment', x: -6.3, z: -6.0, w: 2.2, d: 2.5, h: 5.0, floors: 3 },
+  apartment: { id: 'apartment', x: -6.3, z: -6.0, w: 2.2, d: 2.5, h: 7.4, floors: 6 },
   school: { x: -3.5, z: -3.6, w: 2.2, d: 2.8, h: 3.4, yard: { x: -3.5, z: -2.0, w: 2.2, d: 0.7 } },
   park: { x: -6.3, z: -4.55, w: 1.8, d: 0.55 },
 

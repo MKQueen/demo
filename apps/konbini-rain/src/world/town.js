@@ -645,6 +645,8 @@ export function buildTown(ctx) {
   extraStreetLife(g);
   applyDetailPass(g, cats);
   roofDetailPass(g);
+  townDensityPass(g, cats);
+  northShopUpperFloors(g);
 
   addOutline(g, { width: 0.0008, color: '#080b14' });
 
@@ -1118,4 +1120,297 @@ function roofDetailPass(parent) {
   for (const cfg of E.commercial) {
     cyl(0.18, 0.18, 0.3, 10, toon('#b9c0c8', { rim: 0.18 }), { x: cfg.position.x - 1.1, y: Y + 2.9, z: cfg.position.z + 0.5, parent, cast: true });
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  第二/第三轮密度：小门面、理发店、学校体育馆、医院/车站内景、平交道口          */
+/* -------------------------------------------------------------------------- */
+
+function interiorTexture(kind = 'cafe') {
+  return signTexture(512, 320, (ctx, w, h) => {
+    const grd = ctx.createLinearGradient(0, 0, 0, h);
+    grd.addColorStop(0, kind === 'laundry' ? '#c8eef8' : '#3a2a20');
+    grd.addColorStop(1, kind === 'pharmacy' ? '#d8f0e8' : '#1a1210');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, w, h);
+    // 后墙灯带
+    ctx.fillStyle = kind === 'laundry' ? 'rgba(255,255,255,0.75)' : 'rgba(255,210,150,0.85)';
+    ctx.fillRect(0, 20, w, 10);
+    // 货架 / 桌椅剪影
+    ctx.fillStyle = 'rgba(20,14,12,0.72)';
+    if (kind === 'cafe') {
+      for (let i = 0; i < 3; i += 1) {
+        ctx.fillRect(40 + i * 150, 170, 100, 14);
+        ctx.fillRect(46 + i * 150, 184, 10, 70);
+        ctx.fillRect(124 + i * 150, 184, 10, 70);
+        ctx.fillStyle = 'rgba(255,210,150,0.55)';
+        ctx.beginPath(); ctx.arc(90 + i * 150, 140, 26, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(20,14,12,0.72)';
+      }
+    } else if (kind === 'pharmacy') {
+      for (let r = 0; r < 3; r += 1) for (let c = 0; c < 7; c += 1) {
+        ctx.fillStyle = ['#e8f0e8', '#7fd8b8', '#e8d070', '#c8e8ff'][(r + c) % 4];
+        ctx.fillRect(30 + c * 66, 80 + r * 62, 54, 44);
+      }
+      ctx.fillStyle = 'rgba(30,80,70,0.8)';
+      ctx.fillRect(350, 200, 140, 18);
+      ctx.fillRect(360, 218, 12, 60);
+      ctx.fillRect(466, 218, 12, 60);
+    } else if (kind === 'laundry') {
+      for (let i = 0; i < 4; i += 1) {
+        ctx.fillStyle = '#e8f0f2';
+        ctx.fillRect(28 + i * 120, 120, 90, 140);
+        ctx.fillStyle = '#7fbfd8';
+        ctx.beginPath(); ctx.arc(73 + i * 120, 180, 26, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (kind === 'barber') {
+      ctx.fillStyle = 'rgba(240,240,240,0.85)';
+      ctx.fillRect(30, 60, 120, 200);
+      ctx.fillRect(380, 60, 100, 200);
+      ctx.fillStyle = 'rgba(30,30,34,0.8)';
+      ctx.fillRect(80, 170, 120, 14);
+      ctx.fillRect(220, 160, 120, 14);
+      ctx.fillRect(86, 184, 10, 76);
+      ctx.fillRect(304, 174, 10, 86);
+    } else if (kind === 'books') {
+      for (let r = 0; r < 3; r += 1) {
+        for (let c = 0; c < 5; c += 1) {
+          ctx.fillStyle = ['#8c3a2a', '#3a5a4a', '#7a5a2a', '#3a4a6a', '#c8a060'][(r + c * 2) % 5];
+          ctx.fillRect(28 + c * 92, 96 + r * 62, 76, 42);
+        }
+      }
+      ctx.fillStyle = 'rgba(255,210,150,0.7)';
+      ctx.beginPath(); ctx.arc(300, 80, 24, 0, Math.PI * 2); ctx.fill();
+    } else if (kind === 'thrift') {
+      for (let r = 0; r < 3; r += 1) for (let c = 0; c < 6; c += 1) {
+        ctx.fillStyle = ['#ff8a5c', '#7fd8b8', '#e8d070', '#c8a7ff', '#ff6f9c'][(r * 2 + c) % 5];
+        ctx.fillRect(24 + c * 78, 84 + r * 68, 48, 36);
+      }
+      ctx.fillStyle = '#ffd166';
+      ctx.font = 'bold 62px sans-serif';
+      ctx.fillText('100', 30, 290);
+    }
+    // 玻璃反光
+    ctx.fillStyle = 'rgba(200,230,255,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.lineTo(w * 0.4, 0); ctx.lineTo(w * 0.1, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill();
+  });
+}
+
+function compactShopFront(parent, cfg) {
+  const g = group(`shop-${cfg.id}`);
+  const w = cfg.width;
+  const h = cfg.height || 2.35;
+  const frontZ = cfg.zFront;
+  const depth = cfg.depth || 0.95;
+  const cx = cfg.x;
+  parent.add(g);
+  // 主体
+  box(w, h, depth, toon(cfg.wall || '#c8bca8', { rim: 0.16, rimColor: '#a8c4e4', gradient: 'soft' }), {
+    x: cx, y: Y + h / 2, z: frontZ - depth / 2, parent: g, cast: true, receive: true,
+  });
+  // 店头玻璃 + 内景图
+  const glassW = w - 0.16;
+  const glassH = 1.35;
+  const interior = plane(glassW, glassH, lightbox(interiorTexture(cfg.kind), 0.95), {
+    x: cx, y: Y + 1.05, z: frontZ + 0.005, parent: g,
+  });
+  interior.userData.noOutline = true;
+  // 玻璃斜反光
+  const glass = plane(glassW, glassH, toon('#cfe8ff', { transparent: true, opacity: 0.12, rim: 0.2, side: THREE.DoubleSide, depthWrite: false }), {
+    x: cx, y: Y + 1.05, z: frontZ + 0.012, parent: g,
+  });
+  glass.userData.noOutline = true;
+  // 框
+  for (const dx of [-w / 2 + 0.06, 0, w / 2 - 0.06]) {
+    box(0.045, glassH + 0.12, 0.05, toon('#d8d4c8', { rim: 0.16 }), { x: cx + dx, y: Y + 1.05, z: frontZ + 0.02, parent: g, cast: false });
+  }
+  box(glassW, 0.05, 0.05, toon('#d8d4c8', { rim: 0.16 }), { x: cx, y: Y + 1.74, z: frontZ + 0.02, parent: g, cast: false });
+  // 门
+  const doorX = cx + w * 0.22;
+  box(w * 0.22, 1.5, 0.04, toon('#2a2a2e', { rim: 0.14 }), { x: doorX, y: Y + 0.83, z: frontZ + 0.03, parent: g, cast: false });
+  // 招牌
+  const signTex = signTexture(512, 160, (ctx, sw, sh) => {
+    ctx.fillStyle = cfg.signBg || '#2a1c14';
+    ctx.fillRect(0, 0, sw, sh);
+    ctx.strokeStyle = cfg.accent || '#ffd9a0';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(5, 5, sw - 10, sh - 10);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `700 54px ${JP_FONT}`;
+    ctx.fillStyle = cfg.accent || '#ffd9a0';
+    ctx.fillText(cfg.jp, sw / 2, sh * 0.42);
+    ctx.font = `500 22px ${EN_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.72)';
+    ctx.fillText(cfg.en, sw / 2, sh * 0.78);
+  });
+  const sign = plane(w - 0.1, 0.38, lightbox(signTex, 1.25), { x: cx, y: Y + 2.03, z: frontZ + 0.02, parent: g });
+  sign.userData.noOutline = true;
+  box(w + 0.04, 0.44, 0.06, toon('#20242a', { rim: 0.16 }), { x: cx, y: Y + 2.03, z: frontZ + 0.005, parent: g, cast: false });
+  // 雨棚
+  if (cfg.awning !== false) {
+    const aw = box(w + 0.1, 0.04, 0.5, toon(cfg.awningColor || '#3f5a5a', { rim: 0.14 }), {
+      x: cx, y: Y + 1.82, z: frontZ + 0.25, parent: g, cast: true,
+    });
+    aw.rotation.x = -0.12;
+  }
+  // 小灯笼 / 灯
+  if (cfg.lantern) {
+    chochin(g, { x: cx - w / 2 - 0.1, y: Y + 1.7, z: frontZ + 0.2, r: 0.1, color: '#d24a38', text: '', glowSize: 0.9 });
+    warmSprite(g, { x: cx, y: Y + 1.1, z: frontZ + 0.35, color: cfg.color || '#ffcf94', size: 0.8, opacity: 0.22 });
+  }
+  // 门垫 / 小推牌
+  box(w * 0.5, 0.025, 0.3, toon('#4a4a46', { rim: 0.08 }), { x: cx, y: Y + 0.13, z: frontZ + 0.22, parent: g, cast: false });
+  warmSprite(g, { x: cx, y: Y + 1.2, z: frontZ + 0.6, color: cfg.color || '#ffcf94', size: 0.9, opacity: 0.2 });
+  return g;
+}
+
+function buildNorthShops(parent) {
+  for (const cfg of E.northShops) {
+    compactShopFront(parent, { ...cfg, width: cfg.w, zFront: -1.5, kind: cfg.id, height: 2.35 });
+  }
+}
+
+function buildBarberShop(parent) {
+  const cfg = E.barber;
+  compactShopFront(parent, {
+    id: 'barber', x: cfg.x, zFront: 6.85 - 0.9 * 0.52 - 0.5,
+    width: cfg.width, height: 2.25, depth: 0.9, kind: 'barber',
+    jp: '床屋 タカハシ', en: 'TAKAHASHI BARBER', signBg: '#1e2a3a', accent: '#9fd8ff',
+    wall: '#c8d0d8', color: '#cfe8ff', awningColor: '#2a4a5a', lantern: false,
+  });
+  const g = group('barber-extra');
+  parent.add(g);
+  // 理发店转灯
+  barberPole(g, { x: cfg.x - cfg.width * 0.7, z: 6.85, });
+  warmSprite(g, { x: cfg.x, y: Y + 1.1, z: 6.9, color: '#cfe8ff', size: 0.9, opacity: 0.22 });
+  return g;
+}
+
+function schoolExtras(parent) {
+  const s = E.school;
+  // 屋顶体育馆 / 操场看台（微缩体量）
+  box(s.w * 0.7, 0.9, s.d * 0.55, toon('#8a8f96', { rim: 0.16 }), {
+    x: s.x + s.w * 0.05, y: Y + s.h + 0.45, z: s.z - s.d * 0.15, parent, cast: true,
+  });
+  box(s.w * 0.74, 0.1, s.d * 0.6, toon('#3a4652', { rim: 0.14 }), {
+    x: s.x + s.w * 0.05, y: Y + s.h + 0.95, z: s.z - s.d * 0.15, parent, cast: true,
+  });
+  for (let i = 0; i < 3; i += 1) {
+    const win = plane(0.6, 0.4, flat('#e8f4ff').clone(), {
+      x: s.x - s.w * 0.2 + i * 0.5, y: Y + s.h + 0.45, z: s.z - s.d * 0.15 + s.d * 0.28, parent,
+    });
+    win.material.color.multiplyScalar(1.4);
+    win.material.toneMapped = false;
+    win.userData.noOutline = true;
+  }
+  // 操场滑梯 / 沙坑
+  const yard = s.yard;
+  box(0.7, 0.04, 0.4, toon('#c8b890', { rim: 0.1 }), { x: yard.x - 0.4, y: Y + 0.16, z: yard.z, parent, cast: false });
+  const slide = box(0.24, 0.05, 0.6, toon('#e8c05e', { rim: 0.14 }), { x: yard.x + 0.45, y: Y + 0.35, z: yard.z, parent, cast: true });
+  slide.rotation.x = 0.32;
+  cyl(0.02, 0.02, 0.5, 4, toon('#8a8f96', { rim: 0.1 }), { x: yard.x + 0.45, y: Y + 0.42, z: yard.z - 0.05, parent, cast: false });
+}
+
+function hospitalLobby(parent) {
+  const h = E.hospital;
+  const lobby = plane(h.w * 0.62, 0.95, lightbox(interiorTexture('pharmacy'), 0.9), {
+    x: h.x, y: Y + 0.78, z: h.z + h.d / 2 + 0.02, parent,
+  });
+  lobby.userData.noOutline = true;
+  // 玻璃门框
+  box(h.w * 0.64, 0.04, 0.05, toon('#d8e8f0', { rim: 0.16 }), { x: h.x, y: Y + 1.28, z: h.z + h.d / 2 + 0.03, parent, cast: false });
+  for (const dx of [-h.w * 0.16, h.w * 0.16]) {
+    box(0.035, 1.0, 0.04, toon('#d8e8f0', { rim: 0.16 }), { x: h.x + dx, y: Y + 0.8, z: h.z + h.d / 2 + 0.03, parent, cast: false });
+  }
+  warmSprite(parent, { x: h.x, y: Y + 1.1, z: h.z + h.d / 2 + 0.35, color: '#d8f0ff', size: 1.0, opacity: 0.2 });
+}
+
+function stationInterior(parent) {
+  const p = E.platform;
+  const bz = p.z0 + 0.55;
+  const bx = p.x0 + 0.12;
+  // 候车室玻璃内景
+  const wait = plane(0.44, 0.55, lightbox(interiorTexture('cafe'), 0.95), {
+    x: bx + 0.30, y: Y + 1.15, z: bz + 0.15, ry: Math.PI / 2, parent,
+  });
+  wait.userData.noOutline = true;
+  // 站台长椅 + 行李
+  bench(parent, { x: p.x0 + 0.3, z: p.z0 + 1.25, ry: Math.PI / 2 });
+  // 平交道口：道口信号 + 栏杆
+  const cx = 7.2;
+  const cz = 5.55;
+  for (const dx of [-0.45, 0.45]) {
+    cyl(0.03, 0.03, 0.9, 6, toon('#e8e4d4', { rim: 0.16 }), { x: cx + dx, y: 0.57, z: cz, parent, cast: false });
+    box(0.1, 0.14, 0.1, toon('#2a3038', { rim: 0.14 }), { x: cx + dx, y: 1.05, z: cz, parent, cast: false });
+    const red = sphere(0.05, flat('#ff5a5a').clone(), { x: cx + dx, y: 1.08, z: cz + 0.08, parent });
+    red.material.color.multiplyScalar(1.6);
+    // 黄黑栏杆
+    const arm = box(0.9, 0.05, 0.05, toon('#e8c05e', { rim: 0.12 }), { x: cx + dx * 0.4, y: 0.85, z: cz, parent, cast: false });
+    arm.rotation.z = dx > 0 ? 0.12 : -0.12;
+  }
+  // 道口标志
+  const crossSign = plane(0.5, 0.3, lightbox(signTexture(256, 160, (ctx, w, h) => {
+    ctx.fillStyle = '#e8d04a'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#1a1a1a'; ctx.font = 'bold 44px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('踏切', w / 2, h / 2);
+  }), 1.2), { x: 6.55, y: 1.25, z: cz, ry: -Math.PI / 2, parent });
+  crossSign.userData.noOutline = true;
+}
+
+/* 在 buildTown 中调用这些补充层 */
+function townDensityPass(parent, cats) {
+  buildNorthShops(parent);
+  barberPole(parent, { x: -3.78, z: -1.92 });
+  schoolExtras(parent);
+  hospitalLobby(parent);
+  stationInterior(parent);
+}
+
+/* 北侧小门面上方的两层住宅（混合用途长屋，补住宅数量与街道密度） */
+function northShopUpperFloors(parent) {
+  const shops = E.northShops;
+  const x0 = shops[0].x - shops[0].w / 2;
+  const x1 = shops[shops.length - 1].x + shops[shops.length - 1].w / 2;
+  const w = x1 - x0;
+  const cx = (x0 + x1) / 2;
+  const zFront = -1.5;
+  const depth = 1.0;
+  const baseY = Y + 2.4;
+  const wall = toon('#b8b0a0', { rim: 0.14, rimColor: '#a8c4e4', gradient: 'soft' });
+  const warm = toon('#8a7f6e', { rim: 0.12 });
+  // 两层住宅体块
+  box(w, 3.3, depth, wall, { x: cx, y: baseY + 1.65, z: zFront - depth / 2, parent, cast: true, receive: true });
+  // 楼层线 / 屋顶
+  for (const yy of [baseY + 1.6]) {
+    box(w + 0.08, 0.06, depth + 0.08, warm, { x: cx, y: yy, z: zFront - depth / 2, parent, cast: false });
+  }
+  box(w + 0.14, 0.1, depth + 0.14, toon('#3f4a56', { rim: 0.16 }), { x: cx, y: baseY + 3.3, z: zFront - depth / 2, parent, cast: true });
+  // 每层窗 + 空调 + 阳台
+  for (let level = 0; level < 2; level += 1) {
+    const wy = baseY + 0.85 + level * 1.6;
+    for (let i = 0; i < 5; i += 1) {
+      const px = x0 + (w / 5) * (i + 0.5);
+      warmWin(parent, { x: px, y: wy, z: zFront + 0.01, w: 0.36, h: 0.5, lit: 0.25 + ((i + level) % 4) / 7, color: '#ffd9a0' });
+    }
+    box(w * 0.94, 0.04, 0.24, toon('#5a5f66', { rim: 0.12 }), { x: cx, y: wy - 0.42, z: zFront + 0.12, parent, cast: false });
+    for (let i = 0; i < 9; i += 1) {
+      cyl(0.008, 0.008, 0.28, 4, toon('#6b7178', { rim: 0.1 }), { x: x0 + (w / 9) * i + 0.1, y: wy - 0.26, z: zFront + 0.22, parent, cast: false });
+    }
+    // 阳台 AC
+    acUnit(parent, { x: x0 + w * 0.83, y: wy - 0.18, z: zFront + 0.16 });
+  }
+  // 屋顶水箱 / 天线 / 晒衣杆
+  cyl(0.2, 0.2, 0.32, 10, toon('#b9c0c8', { rim: 0.18 }), { x: cx - w * 0.28, y: baseY + 3.55, z: zFront - 0.3, parent, cast: true });
+  cyl(0.014, 0.02, 1.0, 4, toon('#8a9199', { rim: 0.1 }), { x: cx + w * 0.3, y: baseY + 3.8, z: zFront - 0.3, parent, cast: false });
+  box(w * 0.6, 0.025, 0.025, toon('#8a9199', { rim: 0.1 }), { x: cx, y: baseY + 4.0, z: zFront - 0.3, parent, cast: false });
+  // 长屋门牌
+  const plate = signTexture(512, 96, (ctx, sw, sh) => {
+    ctx.fillStyle = '#f0e8d8'; ctx.fillRect(0, 0, sw, sh);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `700 38px ${JP_FONT}`; ctx.fillStyle = '#3a3028'; ctx.fillText('月見長屋  ·  2F / 3F', sw / 2, sh / 2);
+  });
+  const label = plane(w * 0.42, 0.16, lightbox(plate, 0.9), { x: cx, y: baseY + 2.5, z: zFront + 0.012, parent });
+  label.userData.noOutline = true;
 }
