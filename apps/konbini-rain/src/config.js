@@ -241,6 +241,16 @@ export const E = {
     { id: 'pharmacy', style: 'pharmacy', jp: 'くすり 月見', en: 'PHARMACY', kind: 'pharmacy', x: -8.6, z: -2.4, ry: 0, w: 2.6, d: 4.0, h: 5.0, accent: '#7dffc0', sign: '#c8f0ff', paper: '#1a3a3a' },
     { id: 'thrift', style: 'thrift', jp: '100円ショップ', en: 'HYAKU-EN', kind: 'thrift', x: -6.0, z: -2.4, ry: 0, w: 2.4, d: 4.0, h: 4.8, accent: '#ff8a5c', sign: '#ffe0b0', paper: '#5a2a2a' },
     { id: 'barber', style: 'barber', jp: '床屋 タカハシ', en: 'TAKAHASHI', kind: 'barber', x: -4.0, z: -2.4, ry: 0, w: 1.8, d: 3.6, h: 4.6, accent: '#9fd8ff', sign: '#cfe8ff', paper: '#1e2a3a' },
+    // 主街东侧第二排店面（朝西，构成真正两侧商店街）
+    { id: 'clothing', style: 'clothing', jp: '洋服 そよ風', en: 'SOYOKAZE', kind: 'clothing', x: 3.3, z: 4.4, ry: -Math.PI / 2, w: 2.2, d: 3.8, h: 4.8, accent: '#e8a0b8', sign: '#ffe0e8', paper: '#3a2430' },
+    { id: 'electronics', style: 'electronics', jp: '電器 ヤマ電', en: 'YAMADEN', kind: 'electronics', x: 3.3, z: 6.6, ry: -Math.PI / 2, w: 2.2, d: 3.8, h: 4.8, accent: '#9fd8ff', sign: '#d8f0ff', paper: '#1e2a3a' },
+    { id: 'post', style: 'post', jp: '月見郵便局', en: 'POST OFFICE', kind: 'post', x: 3.3, z: 8.8, ry: -Math.PI / 2, w: 2.0, d: 3.4, h: 4.2, accent: '#ff6f5e', sign: '#ffd9a0', paper: '#3a1e1a' },
+    { id: 'koban', style: 'post', jp: '月見交番', en: 'KOBA N', kind: 'post', x: 3.3, z: 10.8, ry: -Math.PI / 2, w: 1.7, d: 2.6, h: 3.4, accent: '#9fd8ff', sign: '#d8f0ff', paper: '#1e2a3a' },
+    // 医院周边：24h 药局 / 花店
+    { id: 'clinic-pharmacy', style: 'pharmacy', jp: '24h 月見薬局', en: 'TSUKIMI 24H', kind: 'pharmacy', x: 11.2, z: -6.2, ry: -Math.PI / 2, w: 1.9, d: 2.2, h: 3.4, accent: '#7dffc0', sign: '#c8f0ff', paper: '#1a3a3a' },
+    { id: 'clinic-flower', style: 'flower', jp: '花 ふじ', en: 'FUJI FLOWERS', kind: 'clothing', x: 11.2, z: -3.8, ry: -Math.PI / 2, w: 1.7, d: 2.0, h: 3.2, accent: '#ffb7c5', sign: '#ffe0e8', paper: '#3a2430' },
+    // 河边咖啡
+    { id: 'river-cafe', style: 'cafe', jp: '川辺 喫茶', en: 'RIVERSIDE', kind: 'cafe', x: 10.4, z: 16.8, ry: 0, w: 3.0, d: 2.2, h: 3.8, accent: '#ffcf94', sign: '#ffd9a0', paper: '#2a1c14' },
   ],
 
 
@@ -261,34 +271,28 @@ export const E = {
 
   // 住宅（外圈 + 内圈，按街道朝向）
   houses: [
-    // 西侧外圈（沿次街）
-    { x: -19.0, z: -12.0, w: 3.0, d: 2.6, h: 3.1, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
-    { x: -19.0, z: -8.6, w: 3.0, d: 2.6, h: 3.0, ry: Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: true },
-    { x: -19.0, z: -5.2, w: 3.0, d: 2.6, h: 3.2, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: false },
+    // 西侧外圈（拉开间距，每户带院子）
+    { x: -19.0, z: -12.2, w: 3.0, d: 2.6, h: 3.1, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
+    { x: -19.0, z: -7.6, w: 3.0, d: 2.6, h: 3.0, ry: Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: true },
     { x: -19.0, z: 14.4, w: 3.0, d: 2.4, h: 3.0, ry: Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: true },
-    { x: -19.0, z: 16.8, w: 3.0, d: 2.4, h: 2.9, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: false },
-    // 北侧外圈（校园以东）
-    { x: 6.2, z: -19.0, w: 3.0, d: 2.8, h: 3.1, ry: 0, roof: 'gable', warm: '#ffcf94', garden: true },
-    { x: 9.4, z: -19.0, w: 3.0, d: 2.8, h: 3.0, ry: 0, roof: 'hip', warm: '#ffd9a0', garden: false },
-    { x: 12.6, z: -19.0, w: 3.0, d: 2.8, h: 3.2, ry: 0, roof: 'gable', warm: '#ffcf94', garden: true },
-    // 内圈西北（商店街背后）
-    { x: -11.4, z: -9.6, w: 3.0, d: 2.6, h: 3.2, ry: 0, roof: 'gable', warm: '#ffcf94', garden: true },
-    { x: -8.0, z: -9.6, w: 3.0, d: 2.6, h: 3.0, ry: 0, roof: 'hip', warm: '#ffd9a0', garden: false },
-    { x: -4.8, z: -9.6, w: 2.8, d: 2.6, h: 3.1, ry: 0, roof: 'hip', warm: '#ffcf94', garden: true },
+    { x: -19.0, z: 16.8, w: 3.0, d: 2.4, h: 2.9, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
+    // 北侧外圈（校园以东，间距 4.6m）
+    { x: 6.6, z: -19.0, w: 3.0, d: 2.8, h: 3.1, ry: 0, roof: 'gable', warm: '#ffcf94', garden: true },
+    { x: 11.2, z: -19.0, w: 3.0, d: 2.8, h: 3.0, ry: 0, roof: 'hip', warm: '#ffd9a0', garden: true },
+    // 内圈西北（商店街背后，留出庭院）
+    { x: -11.2, z: -9.6, w: 3.0, d: 2.6, h: 3.2, ry: 0, roof: 'gable', warm: '#ffcf94', garden: true },
+    { x: -5.2, z: -9.6, w: 3.0, d: 2.6, h: 3.0, ry: 0, roof: 'hip', warm: '#ffd9a0', garden: true },
     // 内圈西南（商店街以西）
-    { x: -12.0, z: 4.6, w: 2.8, d: 2.6, h: 3.2, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
-    { x: -12.0, z: 7.8, w: 2.8, d: 2.6, h: 3.0, ry: Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: false },
-    { x: -12.0, z: 11.0, w: 2.8, d: 2.6, h: 3.1, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
+    { x: -12.0, z: 5.2, w: 2.8, d: 2.6, h: 3.2, ry: Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
+    { x: -12.0, z: 10.2, w: 2.8, d: 2.6, h: 3.1, ry: Math.PI / 2, roof: 'hip', warm: '#ffcf94', garden: true },
     // 内圈东南
-    { x: 5.6, z: 5.0, w: 3.2, d: 2.8, h: 3.2, ry: -Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: true },
-    { x: 5.6, z: 9.4, w: 3.2, d: 2.8, h: 3.0, ry: -Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: false },
-    { x: 10.6, z: 5.2, w: 3.0, d: 2.6, h: 3.1, ry: -Math.PI / 2, roof: 'hip', warm: '#ffcf94', garden: true },
-    { x: 11.2, z: 9.2, w: 3.0, d: 2.8, h: 3.1, ry: -Math.PI / 2, roof: 'hip', warm: '#ffd9a0', garden: true },
-    { x: 11.6, z: 3.8, w: 2.4, d: 2.4, h: 3.0, ry: -Math.PI / 2, roof: 'gable', warm: '#ffcf94', garden: false },
+    { x: 10.8, z: 5.2, w: 3.0, d: 2.6, h: 3.1, ry: -Math.PI / 2, roof: 'hip', warm: '#ffcf94', garden: true },
+    { x: 11.2, z: 9.6, w: 3.0, d: 2.8, h: 3.1, ry: -Math.PI / 2, roof: 'gable', warm: '#ffd9a0', garden: true },
     // 东侧外圈
-    { x: 17.0, z: 11.0, w: 2.8, d: 2.4, h: 3.0, ry: -Math.PI / 2, roof: 'gable', warm: '#ffd9a0', garden: false },
-    { x: 17.0, z: 14.0, w: 2.8, d: 2.4, h: 2.9, ry: -Math.PI / 2, roof: 'hip', warm: '#ffcf94', garden: true },
+    { x: 17.0, z: 11.4, w: 2.8, d: 2.4, h: 3.0, ry: -Math.PI / 2, roof: 'gable', warm: '#ffd9a0', garden: true },
+    { x: 17.0, z: 14.4, w: 2.8, d: 2.4, h: 2.9, ry: -Math.PI / 2, roof: 'hip', warm: '#ffcf94', garden: true },
   ],
+
 
 
   apartments: [
