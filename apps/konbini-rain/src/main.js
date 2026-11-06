@@ -228,8 +228,8 @@ const detailsMod = params.get('details') !== '0' ? build('interior-details', bui
 for (const mod of [storeMod, interiorMod, detailsMod]) {
   if (mod && mod.group) mod.group.position.set(E.storeOffset.dx, 0, E.storeOffset.dz);
 }
-build('city', buildCity);
-build('fx', buildFx);
+const cityMod = build('city', buildCity);
+const fxMod = build('fx', buildFx);
 
 // 旧楼背面/西面的小壁灯：从模型后方观看时提供一点可读的暖光
 function addBackLamp(x, y, z, ry) {
@@ -380,8 +380,7 @@ controls.addEventListener('end', () => {
 });
 
 const startView = params.get('view');
-if (startView) applyView(startView);
-else if (params.has('cam')) {
+if (params.has('cam')) {
   const [x, y, z] = params.get('cam').split(',').map(Number);
   camera.position.set(x, y, z);
   controls.update();
@@ -401,6 +400,182 @@ const post = createPost(renderer, scene, camera, {
   fadeMs: STILL ? 0 : 1900,
 });
 post.uniforms.uTilt.value = QUALITY.isMobile ? 0.3 : 0.55;
+
+/* -------------------------------------------------------------------------- */
+/*  白天 / 街景                                                                */
+/* -------------------------------------------------------------------------- */
+
+const DAY = {
+  skyTop: '#5f96cf',
+  skyHorizon: '#cfe3f0',
+  skyBottom: '#eef4f2',
+  fog: '#c8d8e5',
+  fogDensity: 0.0024,
+  hemiSky: '#e8f2ff',
+  hemiGround: '#8b8170',
+  sun: '#fff2d8',
+  exposure: 1.02,
+  bloom: 0.12,
+};
+const NIGHT = {
+  skyTop: C.bgTop,
+  skyHorizon: C.bgHorizon,
+  skyBottom: C.bgBottom,
+  fog: C.fog,
+  fogDensity: 0.0065,
+  hemiSky: C.hemiSky,
+  hemiGround: C.hemiGround,
+  sun: C.moon,
+  exposure: 1.18,
+  bloom: 0.36 * QUALITY.bloom,
+};
+const baseIntensity = {
+  hemi: hemi.intensity,
+  moon: moonLight.intensity,
+  bounce: bounce.intensity,
+  fill: fill.intensity,
+  back: backFill.intensity,
+  points: pointLights.map((l) => l.intensity),
+  canopy: canopySpot.intensity,
+  lamp: lampSpot.intensity,
+};
+let isDay = false;
+
+// 白天云朵 / 太阳（只在 day 显示）
+function makeCloudTexture() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const ctx = c.getContext('2d');
+  for (let i = 0; i < 7; i += 1) {
+    const x = 40 + (i * 31) % 180;
+    const y = 58 + Math.sin(i * 1.7) * 18;
+    const r = 22 + (i % 3) * 9;
+    const grd = ctx.createRadialGradient(x, y, 2, x, y, r);
+    grd.addColorStop(0, 'rgba(255,255,255,0.95)');
+    grd.addColorStop(0.55, 'rgba(255,255,255,0.55)');
+    grd.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const dayGroup = new THREE.Group();
+dayGroup.name = 'day-sky';
+dayGroup.visible = false;
+scene.add(dayGroup);
+{
+  const cloudTex = makeCloudTexture();
+  for (let i = 0; i < 13; i += 1) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: cloudTex, transparent: true, opacity: 0.6, depthWrite: false, fog: false,
+    }));
+    const a = (i / 13) * Math.PI * 2 + 0.4;
+    const r = 36 + (i % 4) * 5;
+    sp.position.set(Math.cos(a) * r, 17 + (i % 3) * 4.5, Math.sin(a) * r);
+    sp.scale.set(19 + (i % 3) * 5, 8 + (i % 2) * 3, 1);
+    dayGroup.add(sp);
+  }
+  const sun = glowSprite('#fff4d6', 26, 0.85);
+  sun.position.set(-34, 30, 14);
+  dayGroup.add(sun);
+}
+
+function setMode(mode) {
+  isDay = mode === 'day';
+  const P = isDay ? DAY : NIGHT;
+  skyMat.uniforms.uTop.value.set(P.skyTop);
+  skyMat.uniforms.uHorizon.value.set(P.skyHorizon);
+  skyMat.uniforms.uBottom.value.set(P.skyBottom);
+  skyMat.uniforms.uGlow.value.set(isDay ? '#000000' : '#3a2b2a');
+  scene.fog.color.set(P.fog);
+  scene.fog.density = P.fogDensity;
+  hemi.color.set(isDay ? '#e8f2ff' : C.hemiSky);
+  hemi.groundColor.set(isDay ? '#8b8170' : C.hemiGround);
+  hemi.intensity = isDay ? 1.15 : baseIntensity.hemi;
+  moonLight.color.set(isDay ? P.sun : C.moon);
+  moonLight.intensity = isDay ? 1.65 : baseIntensity.moon;
+  if (isDay) moonLight.position.set(-18, 30, 16);
+  else moonLight.position.set(-8, 22, 16);
+  bounce.intensity = isDay ? 0.25 : baseIntensity.bounce;
+  fill.intensity = isDay ? 0.45 : baseIntensity.fill;
+  backFill.intensity = isDay ? 0.3 : baseIntensity.back;
+  pointLights.forEach((l, i) => { l.intensity = isDay ? baseIntensity.points[i] * 0.1 : baseIntensity.points[i]; });
+  canopySpot.intensity = isDay ? baseIntensity.canopy * 0.16 : baseIntensity.canopy;
+  lampSpot.intensity = isDay ? baseIntensity.lamp * 0.14 : baseIntensity.lamp;
+  post.uniforms.uExposure.value = isDay ? DAY.exposure : NIGHT.exposure;
+  post.bloom.strength = isDay ? DAY.bloom : NIGHT.bloom;
+  blob.material.opacity = isDay ? 0.18 : 0.9;
+  blob.material.color.set(isDay ? '#5a6a72' : '#01030a');
+  dayGroup.visible = isDay;
+  if (fxMod && fxMod.group) fxMod.group.visible = !isDay;
+  document.body.classList.toggle('is-day', isDay);
+  document.querySelectorAll('[data-mode]').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
+}
+
+/* 街景 / 全景 */
+let viewMode = 'hero';
+function applyStreet() {
+  viewMode = 'street';
+  camera.fov = 58;
+  camera.updateProjectionMatrix();
+  controls.minDistance = 0.8;
+  controls.maxDistance = 26;
+  controls.maxPolarAngle = 1.56;
+  camera.position.set(-0.4, 1.75, 12.0);
+  controls.target.set(2.6, 1.55, -2.0);
+  controls.update();
+  resolveCameraCollision();
+  document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === 'street'));
+}
+function applyHeroView() {
+  viewMode = 'hero';
+  controls.minDistance = 6.0;
+  controls.maxDistance = 220;
+  controls.maxPolarAngle = 1.43;
+  camera.fov = views.hero.fov;
+  camera.updateProjectionMatrix();
+  applyView('hero');
+  document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === 'hero'));
+}
+
+/* UI */
+const ui = document.getElementById('town-ui');
+const hint = document.getElementById('town-hint');
+const uiDisabled = params.get('ui') === '0' || params.get('mode') === 'clean';
+if (uiDisabled) {
+  if (ui) ui.style.display = 'none';
+  if (hint) hint.style.display = 'none';
+}
+function showUI() {
+  if (uiDisabled) return;
+  ui?.classList.remove('dim');
+  hint?.classList.remove('dim');
+  clearTimeout(showUI.timer);
+  showUI.timer = setTimeout(() => { ui?.classList.add('dim'); hint?.classList.add('dim'); }, 5200);
+}
+addEventListener('pointermove', showUI, { passive: true });
+addEventListener('pointerdown', showUI, { passive: true });
+showUI();
+if (!uiDisabled) {
+  document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.view === 'street') applyStreet(); else applyHeroView();
+  }));
+  // 键盘：D 白天 / N 雨夜 / V 切换视角
+  addEventListener('keydown', (e) => {
+    if (e.key === 'd' || e.key === 'D') setMode('day');
+    if (e.key === 'n' || e.key === 'N') setMode('night');
+    if (e.key === 'v' || e.key === 'V') { if (viewMode === 'street') applyHeroView(); else applyStreet(); }
+  });
+}
+
+// 初始模式 / 视角
+setMode(params.get('mode') === 'day' ? 'day' : 'night');
+if (startView === 'street') applyStreet(); else if (startView) applyView(startView); else applyHeroView();
+window.__KONBINI__ = Object.assign(window.__KONBINI__ || {}, { setMode, applyStreet, applyHeroView });
+
 
 /* -------------------------------------------------------------------------- */
 /*  窗口自适应                                                                 */

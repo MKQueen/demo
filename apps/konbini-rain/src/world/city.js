@@ -238,10 +238,14 @@ function shopFrontTexture(kind, accent) {
 
 function shop(parent, cfg) {
   const g = group(`shop-${cfg.id}`);
-  g.position.set(cfg.x, Y, cfg.z);
-  g.rotation.y = cfg.ry || 0;
-  parent.add(g);
   const { w, d, h } = cfg;
+  // cfg.x / cfg.z 是「店门中心」的世界坐标：按朝向把体块退到门后
+  const ry = cfg.ry || 0;
+  const offX = Math.abs(ry - Math.PI / 2) < 0.01 ? -d / 2 : Math.abs(ry + Math.PI / 2) < 0.01 ? d / 2 : 0;
+  const offZ = Math.abs(ry) < 0.01 ? -d / 2 : Math.abs(Math.abs(ry) - Math.PI) < 0.01 ? d / 2 : 0;
+  g.position.set(cfg.x + offX, Y, cfg.z + offZ);
+  g.rotation.y = ry;
+  parent.add(g);
   box(w, h, d, toon('#b8ac98', { rim: 0.16, rimColor: '#a8c4e4', gradient: 'soft' }), { y: h / 2, parent: g, cast: true, receive: true });
   box(w + 0.16, 0.16, d + 0.16, toon('#6a6558', { rim: 0.12 }), { y: 0.08, parent: g, cast: false });
   // 屋顶：坡屋顶 + 屋脊
@@ -516,7 +520,7 @@ function station(parent) {
   box(pw - 0.1, 0.02, z1 - z0 - 0.1, toon('#a8a89a', { rim: 0.1 }), { x: pcx, y: Y + 0.31, z: pcz, parent: g, cast: false });
   box(0.12, 0.03, z1 - z0 - 0.4, toon('#e8c04a', { rim: 0.1 }), { x: px1 - 0.4, y: Y + 0.325, z: pcz, parent: g, cast: false });
   // 站房（西侧，面向街道）
-  const bx = px0 - 1.45;
+  const bx = px0 - 0.6;
   box(2.4, 3.6, 5.2, toon('#d8d4c8', { rim: 0.16, rimColor: '#a8c4e4' }), { x: bx, y: Y + 1.8, z: -3.6, parent: g, cast: true });
   box(2.6, 0.16, 5.4, toon('#2a5a8a', { rim: 0.16 }), { x: bx, y: Y + 3.65, z: -3.6, parent: g, cast: true });
   for (let i = 0; i < 3; i += 1) litWindow(g, { x: bx - 1.21, y: Y + 1.7, z: -5.3 + i * 1.6, w: 0.7, h: 1.0, ry: -Math.PI / 2, color: '#fff0c8', lit: 0.8 });
@@ -1112,8 +1116,6 @@ export function buildCity(ctx) {
   riverside(g);
   bridges(g);
 
-  // 外圈填充住宅
-  fillHouses(g);
   // 街道道具 / 招牌 / 广场
   streetProps(g);
   signsAndPlaza(g);
