@@ -1158,7 +1158,6 @@ export function buildCity(ctx) {
   const sig = signals(g);
   const cars = movingCars(g);
   const cats = movingCats(g);
-  const peds = pedestrians(g);
   const boats = boat(g);
   const petalsMod = petals(g);
   const lan = lanternSwings(g);
@@ -1171,7 +1170,6 @@ export function buildCity(ctx) {
       sig.update(t);
       cars.update(t);
       cats.update(t);
-      peds.update(t);
       boats.update(t);
       petalsMod.update(t, dt);
       lan.update(t);
