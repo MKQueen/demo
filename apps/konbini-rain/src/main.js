@@ -51,9 +51,9 @@ renderer.shadowMap.enabled = QUALITY.shadows;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(C.fog, 0.0125);
+scene.fog = new THREE.FogExp2(C.fog, 0.009);
 
-const camera = new THREE.PerspectiveCamera(VIEWS.hero.fov, innerWidth / innerHeight, 0.08, 220);
+const camera = new THREE.PerspectiveCamera(VIEWS.hero.fov, innerWidth / innerHeight, 0.08, 420);
 // layer 1 = 底座/地块这些「地面以下」的几何，平面反射相机（仅 layer 0）会跳过它们
 camera.layers.enable(1);
 
@@ -102,7 +102,7 @@ scene.add(sky);
 // 底座下方的一团柔和投影，让模型「落在」暗色摄影棚里
 const blobTex = glowTexture();
 const blob = new THREE.Mesh(
-  new THREE.PlaneGeometry(30, 22),
+  new THREE.PlaneGeometry(52, 38),
   new THREE.MeshBasicMaterial({
     map: blobTex,
     color: '#01030a',
@@ -124,13 +124,13 @@ const hemi = new THREE.HemisphereLight(C.hemiSky, C.hemiGround, 0.38);
 scene.add(hemi);
 
 const moonLight = new THREE.DirectionalLight(C.moon, 0.72);
-moonLight.position.set(-5, 14, 10);
+moonLight.position.set(-6, 18, 14);
 moonLight.castShadow = QUALITY.shadows;
 moonLight.shadow.mapSize.set(2048, 2048);
-moonLight.shadow.camera.left = -12;
-moonLight.shadow.camera.right = 12;
-moonLight.shadow.camera.top = 12;
-moonLight.shadow.camera.bottom = -12;
+moonLight.shadow.camera.left = -18;
+moonLight.shadow.camera.right = 18;
+moonLight.shadow.camera.top = 18;
+moonLight.shadow.camera.bottom = -18;
 moonLight.shadow.camera.near = 1;
 moonLight.shadow.camera.far = 60;
 moonLight.shadow.bias = -0.0005;
@@ -182,8 +182,8 @@ scene.add(canopySpot.target);
 
 // 路灯下的暖光聚光：让街角路面更亮，倒影更有层次
 const lampSpot = new THREE.SpotLight('#ffb45e', 12, 12, 0.85, 0.72, 1.7);
-lampSpot.position.set(2.0, 4.3, 2.2);
-lampSpot.target.position.set(2.0, 0, 1.6);
+lampSpot.position.set(2.2, 4.5, 2.2);
+lampSpot.target.position.set(2.2, 0, 1.6);
 scene.add(lampSpot);
 scene.add(lampSpot.target);
 
@@ -282,7 +282,7 @@ function frameFor(v) {
   let target = v.target;
   if (aspect < 1.05) {
     fov = Math.max(fov, 48);
-    const targetWidth = 11.9;
+    const targetWidth = 24.0;
     const need = targetWidth / (2 * Math.tan((fov * Math.PI) / 360) * aspect);
     radius = Math.max(radius * 1.02, need);
     // 竖屏时把视觉重心往下放一点，别让模型顶在画面 1/3 处
@@ -308,8 +308,8 @@ controls.dampingFactor = 0.055;
 controls.enablePan = false;
 controls.rotateSpeed = 0.55;
 controls.zoomSpeed = 0.85;
-controls.minDistance = 5.5;
-controls.maxDistance = 32;
+controls.minDistance = 6.0;
+controls.maxDistance = 150;
 controls.minPolarAngle = 0.16;
 controls.maxPolarAngle = 1.43;
 controls.autoRotate = false;
@@ -325,9 +325,10 @@ controls.update();
 
 /* ---- 相机碰撞：避免最近距离旋转时钻进旧楼 / 便利店 / 轻卡内部（QA BUG-1）---- */
 const CAM_BLOCKERS = [
-  new THREE.Box3(new THREE.Vector3(-2.9, 0.12, -4.6), new THREE.Vector3(1.72, 3.76, 1.02)), // 便利店体块
-  new THREE.Box3(new THREE.Vector3(-5.5, 0.12, -4.8), new THREE.Vector3(-4.0, 6.3, 1.02)), // 左侧旧楼
-  new THREE.Box3(new THREE.Vector3(3.32, 0.0, -4.85), new THREE.Vector3(4.92, 1.95, -1.45)), // 路边轻卡
+  new THREE.Box3(new THREE.Vector3(2.7, 0.0, -8.3), new THREE.Vector3(7.45, 4.0, -2.55)), // 便利店
+  new THREE.Box3(new THREE.Vector3(8.1, 0.0, -10.4), new THREE.Vector3(10.5, 6.6, -5.9)), // 医院
+  new THREE.Box3(new THREE.Vector3(-5.7, 0.0, -10.8), new THREE.Vector3(-2.5, 8.2, -7.8)), // 高层公寓
+  new THREE.Box3(new THREE.Vector3(-12.0, 0.0, 3.6), new THREE.Vector3(-6.0, 5.5, 9.2)), // 神社
 ];
 const _camDir = new THREE.Vector3();
 const _camTarget = new THREE.Vector3();

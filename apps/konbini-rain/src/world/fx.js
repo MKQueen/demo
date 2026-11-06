@@ -94,7 +94,7 @@ function fxMesh(geometry, material, renderOrder) {
 /*  1. 降雨                                                                    */
 /* ========================================================================== */
 
-const RAIN_TOP = 6.9;
+const RAIN_TOP = 10.0;
 
 const RAIN_VERT = /* glsl */ `
   uniform float uTime;
@@ -197,12 +197,12 @@ const RAIN_FRAG = /* glsl */ `
 
 /** 会被雨丝"照亮"的光球（纯着色计算，不加真实光源） */
 const RAIN_LIGHTS = [
-  { p: [SO.dx + 0.3, 2.4, SO.dz + 2.0], r: 3.4, color: '#ffcf94', gain: 0.8 },
-  { p: [3.1, 2.1, 2.8], r: 2.6, color: '#ff8a5c', gain: 0.75 },
-  { p: [4.85, 2.1, 2.8], r: 2.6, color: '#ffb45e', gain: 0.7 },
-  { p: [-5.7, 2.0, 4.8], r: 2.8, color: '#ff6f5c', gain: 0.55 },
-  { p: [-6.0, 2.2, -3.2], r: 2.6, color: '#ffcf94', gain: 0.45 },
-  { p: [6.6, 2.2, 3.6], r: 2.4, color: '#9fd8ff', gain: 0.45 },
+  { p: [SO.dx + 0.3, 2.6, SO.dz + 3.0], r: 4.0, color: '#ffcf94', gain: 0.8 },
+  { p: [4.4, 2.4, 2.8], r: 3.0, color: '#ff8a5c', gain: 0.75 },
+  { p: [8.0, 2.4, 2.8], r: 3.0, color: '#ffb45e', gain: 0.7 },
+  { p: [-9.5, 2.6, 6.0], r: 3.2, color: '#ff6f5c', gain: 0.55 },
+  { p: [-6.7, 2.6, -2.9], r: 3.2, color: '#ffcf94', gain: 0.5 },
+  { p: [10.0, 2.6, 5.6], r: 2.8, color: '#9fd8ff', gain: 0.45 },
 ];
 
 function buildRain(quality) {
@@ -248,12 +248,12 @@ function buildRain(quality) {
       uStoreRoofY: { value: S.parapetY + 0.1 },
       uCanopyBox: { value: new THREE.Vector4(S.canopy.x0, S.canopy.x1, S.canopy.z0, S.canopy.z1) },
       uCanopyY: { value: S.canopy.y + 0.06 },
-      uBlockBox0: { value: new THREE.Vector4(2.1, 6.9, 2.7, 6.8) },
-      uBlockY0: { value: 3.5 },
-      uBlockBox1: { value: new THREE.Vector4(E.bounds.minX, -1.9, E.bounds.minZ, -1.4) },
-      uBlockY1: { value: 3.0 },
-      uBlockBox2: { value: new THREE.Vector4(E.bounds.minX, -1.9, 2.7, E.river.minZ) },
-      uBlockY2: { value: 3.2 },
+      uBlockBox0: { value: new THREE.Vector4(2.8, 10.4, 2.8, 6.2) },
+      uBlockY0: { value: 3.4 },
+      uBlockBox1: { value: new THREE.Vector4(E.bounds.minX, -2.6, E.bounds.minZ, -2.6) },
+      uBlockY1: { value: 4.2 },
+      uBlockBox2: { value: new THREE.Vector4(E.bounds.minX, -2.6, 2.8, E.river.minZ) },
+      uBlockY2: { value: 4.6 },
       uAreaMin: { value: new THREE.Vector2(E.bounds.minX, E.bounds.minZ) },
       uAreaMax: { value: new THREE.Vector2(E.bounds.maxX, E.bounds.maxZ) },
       uBaseColor: { value: new THREE.Vector3(0.45, 0.57, 0.82) },
@@ -1053,7 +1053,7 @@ const CONE_FRAG = /* glsl */ `
 
 function buildFogCone(quality) {
   if (quality.isMobile) return null;
-  const lamp = { x: 2.0, y: 4.3, z: 2.2 };
+  const lamp = { x: 2.2, y: 4.5, z: 2.2 };
   const apexY = lamp.y - 0.05;
   const height = apexY - 0.1;
   const geo = new THREE.ConeGeometry(1, 1, 24, 3, true);

@@ -190,11 +190,11 @@ export const L = {
 };
 
 /* ========================================================================== */
-/*  雨夜小镇布局（十字街 · 15×15 收藏模型）                                      */
+/*  雨夜小镇布局（十字街 · 24×24 收藏模型）                                      */
 /* ========================================================================== */
 
 /**
- * 整座小镇都落在一个约 15×15 的方形底座上：
+ * 整座小镇都落在一个 24×24 的方形底座上：
  *   - 中心是十字路口，向四个方向伸出主街
  *   - 东北：便利店（保留原来完整的内景，作为视觉焦点）
  *   - 东南：居酒屋 / 拉面 / 古书 三家小店组成的商店街
@@ -207,29 +207,29 @@ export const L = {
  * 旧模块只认 L 里的坐标，因此这里的坐标系与 L 兼容：地面 y=0、地块顶面 y=0.12。
  */
 export const E = {
-  bounds: { minX: -7.6, maxX: 7.6, minZ: -7.6, maxZ: 7.6 },
+  bounds: { minX: -12, maxX: 12, minZ: -12, maxZ: 12 },
   top: 0.12,
 
-  // 十字街
+  // 中央十字街
   road: {
-    ew: { minX: -7.6, maxX: 7.6, minZ: -0.5, maxZ: 1.7 },
-    ns: { minX: -1.1, maxX: 1.1, minZ: -7.6, maxZ: 7.6 },
+    ew: { minX: -12, maxX: 12, minZ: -1.3, maxZ: 1.5 },
+    ns: { minX: -1.5, maxX: 1.3, minZ: -12, maxZ: 12 },
   },
   walk: {
-    north: { minZ: -1.5, maxZ: -0.5 },
-    south: { minZ: 1.7, maxZ: 2.7 },
-    east: { minX: 1.1, maxX: 2.1 },
-    west: { minX: -2.1, maxX: -1.1 },
+    north: { minZ: -2.6, maxZ: -1.3 },
+    south: { minZ: 1.5, maxZ: 2.8 },
+    east: { minX: 1.3, maxX: 2.6 },
+    west: { minX: -2.8, maxX: -1.5 },
   },
 
-  // 把旧便利店整体移到东北角（front +Z 正对东西向主街）
-  storeOffset: { dx: 5.0, dz: -2.5 },
+  // 便利店整体平移到东北角（front +Z 朝东西向主街）
+  storeOffset: { dx: 5.7, dz: -3.6 },
 
-  // 东南商业街：两家宽门面的锚点店（居酒屋 / 拉面）
+  // 主街南侧的一排店面（朝北，面向东西向主街）
   commercial: [
     {
-      id: 'izakaya', style: 'izakaya', position: { x: -2.1, z: 3.55 },
-      scale: { x: 0.5, y: 0.7, z: 0.56 }, rotation: Math.PI / 2,
+      id: 'izakaya', style: 'izakaya', position: { x: -2.8, z: 3.7 },
+      scale: { x: 0.55, y: 0.72, z: 0.58 }, rotation: Math.PI / 2,
       info: {
         id: 'izakaya', x0: -1.7, x1: 1.7, h: 4.6, floors: 2, style: 'izakaya',
         jp: '居酒屋 とり吉', en: 'TORIYOSHI', short: 'とり吉',
@@ -237,67 +237,78 @@ export const E = {
       },
     },
     {
-      id: 'ramen', style: 'ramen', position: { x: -2.1, z: 5.55 },
-      scale: { x: 0.5, y: 0.7, z: 0.56 }, rotation: Math.PI / 2,
+      id: 'ramen', style: 'ramen', position: { x: -2.8, z: 5.85 },
+      scale: { x: 0.55, y: 0.72, z: 0.58 }, rotation: Math.PI / 2,
       info: {
         id: 'ramen', x0: -1.9, x1: 1.9, h: 5.2, floors: 2, style: 'ramen',
         jp: 'ラーメン 麺屋 灯', en: 'MENYA AKARI', short: '麺屋 灯',
         accent: '#ff8a5c', sign: '#ffd9a0', glow: '#ff9b5e', paper: '#f3ead8',
       },
     },
+    {
+      id: 'books', style: 'books', position: { x: -2.8, z: 7.9 },
+      scale: { x: 0.45, y: 0.7, z: 0.56 }, rotation: Math.PI / 2,
+      info: {
+        id: 'books', style: 'books', x0: -1.3, x1: 1.3, h: 4.6, floors: 2,
+        jp: '古書 かもめ', en: 'KAMOME BOOKS', short: '古書',
+        accent: '#d8b06a', sign: '#ffe0a8', glow: '#ffcf94', paper: '#f0e2c8',
+      },
+    },
   ],
+  barber: { x: 9.2, z: 2.85, width: 1.2, h: 2.6 },
 
-  // 东南商业街的第二排：理发店（窄门面）
-  barber: { x: -2.1, z: 6.22, width: 0.8, h: 2.25 },
-
-  // 西北街口的一排小门面（咖啡馆 / 药店 / 百元店，嵌在住宅楼下）
+  // 主街北侧西段的小门面（朝南）
   northShops: [
-    { id: 'cafe', kind: 'cafe', x: -6.78, w: 0.92, jp: '喫茶 ひかり', en: 'HIKARI', color: '#ffcf94', signBg: '#2a1c14', accent: '#ffd9a0' },
-    { id: 'pharmacy', kind: 'pharmacy', x: -5.78, w: 0.9, jp: 'くすり 月見', en: 'PHARMACY', color: '#c8f0ff', signBg: '#1a3a3a', accent: '#7dffc0' },
-    { id: 'books', kind: 'books', x: -4.78, w: 0.9, jp: '古書 かもめ', en: 'KAMOME BOOKS', color: '#ffe0a8', signBg: '#3a2a1e', accent: '#ffcf94' },
-    { id: 'barber', kind: 'barber', x: -3.78, w: 0.9, jp: '床屋 タカハシ', en: 'BARBER', color: '#cfe8ff', signBg: '#1e2a3a', accent: '#9fd8ff' },
-    { id: 'laundry', kind: 'laundry', x: -2.78, w: 0.9, jp: 'コインランドリー', en: 'LAUNDRY', color: '#d8fbff', signBg: '#1a3a4a', accent: '#7fe8e0' },
+    { id: 'cafe', kind: 'cafe', x: -10.2, w: 1.5, jp: '喫茶 ひかり', en: 'HIKARI', color: '#ffcf94', signBg: '#2a1c14', accent: '#ffd9a0' },
+    { id: 'pharmacy', kind: 'pharmacy', x: -8.55, w: 1.45, jp: 'くすり 月見', en: 'PHARMACY', color: '#c8f0ff', signBg: '#1a3a3a', accent: '#7dffc0' },
+    { id: 'thrift', kind: 'thrift', x: -6.95, w: 1.4, jp: '100円ショップ', en: 'HYAKU-EN', color: '#ffe0b0', signBg: '#5a2a2a', accent: '#ff8a5c' },
+    { id: 'barber', kind: 'barber', x: -5.35, w: 1.35, jp: '床屋 タカハシ', en: 'BARBER', color: '#cfe8ff', signBg: '#1e2a3a', accent: '#9fd8ff' },
+    { id: 'laundry', kind: 'laundry', x: -3.75, w: 1.35, jp: 'コインランドリー', en: 'LAUNDRY', color: '#d8fbff', signBg: '#1a3a4a', accent: '#7fe8e0' },
   ],
 
-
-
-  // 西北住宅区 + 学校 + 小公园（密度优先的微缩尺度）
+  // 住宅区
   houses: [
-    { id: 'house-1', x: -6.35, z: -3.15, w: 1.9, d: 1.9, h: 2.4, roof: 'gable', warm: '#ffcf94', garden: true },
-    { id: 'house-2', x: -3.5, z: -6.45, w: 1.8, d: 2.0, h: 2.3, roof: 'hip', warm: '#ffd9a0', garden: false },
-    { id: 'house-3', x: -6.85, z: 3.55, w: 1.15, d: 1.8, h: 2.2, roof: 'gable', warm: '#ffcf94', garden: false },
-    { id: 'house-4', x: -6.85, z: 5.5, w: 1.15, d: 1.8, h: 2.2, roof: 'hip', warm: '#ffd9a0', garden: false },
+    { id: 'house-1', x: -10.4, z: -5.4, w: 2.8, d: 2.4, h: 2.7, roof: 'gable', warm: '#ffcf94', garden: true },
+    { id: 'house-2', x: -7.1, z: -5.4, w: 2.8, d: 2.4, h: 2.6, roof: 'hip', warm: '#ffd9a0', garden: true },
+    { id: 'house-3', x: -3.9, z: -5.2, w: 2.3, d: 2.2, h: 2.5, roof: 'gable', warm: '#ffcf94', garden: false },
+    { id: 'house-4', x: 4.6, z: 4.6, w: 2.4, d: 2.2, h: 2.5, roof: 'gable', warm: '#ffd9a0', garden: true },
+    { id: 'house-5', x: 4.6, z: 6.85, w: 2.4, d: 2.0, h: 2.4, roof: 'hip', warm: '#ffcf94', garden: false },
+    { id: 'house-6', x: -7.35, z: 4.25, w: 1.65, d: 2.0, h: 2.2, roof: 'gable', warm: '#ffd9a0', garden: false },
+    { id: 'house-7', x: -7.35, z: 6.6, w: 1.65, d: 2.0, h: 2.15, roof: 'hip', warm: '#ffcf94', garden: false },
   ],
-  apartment: { id: 'apartment', x: -6.3, z: -6.0, w: 2.2, d: 2.5, h: 7.4, floors: 6 },
-  school: { x: -3.5, z: -3.6, w: 2.2, d: 2.8, h: 3.4, yard: { x: -3.5, z: -2.0, w: 2.2, d: 0.7 } },
-  park: { x: -6.3, z: -4.55, w: 1.8, d: 0.55 },
+  apartment: { id: 'apartment', x: -4.1, z: -9.3, w: 3.0, d: 2.8, h: 8.0, floors: 6 },
+  school: { x: -9.6, z: -9.5, w: 4.4, d: 3.0, h: 4.4, yard: { x: -9.6, z: -7.3, w: 4.4, d: 1.4 } },
+  park: { x: -7.6, z: -7.6, w: 2.2, d: 1.2 },
 
   // 南侧小河
-  river: { minZ: 6.9, maxZ: 7.42, y: 0.045 },
-  bridgeMain: { x0: -1.1, x1: 1.1, z: 6.7 },
-  bridgeFoot: { x0: -5.6, x1: -4.4, z: 6.75 },
+  river: { minZ: 10.3, maxZ: 11.7, y: 0.045 },
+  bridgeMain: { x0: -1.5, x1: 1.3, z: 10.15 },
+  bridgeFoot: { x0: -8.6, x1: -7.1, z: 10.2 },
 
-  // 东侧铁道（模型边缘的「切面」）
-  rail: { minX: 6.85, maxX: 7.6, minZ: -7.4, maxZ: 6.8, y: 0.06 },
-  platform: { x0: 6.08, x1: 6.85, z0: 2.8, z1: 5.55 },
+  // 东侧铁道
+  rail: { minX: 10.6, maxX: 11.9, minZ: -12, maxZ: 10.2, y: 0.06 },
+  platform: { x0: 9.6, x1: 10.6, z0: 2.9, z1: 7.4 },
 
-  // 西南： elevated 神社 + 小医院
-  shrine: { x: 5.05, z: 6.25, w: 2.3, d: 1.1 },
-  hospital: { x: 3.0, z: 4.2, w: 1.9, d: 2.2, h: 3.6, floors: 2 },
+  // 神社 / 医院 / 河岸公园
+  shrine: { x: -10.6, z: 6.2, w: 4.2, d: 4.4 },
+  hospital: { x: 8.2, z: -8.2, w: 2.2, d: 4.2, h: 6.4, floors: 4 },
+  riversidePark: { x: 7.6, z: 8.7, w: 4.8, d: 1.5 },
 
   // 街上的灯
   townLights: [
-    { x: 0.2, y: 3.6, z: 0.2, color: 'warm', intensity: 1.6, distance: 5.0, decay: 2 },
-    { x: 4.6, y: 2.6, z: 2.3, color: 'warm', intensity: 1.4, distance: 4.5, decay: 2 },
-    { x: -5.6, y: 2.8, z: -2.4, color: 'warmDeep', intensity: 1.2, distance: 4.5, decay: 2 },
-    { x: -5.0, y: 2.4, z: 5.3, color: 'warm', intensity: 1.1, distance: 4.0, decay: 2 },
-    { x: 6.9, y: 3.0, z: 4.6, color: 'cool', intensity: 0.9, distance: 4.0, decay: 2 },
+    { x: 0.2, y: 3.8, z: 0.2, color: 'warm', intensity: 2.0, distance: 7.0, decay: 2 },
+    { x: 4.9, y: 3.2, z: 2.2, color: 'warm', intensity: 1.8, distance: 6.0, decay: 2 },
+    { x: -6.6, y: 3.0, z: -2.4, color: 'warmDeep', intensity: 1.5, distance: 5.5, decay: 2 },
+    { x: -9.5, y: 2.8, z: 6.0, color: 'warmDeep', intensity: 1.3, distance: 5.0, decay: 2 },
+    { x: 9.8, y: 3.2, z: 5.6, color: 'cool', intensity: 1.2, distance: 5.0, decay: 2 },
+    { x: 8.6, y: 3.0, z: -5.5, color: 'warm', intensity: 1.2, distance: 5.0, decay: 2 },
   ],
 
-  // 雨区（fx）
   rainCenter: { x: 0, z: 0 },
-  rainHalf: { x: 8.0, z: 8.0 },
+  rainHalf: { x: 12, z: 12 },
 };
+
+
 
 /* ========================================================================== */
 /*  品牌                                                                       */
@@ -323,24 +334,26 @@ export const BRAND = {
 /* ========================================================================== */
 
 export const VIEWS = {
-  // 开场：45° 略带俯视，整座小镇尽收眼底
-  hero: { target: [0.2, 1.2, 0.8], radius: 33, az: 0.7, el: 0.82, fov: 32 },
-  // 便利店正前方
-  front: { target: [4.4, 1.4, -1.0], radius: 11.5, az: 0.16, el: 1.05, fov: 36 },
-  // 商店街（西南，朝东的居酒屋/拉面）
-  shops: { target: [-3.4, 1.2, 4.6], radius: 11.5, az: 1.05, el: 1.0, fov: 36 },
+  // 开场：整座 24×24 雨夜小镇的四分之三俯瞰
+  hero: { target: [0.2, 2.2, 0.6], radius: 55, az: 0.7, el: 0.9, fov: 30 },
+  // 便利店
+  front: { target: [5.1, 1.5, -1.8], radius: 13.5, az: 0.16, el: 1.02, fov: 36 },
+  // 主街商店街
+  shops: { target: [6.0, 1.4, 4.5], radius: 16, az: 0.55, el: 0.95, fov: 36 },
   // 住宅区
-  homes: { target: [-4.4, 1.2, -3.4], radius: 10.5, az: 0.58, el: 0.95, fov: 36 },
-  // 神社 / 医院（东南）
-  shrine: { target: [4.8, 1.2, 4.9], radius: 10.0, az: 0.82, el: 0.9, fov: 38 },
-  // 铁道 / 站台
-  rail: { target: [6.5, 1.4, 2.0], radius: 10.0, az: 1.45, el: 0.95, fov: 36 },
+  homes: { target: [-6.4, 1.4, -4.6], radius: 17, az: 0.66, el: 0.92, fov: 36 },
+  // 神社
+  shrine: { target: [-9.2, 1.5, 6.0], radius: 14, az: 0.82, el: 0.88, fov: 38 },
+  // 车站 / 铁道
+  rail: { target: [10.3, 1.6, 4.8], radius: 13, az: 1.35, el: 0.9, fov: 36 },
+  // 河岸
+  river: { target: [0.0, 1.2, 9.2], radius: 18, az: 0.35, el: 0.82, fov: 36 },
   // 俯瞰模型
-  top: { target: [0, 0.6, 0.2], radius: 34.0, az: 0.55, el: 0.48, fov: 33 },
-  // 贴近玻璃看店内
-  inside: { target: [4.4, 1.3, -3.0], radius: 4.6, az: 0.14, el: 1.42, fov: 44 },
+  top: { target: [0, 0.6, 0.2], radius: 42, az: 0.55, el: 0.5, fov: 33 },
+  // 店内
+  inside: { target: [5.1, 1.3, -5.3], radius: 4.8, az: 0.14, el: 1.42, fov: 44 },
   // 背面服务通道
-  back: { target: [4.4, 1.3, -6.2], radius: 10.5, az: 2.6, el: 1.02, fov: 36 },
+  back: { target: [5.1, 1.3, -7.4], radius: 11, az: 2.6, el: 1.02, fov: 36 },
 };
 
 /* ========================================================================== */

@@ -552,7 +552,7 @@ function barberPole(parent, { x, z }) {
 
 function powerPoles(parent) {
   const poles = [];
-  for (const [x, z] of [[-2.0, -1.1], [2.0, -1.1], [-2.0, 2.3], [2.0, 2.3], [-6.9, -1.1], [-6.9, 2.3]]) {
+  for (const [x, z] of [[-2.1, -1.1], [2.1, -1.1], [-2.1, 2.3], [2.1, 2.3], [-8.6, -1.1], [-8.6, 2.3], [6.2, 2.3], [9.8, 2.3]]) {
     const p = utilityPole(parent, { x, z, h: 4.6, flip: x > 0 ? 1 : -1 });
     poles.push(p.top);
   }
@@ -612,31 +612,32 @@ export function buildTown(ctx) {
 
   // 树：街道两侧 + 神社/学校
   for (const [x, z, h, r, c] of [
-    [-2.0, -1.0, 1.7, 0.42, '#3f5a44'],
-    [2.0, -1.0, 1.5, 0.36, '#456a48'],
-    [-2.0, 2.2, 1.6, 0.4, '#3f5a44'],
-    [2.0, 2.2, 1.5, 0.36, '#456a48'],
-    [4.2, 2.5, 1.7, 0.44, '#3a5f44'],
-    [-7.05, 2.9, 1.9, 0.48, '#3a5f44'],
-    [-7.05, -1.0, 1.7, 0.44, '#3a5f44'],
+    [-2.1, -1.05, 1.7, 0.42, '#3f5a44'],
+    [2.1, -1.05, 1.5, 0.36, '#456a48'],
+    [-2.1, 2.25, 1.6, 0.4, '#3f5a44'],
+    [2.1, 2.25, 1.5, 0.36, '#456a48'],
+    [10.1, 9.4, 1.7, 0.44, '#3a5f44'],
+    [-10.8, 3.1, 1.9, 0.48, '#3a5f44'],
+    [-10.8, -1.0, 1.7, 0.44, '#3a5f44'],
+    [6.8, 9.3, 1.6, 0.4, '#456a48'],
   ]) {
     const t = tree(g, { x, z, h, r, color: c, sway: 0.008 });
     swayTrees.push(t);
   }
 
   // 街道家具
-  vendingMachine(g, { x: 2.25, z: 1.95, ry: Math.PI, hot: false });
-  vendingMachine(g, { x: 2.25, z: 0.55, ry: Math.PI, hot: true });
-  bicycle(g, { x: -1.7, z: 3.0, ry: -Math.PI / 2 });
-  bicycle(g, { x: -1.7, z: 6.4, ry: -Math.PI / 2 });
-  postBox(g, { x: -1.8, z: -1.05 });
-  planter(g, { x: 5.9, z: 1.95, color: '#4a6b3c' });
-  planter(g, { x: -1.8, z: 2.25, color: '#5a7a4a' });
+  vendingMachine(g, { x: 2.35, z: 1.9, ry: Math.PI, hot: false });
+  vendingMachine(g, { x: 2.35, z: 0.45, ry: Math.PI, hot: true });
+  bicycle(g, { x: -1.7, z: 3.4, ry: -Math.PI / 2 });
+  bicycle(g, { x: -1.7, z: 8.2, ry: -Math.PI / 2 });
+  postBox(g, { x: -1.9, z: -1.05 });
+  planter(g, { x: 10.4, z: 1.9, color: '#4a6b3c' });
+  planter(g, { x: -2.0, z: 2.3, color: '#5a7a4a' });
   const cats = [];
   cats.push(cat(g, { x: 3.4, z: 2.35, ry: 2.1 }));
   cats.push(cat(g, { x: -6.7, z: 2.4, ry: 0.5 }));
   // 街灯
-  for (const [x, z] of [[-2.0, 1.9], [2.0, 1.9], [-2.0, -0.95], [2.0, -0.95]]) {
+  for (const [x, z] of [[-2.1, 1.9], [2.1, 1.9], [-2.1, -0.95], [2.1, -0.95], [-9.4, 1.9], [6.4, 1.9], [9.4, 1.9]]) {
     streetLamp(g, { x, z });
   }
   powerPoles(g);
@@ -647,12 +648,17 @@ export function buildTown(ctx) {
   roofDetailPass(g);
   townDensityPass(g, cats);
   northShopUpperFloors(g);
+  buildRiversidePark(g);
+  buildMarketStalls(g);
+  buildParking(g);
+  buildBus(g);
 
   addOutline(g, { width: 0.0008, color: '#080b14' });
+  const anim = buildAnimationLayer(g);
 
   return {
     group: g,
-    update(t) {
+    update(t, dt) {
       for (const treeObj of swayTrees) {
         const sway = treeObj.userData.sway;
         if (!sway) continue;
@@ -664,6 +670,7 @@ export function buildTown(ctx) {
         // 灯笼自身在小组里，简单用全局查找太麻烦：交给 fx 的风铃/灯笼摆动
         l.phase = l.phase || Math.random() * Math.PI * 2;
       }
+      anim.update(t, dt);
     },
   };
 }
@@ -734,8 +741,8 @@ function rooftopClutter(parent, { x, z, w = 1.2, d = 1.0, h = 1.0, wood = false 
 
 function shopFrontDetail(parent) {
   // 便利店东侧（面向铁道）的侧墙细节
-  const sx = 6.72;
-  const sz = -4.4;
+  const sx = 7.42;
+  const sz = -5.0;
   // 侧窗
   for (let i = 0; i < 2; i += 1) {
     windowUnit(parent, { x: sx + 0.01, y: 1.9, z: sz - 0.9 + i * 1.7, w: 0.7, h: 0.5, lit: 0.65, ry: Math.PI / 2, bars: 1 });
@@ -880,42 +887,45 @@ function applyDetailPass(parent, cats) {
 function riverSide(parent) {
   const g = group('riverside');
   parent.add(g);
+  const zBank = E.river.minZ - 0.06;
   const bank = toon('#7a7d74', { rim: 0.12, rimColor: '#9fb8c8' });
   // 亲水步道栏杆
-  for (let x = -7.2; x < 6.6; x += 1.6) {
-    if (x > -1.6 && x < 1.6) continue; // 主桥位置
-    cyl(0.025, 0.025, 0.55, 6, toon('#4a5058', { rim: 0.1 }), { x, y: 0.4, z: 6.84, parent: g, cast: false });
-    box(0.03, 0.035, 1.55, toon('#4a5058', { rim: 0.1 }), { x: x + 0.8, y: 0.66, z: 6.84, parent: g, cast: false });
+  for (let x = -11.2; x < E.rail.minX - 0.4; x += 1.6) {
+    if (x > E.bridgeMain.x0 - 0.6 && x < E.bridgeMain.x1 + 0.6) continue;
+    if (x > E.bridgeFoot.x0 - 0.6 && x < E.bridgeFoot.x1 + 0.6) continue;
+    cyl(0.025, 0.025, 0.55, 6, toon('#4a5058', { rim: 0.1 }), { x, y: 0.4, z: zBank, parent: g, cast: false });
+    box(0.03, 0.035, 1.55, toon('#4a5058', { rim: 0.1 }), { x: x + 0.8, y: 0.66, z: zBank, parent: g, cast: false });
   }
-  // 河堤灯（暖色小球）
-  for (const x of [-6.4, -3.2, 2.6, 5.2]) {
-    cyl(0.03, 0.04, 0.9, 6, toon('#5d636b', { rim: 0.12 }), { x, y: 0.57, z: 6.88, parent: g, cast: false });
-    sphere(0.06, glow('#ffcf94', 1.6), { x, y: 1.03, z: 6.88, parent: g });
+  // 河堤灯
+  for (const x of [-10.4, -6.2, -2.6, 2.4, 6.2, 9.4]) {
+    cyl(0.03, 0.04, 0.9, 6, toon('#5d636b', { rim: 0.12 }), { x, y: 0.57, z: zBank + 0.04, parent: g, cast: false });
+    sphere(0.06, glow('#ffcf94', 1.6), { x, y: 1.03, z: zBank + 0.04, parent: g });
     const sp = glowSprite('#ffcf94', 1.2, 0.35);
-    sp.position.set(x, 1.03, 6.88);
+    sp.position.set(x, 1.03, zBank + 0.04);
     g.add(sp);
   }
   // 主桥灯 + 桥栏
-  for (const sx of [-1.05, 1.05]) {
-    for (const z of [7.0, 7.3]) {
-      cyl(0.02, 0.02, 0.6, 4, toon('#5d636b', { rim: 0.1 }), { x: sx, y: 0.38, z, parent: g, cast: false });
+  const bz = E.bridgeMain.z;
+  for (const sx of [E.bridgeMain.x0 - 0.05, E.bridgeMain.x1 + 0.05]) {
+    for (const dz of [-0.5, 0.5]) {
+      cyl(0.02, 0.02, 0.6, 4, toon('#5d636b', { rim: 0.1 }), { x: sx, y: 0.38, z: bz + dz, parent: g, cast: false });
     }
-    box(0.05, 0.04, 1.2, toon('#5d636b', { rim: 0.1 }), { x: sx, y: 0.66, z: 7.15, parent: g, cast: false });
+    box(0.05, 0.04, 1.2, toon('#5d636b', { rim: 0.1 }), { x: sx, y: 0.66, z: bz, parent: g, cast: false });
     const sp = glowSprite('#ffcf94', 1.3, 0.4);
-    sp.position.set(sx, 0.84, 7.0);
+    sp.position.set(sx, 0.84, bz);
     g.add(sp);
   }
   // 桥头石柱
-  for (const [x, z] of [[-1.3, 6.7], [1.3, 6.7], [-1.3, 7.45], [1.3, 7.45]]) {
+  for (const [x, z] of [[E.bridgeMain.x0 - 0.25, bz + 0.3], [E.bridgeMain.x1 + 0.25, bz + 0.3], [E.bridgeFoot.x0 - 0.25, E.bridgeFoot.z + 0.3], [E.bridgeFoot.x1 + 0.25, E.bridgeFoot.z + 0.3]]) {
     box(0.18, 0.5, 0.18, toon('#8a8d84', { rim: 0.14 }), { x, y: 0.34, z, parent: g, cast: true });
     sphere(0.07, glow('#ffcf94', 1.4), { x, y: 0.65, z, parent: g });
   }
   // 铁道桥护栏
-  for (const x of [6.95, 7.5]) {
-    box(0.04, 0.5, 0.8, toon('#3a3f47', { rim: 0.1 }), { x, y: 0.55, z: 7.15, parent: g, cast: false });
+  for (const x of [E.rail.minX + 0.15, E.rail.maxX - 0.15]) {
+    box(0.04, 0.5, 1.2, toon('#3a3f47', { rim: 0.1 }), { x, y: 0.55, z: E.river.minZ, parent: g, cast: false });
   }
   // 芦苇
-  for (const [x, z] of [[-6.9, 7.0], [-4.2, 7.2], [3.4, 7.05], [5.8, 7.1]]) {
+  for (const [x, z] of [[-10.9, zBank + 0.2], [-4.2, zBank + 0.15], [2.0, zBank + 0.2], [6.6, zBank + 0.18], [9.2, zBank + 0.2]]) {
     for (let i = 0; i < 5; i += 1) {
       cyl(0.008, 0.012, 0.45 + (i % 3) * 0.12, 4, toon('#5a6b4a', { rim: 0.12 }), {
         x: x + (i - 2) * 0.07, y: 0.32, z: z + (i % 2) * 0.05, parent: g, cast: false,
@@ -997,7 +1007,7 @@ function bridgeTorii(parent) {
   const red = toon('#b8402f', { rim: 0.22, rimColor: '#ffb0a0', gradient: 'soft' });
   const dark = toon('#3a241e', { rim: 0.16 });
   const x = 0;
-  const z = 6.72;
+  const z = E.bridgeMain.z + 0.02;
   for (const sx of [x - 0.85, x + 0.85]) {
     cyl(0.075, 0.09, 2.1, 10, red, { x: sx, y: 0.35 + 1.05, z, parent: g, cast: true });
     cyl(0.11, 0.11, 0.1, 10, dark, { x: sx, y: 0.17, z, parent: g, cast: false });
@@ -1024,18 +1034,18 @@ function extraStreetLife(parent) {
   parkedCar(parent, { x: 4.6, z: 0.05, ry: Math.PI / 2, color: '#4a5a6a' });
   parkedCar(parent, { x: -5.4, z: 1.0, ry: -Math.PI / 2, color: '#6a5a4a' });
   // 路口另一侧的小公园长椅 + 自动贩卖机
-  vendingMachine(parent, { x: -2.35, z: 6.55, ry: Math.PI, hot: true });
-  bench(parent, { x: -3.8, z: 6.6, ry: 0 });
+  vendingMachine(parent, { x: -2.32, z: 9.7, ry: Math.PI, hot: true });
+  bench(parent, { x: -3.8, z: 9.7, ry: 0 });
   // 邮筒 / 公共电话
   postBox(parent, { x: -2.35, z: 2.3 });
-  box(0.26, 1.8, 0.26, toon('#2a5a8a', { rim: 0.16 }), { x: 2.35, y: 0.92, z: 6.55, parent, cast: true });
-  box(0.22, 0.3, 0.05, flat('#d8f0ff').clone(), { x: 2.35, y: 1.55, z: 6.68, parent }).material.color.multiplyScalar(1.2);
+  box(0.26, 1.8, 0.26, toon('#2a5a8a', { rim: 0.16 }), { x: 2.35, y: 0.92, z: 9.6, parent, cast: true });
+  box(0.22, 0.3, 0.05, flat('#d8f0ff').clone(), { x: 2.35, y: 1.55, z: 9.73, parent }).material.color.multiplyScalar(1.2);
   // 街边灯笼串（商业街上方）
   for (const z of [3.4, 4.4, 5.4]) {
     lanternString(parent, { x0: -2.2, x1: -1.6, y: 2.5, z, count: 3, color: '#ffb35e', sag: 0.08 });
   }
   // 自动贩卖机群（城镇角落）
-  vendingMachine(parent, { x: 2.35, z: 5.8, ry: -Math.PI / 2, hot: false });
+  vendingMachine(parent, { x: 2.35, z: 8.6, ry: -Math.PI / 2, hot: false });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1268,7 +1278,7 @@ function compactShopFront(parent, cfg) {
 
 function buildNorthShops(parent) {
   for (const cfg of E.northShops) {
-    compactShopFront(parent, { ...cfg, width: cfg.w, zFront: -1.5, kind: cfg.id, height: 2.35 });
+    compactShopFront(parent, { ...cfg, width: cfg.w, zFront: E.walk.north.minZ, kind: cfg.id, height: 2.35 });
   }
 }
 
@@ -1339,8 +1349,8 @@ function stationInterior(parent) {
   // 站台长椅 + 行李
   bench(parent, { x: p.x0 + 0.3, z: p.z0 + 1.25, ry: Math.PI / 2 });
   // 平交道口：道口信号 + 栏杆
-  const cx = 7.2;
-  const cz = 5.55;
+  const cx = E.rail.minX + 0.35;
+  const cz = E.platform.z1 - 0.25;
   for (const dx of [-0.45, 0.45]) {
     cyl(0.03, 0.03, 0.9, 6, toon('#e8e4d4', { rim: 0.16 }), { x: cx + dx, y: 0.57, z: cz, parent, cast: false });
     box(0.1, 0.14, 0.1, toon('#2a3038', { rim: 0.14 }), { x: cx + dx, y: 1.05, z: cz, parent, cast: false });
@@ -1362,7 +1372,7 @@ function stationInterior(parent) {
 /* 在 buildTown 中调用这些补充层 */
 function townDensityPass(parent, cats) {
   buildNorthShops(parent);
-  barberPole(parent, { x: -3.78, z: -1.92 });
+  barberPole(parent, { x: -5.35, z: E.walk.north.minZ - 0.45 });
   schoolExtras(parent);
   hospitalLobby(parent);
   stationInterior(parent);
@@ -1375,7 +1385,7 @@ function northShopUpperFloors(parent) {
   const x1 = shops[shops.length - 1].x + shops[shops.length - 1].w / 2;
   const w = x1 - x0;
   const cx = (x0 + x1) / 2;
-  const zFront = -1.5;
+  const zFront = E.walk.north.minZ;
   const depth = 1.0;
   const baseY = Y + 2.4;
   const wall = toon('#b8b0a0', { rim: 0.14, rimColor: '#a8c4e4', gradient: 'soft' });
@@ -1413,4 +1423,404 @@ function northShopUpperFloors(parent) {
   });
   const label = plane(w * 0.42, 0.16, lightbox(plate, 0.9), { x: cx, y: baseY + 2.5, z: zFront + 0.012, parent });
   label.userData.noOutline = true;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  城市填充：河岸公园 / 市场小摊 / 停车场 / 巴士                                 */
+/* -------------------------------------------------------------------------- */
+
+function buildRiversidePark(parent) {
+  const p = E.riversidePark;
+  const g = group('riverside-park');
+  parent.add(g);
+  box(p.w, 0.02, p.d, toon('#4a5a42', { rim: 0.1 }), { x: p.x, y: Y + 0.105, z: p.z, parent: g, cast: false });
+  // 步道
+  box(p.w, 0.015, 0.28, toon('#8a8070', { rim: 0.1 }), { x: p.x, y: Y + 0.12, z: p.z + 0.2, parent: g, cast: false });
+  // 秋千
+  for (const dx of [-1.0, 1.0]) {
+    box(0.05, 0.9, 0.05, toon('#4a5058', { rim: 0.1 }), { x: p.x + dx, y: Y + 0.55, z: p.z - 0.2, parent: g, cast: false });
+    box(0.5, 0.04, 0.04, toon('#4a5058', { rim: 0.1 }), { x: p.x + dx, y: Y + 1.0, z: p.z - 0.2, parent: g, cast: false });
+  }
+  for (const dx of [-1.0, 1.0]) {
+    box(0.24, 0.025, 0.12, toon('#8a5a3a', { rim: 0.12 }), { x: p.x + dx, y: Y + 0.52, z: p.z - 0.2, parent: g, cast: false });
+    cyl(0.006, 0.006, 0.45, 4, toon('#8a8f96', { rim: 0.08 }), { x: p.x + dx - 0.1, y: Y + 0.78, z: p.z - 0.2, parent: g, cast: false });
+    cyl(0.006, 0.006, 0.45, 4, toon('#8a8f96', { rim: 0.08 }), { x: p.x + dx + 0.1, y: Y + 0.78, z: p.z - 0.2, parent: g, cast: false });
+  }
+  // 长椅 + 树 + 庭院灯
+  bench(g, { x: p.x - 1.9, z: p.z + 0.3, ry: Math.PI });
+  bench(g, { x: p.x + 1.9, z: p.z + 0.3, ry: Math.PI });
+  for (const [dx, dz] of [[-2.3, -0.4], [-0.4, -0.55], [1.4, -0.5], [2.4, 0.1]]) {
+    tree(g, { x: p.x + dx, z: p.z + dz, h: 1.8, r: 0.42, color: '#3f5a44', sway: 0.01 });
+  }
+  for (const dx of [-2.0, 0.0, 2.0]) {
+    cyl(0.03, 0.04, 0.7, 6, toon('#5d636b', { rim: 0.12 }), { x: p.x + dx, y: Y + 0.45, z: p.z + 0.55, parent: g, cast: false });
+    warmSprite(g, { x: p.x + dx, y: Y + 0.85, z: p.z + 0.55, color: '#ffcf94', size: 0.85, opacity: 0.3 });
+    sphere(0.05, glow('#ffcf94', 1.4), { x: p.x + dx, y: Y + 0.85, z: p.z + 0.55, parent: g });
+  }
+  // 小沙坑
+  box(0.9, 0.03, 0.55, toon('#c8b890', { rim: 0.1 }), { x: p.x + 0.9, y: Y + 0.12, z: p.z + 0.35, parent: g, cast: false });
+}
+
+function buildMarketStalls(parent) {
+  const g = group('market-stalls');
+  parent.add(g);
+  const stall = (x, z, name, color) => {
+    box(0.9, 0.75, 0.65, toon('#3a2f28', { rim: 0.14 }), { x, y: Y + 0.42, z, parent: g, cast: true });
+    // 暖帘/招牌
+    const tex = signTexture(256, 96, (ctx, w, h) => {
+      ctx.fillStyle = '#2a1c18'; ctx.fillRect(0, 0, w, h);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `700 40px ${JP_FONT}`; ctx.fillStyle = color; ctx.fillText(name, w / 2, h / 2);
+    });
+    plane(0.72, 0.22, lightbox(tex, 1.1), { x, y: Y + 0.78, z: z + 0.34, parent: g }).userData.noOutline = true;
+    // 屋顶
+    box(0.98, 0.05, 0.74, toon('#5a3a2a', { rim: 0.14 }), { x, y: Y + 1.08, z, parent: g, cast: true });
+    for (const dx of [-0.4, 0.4]) {
+      cyl(0.02, 0.02, 0.5, 4, toon('#3a2f28', { rim: 0.1 }), { x: x + dx, y: Y + 1.3, z, parent: g, cast: false });
+    }
+    chochin(g, { x: x - 0.42, y: Y + 0.72, z: z + 0.38, r: 0.1, color: '#d24a38', text: '', glowSize: 0.8 });
+    warmSprite(g, { x, y: Y + 0.5, z: z + 0.4, color: '#ffb45e', size: 0.9, opacity: 0.3 });
+  };
+  stall(1.5, 9.55, 'たこ焼き', '#ffcf94');
+  stall(3.0, 9.55, '焼き鳥', '#ff8a5c');
+  stall(4.5, 9.55, '甘味処', '#ffd9a0');
+}
+
+function buildParking(parent) {
+  const x0 = 7.0, x1 = 10.2, z0 = -6.0, z1 = -2.9;
+  const g = group('parking');
+  parent.add(g);
+  box(x1 - x0, 0.02, z1 - z0, toon('#23262c', { rim: 0.1 }), { x: (x0 + x1) / 2, y: Y + 0.105, z: (z0 + z1) / 2, parent: g, cast: false });
+  // 车位线
+  for (let i = 0; i <= 2; i += 1) {
+    box(0.03, 0.005, z1 - z0 - 0.2, flat('#d8d4c8').clone(), { x: x0 + 0.3 + i * 1.3, y: Y + 0.12, z: (z0 + z1) / 2, parent: g, cast: false });
+  }
+  parkedCar(g, { x: x0 + 0.95, z: z0 + 0.7, ry: Math.PI / 2, color: '#4a5a6a' });
+  parkedCar(g, { x: x0 + 2.25, z: z0 + 0.7, ry: Math.PI / 2, color: '#6a4a4a' });
+  // 停车指示牌
+  cyl(0.03, 0.03, 1.2, 6, toon('#5d636b', { rim: 0.12 }), { x: x0 + 0.1, y: Y + 0.7, z: z1 - 0.15, parent: g, cast: false });
+  const ptex = signTexture(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = '#1a3a6a'; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#e8f4ff'; ctx.lineWidth = 8; ctx.strokeRect(8, 8, w - 16, h - 16);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `700 120px sans-serif`; ctx.fillStyle = '#e8f4ff'; ctx.fillText('P', w / 2, h * 0.46);
+    ctx.font = `500 22px ${JP_FONT}`; ctx.fillText('月見町駐車場', w / 2, h * 0.8);
+  });
+  plane(0.45, 0.45, lightbox(ptex, 1.1), { x: x0 + 0.1, y: Y + 1.4, z: z1 - 0.14, parent: g }).userData.noOutline = true;
+}
+
+function buildBus(parent) {
+  const g = group('bus');
+  g.position.set(8.6, Y + 0.02, 0.3);
+  g.rotation.y = Math.PI / 2;
+  parent.add(g);
+  const body = toon('#d8d4c8', { rim: 0.18, rimColor: '#cfe8ff' });
+  box(0.9, 0.95, 3.0, body, { y: 0.55, parent: g, cast: true });
+  box(0.92, 0.12, 3.05, toon('#2a5a8a', { rim: 0.16 }), { y: 0.3, parent: g, cast: false });
+  for (const dz of [-1.2, -0.4, 0.4, 1.2]) {
+    for (const sx of [-0.451, 0.451]) {
+      const w = plane(0.5, 0.32, flat('#ffe0b0').clone(), { x: sx, y: 0.7, z: dz, ry: sx > 0 ? Math.PI / 2 : -Math.PI / 2, parent: g });
+      w.material.color.multiplyScalar(1.05);
+      w.material.toneMapped = false;
+    }
+  }
+  for (const [wx, wz] of [[-0.3, -1.0], [0.3, -1.0], [-0.3, 1.0], [0.3, 1.0]]) {
+    cyl(0.09, 0.09, 0.12, 8, toon('#1b1e24', { rim: 0.1 }), { x: wx, y: 0.16, z: wz, rx: Math.PI / 2, parent: g, cast: false });
+  }
+  const sp = glowSprite('#fff0c0', 1.2, 0.4);
+  sp.position.set(0, 0.5, 1.55);
+  g.add(sp);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  动效层：列车 / 猫 / 灯笼 / 信号灯 / 电车时刻屏 / 花瓣 / 蒸汽                  */
+/* -------------------------------------------------------------------------- */
+
+function buildMovingTrain(parent) {
+  const g = group('moving-train');
+  const x = E.rail.minX + (E.rail.maxX - E.rail.minX) * 0.52;
+  g.position.set(x, Y + 0.08, -9.5);
+  g.rotation.y = 0; // 车头朝 +Z，车体沿铁道方向
+  parent.add(g);
+  const bodyMat = toon('#d8dce2', { rim: 0.22, rimColor: '#cfe8ff', gradient: 'soft' });
+  const stripe = toon('#2a5a8a', { rim: 0.18 });
+  for (let i = 0; i < 2; i += 1) {
+    const z = i * 2.75;
+    box(0.95, 1.0, 2.55, bodyMat, { y: 0.55, z, parent: g, cast: true });
+    box(0.96, 0.09, 2.6, stripe, { y: 0.32, z, parent: g, cast: false });
+    box(0.97, 0.12, 2.6, toon('#3a4652', { rim: 0.16 }), { y: 1.08, z, parent: g, cast: true });
+    // 车窗
+    for (const dz of [-0.9, -0.3, 0.3, 0.9]) {
+      for (const side of [-1, 1]) {
+        const win = plane(0.5, 0.36, flat('#ffe0b0').clone(), {
+          x: side * 0.481, y: 0.72, z: z + dz, ry: side > 0 ? Math.PI / 2 : -Math.PI / 2, parent: g,
+        });
+        win.material.color.multiplyScalar(1.1);
+        win.material.toneMapped = false;
+      }
+    }
+    // 车头灯 / 尾灯
+    if (i === 0) {
+      for (const dx of [-0.28, 0.28]) {
+        const sp = glowSprite('#fff2cc', 1.3, 0.85);
+        sp.position.set(dx, 0.62, 1.36);
+        g.add(sp);
+      }
+    } else {
+      for (const dx of [-0.28, 0.28]) {
+        const sp = glowSprite('#ff4a3a', 0.9, 0.7);
+        sp.position.set(dx, 0.55, z + 1.36);
+        g.add(sp);
+      }
+    }
+  }
+  return {
+    g,
+    update(t) {
+      // 进站 → 停靠 2s → 出站，循环
+      const cycle = 24;
+      const phase = (t * 0.7) % cycle;
+      let z;
+      if (phase < 12) z = -10 + phase * 1.2;
+      else if (phase < 14) z = 4.4;
+      else z = 4.4 + (phase - 14) * 1.4;
+      g.position.z = z;
+    },
+  };
+}
+
+function buildSwayingLanterns(parent) {
+  const items = [];
+  const positions = [
+    [-2.25, 3.0, 4.0, '#ff8a5c'],
+    [-2.25, 3.0, 6.1, '#ffb45e'],
+    [-2.25, 3.0, 8.2, '#ff8a5c'],
+    [-10.2, 3.0, -2.2, '#ffcf94'],
+    [-6.0, 3.0, -2.2, '#ffcf94'],
+    [-3.2, 3.0, -2.2, '#ffcf94'],
+    [E.bridgeMain.x0 + 0.15, 2.4, E.bridgeMain.z + 0.45, '#ff8a5c'],
+    [E.bridgeMain.x1 - 0.15, 2.4, E.bridgeMain.z + 0.45, '#ff8a5c'],
+    [-8.4, 2.6, 7.4, '#ffb45e'],
+  ];
+  for (const [x, y, z, color] of positions) {
+    const pivot = group('lantern-pivot');
+    pivot.position.set(x, y, z);
+    parent.add(pivot);
+    const body = group('lantern');
+    body.position.y = -0.28;
+    pivot.add(body);
+    chochin(body, { x: 0, y: 0, z: 0, r: 0.14, color: '#d24a38', text: '', glowSize: 0.9 });
+    warmSprite(body, { x: 0, y: 0, z: 0.12, color, size: 0.9, opacity: 0.28 });
+    // 吊绳
+    cyl(0.006, 0.006, 0.28, 4, toon('#2a2420', { rim: 0.1 }), { y: -0.02, parent: pivot, cast: false });
+    items.push({ pivot, phase: Math.random() * Math.PI * 2, speed: 0.7 + Math.random() * 0.5 });
+  }
+  return { items, update(t) { for (const it of items) { it.pivot.rotation.z = Math.sin(t * it.speed + it.phase) * 0.11; it.pivot.rotation.x = Math.cos(t * it.speed * 0.8 + it.phase) * 0.06; } } };
+}
+
+function buildTrafficSignals(parent) {
+  const states = [];
+  const makeSignal = (x, z, ry) => {
+    const g = group('signal');
+    g.position.set(x, Y, z);
+    g.rotation.y = ry;
+    parent.add(g);
+    cyl(0.05, 0.06, 3.0, 8, toon('#4a5058', { rim: 0.14 }), { y: 1.5, parent: g, cast: true });
+    box(0.24, 0.62, 0.22, toon('#2a3038', { rim: 0.16 }), { y: 2.9, parent: g, cast: true });
+    const bulbs = [];
+    for (let i = 0; i < 3; i += 1) {
+      const colors = ['#ff4a3a', '#ffcf5a', '#7dffc0'];
+      const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(colors[i]).multiplyScalar(0.35), toneMapped: false });
+      const b = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), m);
+      b.position.set(0, 3.12 - i * 0.18, 0.13);
+      g.add(b);
+      bulbs.push(m);
+    }
+    return { bulbs, phase: Math.random() * 2 };
+  };
+  states.push(makeSignal(2.2, 1.5, Math.PI / 2));
+  states.push(makeSignal(-2.4, -1.35, -Math.PI / 2));
+  states.push(makeSignal(-2.4, 1.5, Math.PI / 2));
+  states.push(makeSignal(2.2, -1.35, -Math.PI / 2));
+  return {
+    update(t) {
+      const cycle = t % 12;
+      const stage = cycle < 5 ? 0 : cycle < 10 ? 2 : 1; // 红 / 绿 / 黄
+      for (const s of states) {
+        const active = stage;
+        s.bulbs.forEach((m, i) => {
+          const c = ['#ff4a3a', '#ffcf5a', '#7dffc0'][i];
+          m.color.set(c).multiplyScalar(i === active ? 1.55 : 0.18);
+        });
+      }
+    },
+  };
+}
+
+function buildStationDisplay(parent) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 224;
+  const ctx = canvas.getContext('2d');
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  const p = E.platform;
+  const g = group('station-display');
+  g.position.set(p.x0 + 0.12, Y + 1.6, p.z0 + 1.8);
+  g.rotation.y = 0;
+  parent.add(g);
+  const face = plane(1.1, 0.48, new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }), { parent: g });
+  face.userData.noOutline = true;
+  box(1.16, 0.54, 0.04, toon('#20242a', { rim: 0.2 }), { z: -0.02, parent: g, cast: false });
+  let last = 0;
+  function draw(now) {
+    const sec = Math.floor(now / 1000);
+    const mm = String(Math.floor(sec / 60) % 60).padStart(2, '0');
+    const ss = String(sec % 60).padStart(2, '0');
+    const wait = 42 - (sec % 60);
+    ctx.fillStyle = '#081420';
+    ctx.fillRect(0, 0, 512, 224);
+    ctx.strokeStyle = '#2a6a8a';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 504, 216);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 34px monospace';
+    ctx.fillStyle = '#9fe8ff';
+    ctx.fillText('月見駅  TSUKIMI', 22, 36);
+    ctx.font = '700 52px monospace';
+    ctx.fillStyle = '#ffd9a0';
+    ctx.fillText(`${mm}:${ss}`, 22, 96);
+    ctx.font = '500 24px sans-serif';
+    ctx.fillStyle = '#c8e8ff';
+    ctx.fillText('上り  各停  6番線', 22, 148);
+    ctx.fillStyle = wait < 10 ? '#ffcf5a' : '#7dffc0';
+    ctx.font = '700 30px monospace';
+    ctx.fillText(`まもなく  ${wait}s`, 22, 190);
+    texture.needsUpdate = true;
+  }
+  draw(0);
+  return {
+    update(t) {
+      if (t - last > 0.5) { last = t; draw(t * 1000); }
+    },
+  };
+}
+
+function buildPetals(parent) {
+  const count = 160;
+  const geo = new THREE.PlaneGeometry(0.055, 0.04);
+  const mat = new THREE.MeshBasicMaterial({ color: '#ffc8d8', transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
+  const meshInst = new THREE.InstancedMesh(geo, mat, count);
+  meshInst.frustumCulled = false;
+  parent.add(meshInst);
+  const rand = rng(7013);
+  const data = [];
+  for (let i = 0; i < count; i += 1) {
+    data.push({
+      x: (rand() - 0.5) * 22,
+      y: rand() * 8 + 0.5,
+      z: (rand() - 0.5) * 22,
+      vy: 0.28 + rand() * 0.5,
+      phase: rand() * Math.PI * 2,
+      spin: (rand() - 0.5) * 1.8,
+    });
+  }
+  const dummy = new THREE.Object3D();
+  return {
+    update(t, dt) {
+      for (let i = 0; i < count; i += 1) {
+        const d = data[i];
+        d.y -= d.vy * dt;
+        d.x += Math.sin(t * 0.5 + d.phase) * 0.08 * dt;
+        if (d.y < 0.12) {
+          d.y = 7 + ((i * 7.13) % 4);
+          d.x = ((i * 3.7 + t * 0.1) % 22) - 11;
+          d.z = ((i * 5.1 + 1) % 22) - 11;
+        }
+        dummy.position.set(d.x, d.y, d.z);
+        dummy.rotation.set(t * d.spin + d.phase, t * d.spin * 0.6, d.phase);
+        dummy.scale.setScalar(0.7 + Math.sin(t + d.phase) * 0.2);
+        dummy.updateMatrix();
+        meshInst.setMatrixAt(i, dummy.matrix);
+      }
+      meshInst.instanceMatrix.needsUpdate = true;
+    },
+  };
+}
+
+function buildCatAnimations(parent) {
+  const cats = [];
+  const rand = rng(991);
+  const specs = [
+    { cx: 1.9, cz: 2.2, rx: 0.8, rz: 0.4, speed: 0.22, phase: 0 },
+    { cx: -2.2, cz: -0.9, rx: 0.6, rz: 0.8, speed: -0.18, phase: 2.4 },
+    { cx: 7.2, cz: 1.9, rx: 1.2, rz: 0.5, speed: 0.16, phase: 4.1 },
+  ];
+  for (const s of specs) {
+    const c = cat(parent, { x: s.cx + s.rx, z: s.cz, ry: 0 });
+    c.scale.setScalar(1.15);
+    cats.push({ c, s });
+  }
+  return {
+    update(t) {
+      for (const { c, s } of cats) {
+        const a = t * s.speed + s.phase;
+        c.position.x = s.cx + Math.cos(a) * s.rx;
+        c.position.z = s.cz + Math.sin(a) * s.rz;
+        c.rotation.y = -a + Math.PI / 2;
+      }
+    },
+  };
+}
+
+function buildSteamColumns(parent) {
+  const items = [];
+  const sources = [
+    { x: -2.9, y: 1.6, z: 5.8, n: 4, color: '#e8f0ff' },
+    { x: -3.75, y: 1.2, z: -3.0, n: 3, color: '#d8f0ff' },
+    { x: 8.2, y: 2.4, z: 10.6, n: 3, color: '#cfe8ff' },
+  ];
+  for (const src of sources) {
+    for (let i = 0; i < src.n; i += 1) {
+      const sp = glowSprite(src.color, 0.9, 0.0);
+      sp.position.set(src.x + (i - src.n / 2) * 0.12, src.y, src.z);
+      parent.add(sp);
+      items.push({ sp, baseX: sp.position.x, baseY: src.y, baseZ: src.z, phase: i / src.n * Math.PI * 2 });
+    }
+  }
+  return {
+    update(t) {
+      for (const it of items) {
+        const a = (t * 0.18 + it.phase / (Math.PI * 2)) % 1;
+        it.sp.position.y = it.baseY + a * 2.2;
+        it.sp.position.x = it.baseX + Math.sin(t * 0.6 + it.phase) * 0.18;
+        const s = 0.2 + a * 1.4;
+        it.sp.scale.setScalar(s);
+        it.sp.material.opacity = Math.sin(a * Math.PI) * 0.18;
+      }
+    },
+  };
+}
+
+function buildAnimationLayer(parent) {
+  const train = buildMovingTrain(parent);
+  const lanterns = buildSwayingLanterns(parent);
+  const signals = buildTrafficSignals(parent);
+  const display = buildStationDisplay(parent);
+  const petals = buildPetals(parent);
+  const cats = buildCatAnimations(parent);
+  const steam = buildSteamColumns(parent);
+  return {
+    update(t, dt) {
+      train.update(t);
+      lanterns.update(t);
+      signals.update(t);
+      display.update(t);
+      petals.update(t, dt);
+      cats.update(t);
+      steam.update(t);
+    },
+  };
 }
