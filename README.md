@@ -318,6 +318,8 @@ cd apps/agent-lab      && npm run web      # 真实 Agent 网页面板（默认 
 
 ### 京城来信 · Beijing Courier
 
+> 注：该 Demo 未列入线上作品集首页（GitHub Pages），源码保留。
+
 独立入口：[京城来信](http://127.0.0.1:5180/demos/beijing-courier/)。以 [Messenger](https://messenger.abeto.co)
 为参考重做的高保真 3D 小行星递送游戏：逆向复用原站的角色模型/骨骼动画/星球场景/贴图与音频，
 自建 MRT 卡通描边 + 3D LUT 调色管线，在一颗可绕行一整圈的小行星上替 10 位 NPC 送五封手写信。

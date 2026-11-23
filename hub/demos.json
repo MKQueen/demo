@@ -2,8 +2,8 @@
   "site": {
     "name": "DEMO LAB",
     "title": "交互实验室 · 作品集",
-    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 竹海轻功 · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩 · 小行星邮差",
-    "description": "十二个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹、RAG 观测台、VISION LAB、mini-opencode Agent、竹海轻功、水墨北京、雨夜小镇、手势贪吃蛇、京城来信。十二个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 的真实模型回答与 mini-opencode 的真实 Agent 需要本地 npm run serve 提供极薄转发/后端。",
+    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 竹海轻功 · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩",
+    "description": "十一个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹、RAG 观测台、VISION LAB、mini-opencode Agent、竹海轻功、水墨北京、雨夜小镇、手势贪吃蛇。十一个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 的真实模型回答与 mini-opencode 的真实 Agent 需要本地 npm run serve 提供极薄转发/后端。",
     "keywords": [
       "Three.js",
       "CesiumJS",
@@ -22,11 +22,11 @@
     ],
     "stats": [
       {
-        "value": "12",
+        "value": "11",
         "label": "独立 Demo"
       },
       {
-        "value": "10",
+        "value": "9",
         "label": "纯静态即完整运行"
       },
       {
@@ -34,7 +34,7 @@
         "label": "接本地真模型"
       }
     ],
-    "footer": "十二个独立 Demo · 京城来信可离线探索，联机需 WebSocket · 两个接本地真模型"
+    "footer": "十一个独立 Demo · 九个离线完整可玩 · 两个接本地真模型"
   },
   "demos": [
     {
@@ -62,34 +62,6 @@
       "href": "demos/ink-qingming/",
       "cta": "起卷",
       "meta": "Three.js · 全程序化 · 离线可玩"
-    },
-    {
-      "id": "beijing-courier",
-      "name": "京城来信",
-      "en": "BEIJING COURIER",
-      "kicker": "Three.js · 北京元素 · 小行星递送",
-      "tagline": "一颗小行星，五封没有地址的信。",
-      "description": "以 Messenger 的卡通描边 + 3D LUT 渲染语言重做的 3D 小行星递送游戏，内容改为北京主题：出生在春风胡同，牌楼/四合院/灯笼/邮筒就在身边，可一路走到中轴（鼓楼+天坛）、CBD（中国尊/央视/鸟巢）与长城烽火台。原创北京邮差主角、程序化北京街区、自建投递道具、原创程序化五声音阶 BGM 与中文手写信 UI。",
-      "tags": [
-        "Three.js",
-        "开放世界",
-        "北京",
-        "卡通渲染",
-        "程序化生成",
-        "剧情"
-      ],
-      "highlights": [
-        "360° 可绕行小行星 + 10 位 NPC 的递送任务链",
-        "原创北京邮差主角 / 遛鸟大爷 / 广场舞大妈 / 红领巾小学生",
-        "自建春风胡同、牌楼、四合院、天坛、中国尊、央视、长城烽火台",
-        "自研 MRT 描边 + 3D LUT 调色管线，1.4× 超采样抗闪烁",
-        "原创五声音阶 BGM、区域环境音与合成音效，零外部音频文件"
-      ],
-      "accent": "#efc85d",
-      "cover": "thumbs/beijing-courier.jpg",
-      "href": "demos/beijing-courier/",
-      "cta": "开始送信",
-      "meta": "纯静态 · 单人可离线"
     },
     {
       "id": "konbini-rain",
