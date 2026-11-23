@@ -1,0 +1,568 @@
+{
+  "startedAt": "2026-11-06T08:37:41.919Z",
+  "base": "http://127.0.0.1:5190",
+  "staticChecks": {
+    "forbiddenTokens": [
+      ".ogg",
+      ".mp3",
+      "assets-messenger/audio",
+      "loadAudio("
+    ]
+  },
+  "testPage": {
+    "music": {
+      "meta": {
+        "title": "小行星邮差（原创）",
+        "bpm": 80,
+        "bars": 12,
+        "beatsPerBar": 4,
+        "loopSeconds": 36,
+        "tailSeconds": 5,
+        "sampleRate": 48000,
+        "key": "C 宫",
+        "scale": "C 宫五声",
+        "progression": [
+          "C",
+          "Am",
+          "D",
+          "G",
+          "C",
+          "Am",
+          "D",
+          "G",
+          "Am",
+          "C",
+          "G",
+          "C"
+        ],
+        "melodyNotes": 53,
+        "renderMs": 2373,
+        "peak": 0.72,
+        "rms": 0.13239,
+        "peakBeforeNormalize": 0.8822,
+        "normalizeScale": 0.8162,
+        "seamDelta": 0.00268,
+        "renderer": "OfflineAudioContext"
+      },
+      "mode": "buffer",
+      "playing": true,
+      "duration": 36
+    },
+    "diagnostics": {
+      "contextState": "running",
+      "sampleRate": 48000,
+      "unlocked": true,
+      "muted": false,
+      "region": "beach",
+      "ambience": "beach",
+      "ambienceEvents": [
+        "海浪拍岸",
+        "海鸥"
+      ],
+      "buses": {
+        "master": 1,
+        "music": 0.5,
+        "ambience": 0.4,
+        "sfx": 0.65
+      },
+      "musicPlaying": true,
+      "musicMode": "buffer",
+      "musicError": null,
+      "musicMeta": {
+        "title": "小行星邮差（原创）",
+        "bpm": 80,
+        "bars": 12,
+        "beatsPerBar": 4,
+        "loopSeconds": 36,
+        "tailSeconds": 5,
+        "sampleRate": 48000,
+        "key": "C 宫",
+        "scale": "C 宫五声",
+        "progression": [
+          "C",
+          "Am",
+          "D",
+          "G",
+          "C",
+          "Am",
+          "D",
+          "G",
+          "Am",
+          "C",
+          "G",
+          "C"
+        ],
+        "melodyNotes": 53,
+        "renderMs": 2373,
+        "peak": 0.72,
+        "rms": 0.13239,
+        "peakBeforeNormalize": 0.8822,
+        "normalizeScale": 0.8162,
+        "seamDelta": 0.00268,
+        "renderer": "OfflineAudioContext"
+      },
+      "vinyl": true
+    },
+    "persistence": {
+      "music": "0.33",
+      "mutedBefore": null,
+      "muted": "1",
+      "mutedNow": true,
+      "mutedAfter": false
+    },
+    "console": {
+      "errors": [],
+      "warnings": [],
+      "audioRequests": []
+    },
+    "mobile": {
+      "consoleErrors": []
+    }
+  },
+  "offline": {
+    "sampleRate": 48000,
+    "checkedAt": "2026-11-06T08:37:47.255Z",
+    "passCount": 34,
+    "total": 34,
+    "rows": [
+      {
+        "group": "BGM",
+        "name": "小行星邮差（原创五声循环）",
+        "seconds": 36,
+        "rms": 0.13239,
+        "peak": 0.72,
+        "pass": true,
+        "note": "80BPM · 12 小节 · 渲染 2373ms · 接缝 0.00268"
+      },
+      {
+        "group": "环境音",
+        "name": "微风（base）",
+        "seconds": 3,
+        "rms": 0.0654,
+        "peak": 0.2998,
+        "pass": true,
+        "note": "低频风声 + 空气层 + 缓慢阵风 LFO"
+      },
+      {
+        "group": "环境音",
+        "name": "海边码头（beach）",
+        "seconds": 3,
+        "rms": 0.0973,
+        "peak": 0.4811,
+        "pass": true,
+        "note": "海床低频 + 浪涌带通噪声（双 LFO）+ 浪花高频"
+      },
+      {
+        "group": "环境音",
+        "name": "村子（village）",
+        "seconds": 3,
+        "rms": 0.0423,
+        "peak": 0.1922,
+        "pass": true,
+        "note": "低柔风声 + 叶隙声 + 远处生活底噪"
+      },
+      {
+        "group": "环境音",
+        "name": "城市街巷（city）",
+        "seconds": 3,
+        "rms": 0.0586,
+        "peak": 0.2694,
+        "pass": true,
+        "note": "车流低频轰鸣 + 中频车流 + 50Hz 电网嗡鸣"
+      },
+      {
+        "group": "环境音",
+        "name": "森林（forest）",
+        "seconds": 3,
+        "rms": 0.0609,
+        "peak": 0.2859,
+        "pass": true,
+        "note": "树梢风声 + 叶隙声 + 高频虫鸣床"
+      },
+      {
+        "group": "环境音",
+        "name": "工厂（factory）",
+        "seconds": 3,
+        "rms": 0.0535,
+        "peak": 0.2279,
+        "pass": true,
+        "note": "机械低鸣（50/100/150Hz 谐波）+ 金属轰鸣 + 蒸汽嘶声"
+      },
+      {
+        "group": "环境音",
+        "name": "山寺（temple）",
+        "seconds": 3,
+        "rms": 0.0565,
+        "peak": 0.2434,
+        "pass": true,
+        "note": "山风 + 高空气层 + 极低音持续音"
+      },
+      {
+        "group": "环境音",
+        "name": "瀑布边（waterfalls）",
+        "seconds": 3,
+        "rms": 0.1032,
+        "peak": 0.4574,
+        "pass": true,
+        "note": "宽带水声轰鸣 + 中频水雾 + 低频水压 + 高频水花"
+      },
+      {
+        "group": "音效",
+        "name": "click（点击）",
+        "seconds": 1.6,
+        "rms": 0.001,
+        "peak": 0.0491,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "hover（悬停）",
+        "seconds": 1.6,
+        "rms": 0.0008,
+        "peak": 0.0154,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "buttons（按钮）",
+        "seconds": 1.6,
+        "rms": 0.0025,
+        "peak": 0.0812,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "open（开箱）",
+        "seconds": 1.6,
+        "rms": 0.0019,
+        "peak": 0.0282,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "checklist（清单）",
+        "seconds": 1.6,
+        "rms": 0.0025,
+        "peak": 0.0271,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "paper（翻纸）",
+        "seconds": 1.6,
+        "rms": 0.0014,
+        "peak": 0.0333,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "quest（任务完成）",
+        "seconds": 1.6,
+        "rms": 0.0093,
+        "peak": 0.0811,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "questStart（任务开始）",
+        "seconds": 1.6,
+        "rms": 0.0067,
+        "peak": 0.0587,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "title（标题）",
+        "seconds": 1.6,
+        "rms": 0.0128,
+        "peak": 0.0744,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "clothes（换衣）",
+        "seconds": 1.6,
+        "rms": 0.0025,
+        "peak": 0.0266,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "customize（换装）",
+        "seconds": 1.6,
+        "rms": 0.0025,
+        "peak": 0.0304,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "bubbleStart（气泡开）",
+        "seconds": 1.6,
+        "rms": 0.0012,
+        "peak": 0.0244,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "bubbleEnd（气泡关）",
+        "seconds": 1.6,
+        "rms": 0.0012,
+        "peak": 0.0247,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "emoteStart（表情开）",
+        "seconds": 1.6,
+        "rms": 0.0028,
+        "peak": 0.0268,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "emoteEnd（表情关）",
+        "seconds": 1.6,
+        "rms": 0.0028,
+        "peak": 0.0315,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "emoji（emoji）",
+        "seconds": 1.6,
+        "rms": 0.0022,
+        "peak": 0.0543,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "letter（信件风铃）",
+        "seconds": 1.6,
+        "rms": 0.0097,
+        "peak": 0.0745,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "turn（翻页）",
+        "seconds": 1.6,
+        "rms": 0.0012,
+        "peak": 0.0231,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "out（退出）",
+        "seconds": 1.6,
+        "rms": 0.0027,
+        "peak": 0.0274,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "whoosh（相机 whoosh）",
+        "seconds": 1.6,
+        "rms": 0.0016,
+        "peak": 0.0224,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "zoomIn（推进）",
+        "seconds": 1.6,
+        "rms": 0.003,
+        "peak": 0.0254,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "zoomOut（拉远）",
+        "seconds": 1.6,
+        "rms": 0.0027,
+        "peak": 0.0259,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "note（提示音）",
+        "seconds": 1.6,
+        "rms": 0.0034,
+        "peak": 0.0361,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "error（错误）",
+        "seconds": 1.6,
+        "rms": 0.0029,
+        "peak": 0.0303,
+        "pass": true,
+        "note": ""
+      },
+      {
+        "group": "音效",
+        "name": "toggle（开关）",
+        "seconds": 1.6,
+        "rms": 0.0011,
+        "peak": 0.0383,
+        "pass": true,
+        "note": ""
+      }
+    ]
+  },
+  "game": {
+    "attempt": 1,
+    "afterClick": {
+      "ctxState": "running",
+      "unlocked": true,
+      "muted": false
+    },
+    "diagnostics": {
+      "diagnostics": {
+        "contextState": "running",
+        "sampleRate": 48000,
+        "unlocked": true,
+        "muted": false,
+        "region": "base",
+        "ambience": "base",
+        "ambienceEvents": [
+          "阵风",
+          "远处鸟鸣"
+        ],
+        "buses": {
+          "master": 1,
+          "music": 0.5,
+          "ambience": 0.4,
+          "sfx": 0.65
+        },
+        "musicPlaying": true,
+        "musicMode": "buffer",
+        "musicError": null,
+        "musicMeta": {
+          "title": "小行星邮差（原创）",
+          "bpm": 80,
+          "bars": 12,
+          "beatsPerBar": 4,
+          "loopSeconds": 36,
+          "tailSeconds": 5,
+          "sampleRate": 48000,
+          "key": "C 宫",
+          "scale": "C 宫五声",
+          "progression": [
+            "C",
+            "Am",
+            "D",
+            "G",
+            "C",
+            "Am",
+            "D",
+            "G",
+            "Am",
+            "C",
+            "G",
+            "C"
+          ],
+          "melodyNotes": 53,
+          "renderMs": 2505,
+          "peak": 0.72,
+          "rms": 0.13239,
+          "peakBeforeNormalize": 0.8822,
+          "normalizeScale": 0.8162,
+          "seamDelta": 0.00268,
+          "renderer": "OfflineAudioContext"
+        },
+        "vinyl": true
+      },
+      "musicMeta": {
+        "title": "小行星邮差（原创）",
+        "bpm": 80,
+        "bars": 12,
+        "beatsPerBar": 4,
+        "loopSeconds": 36,
+        "tailSeconds": 5,
+        "sampleRate": 48000,
+        "key": "C 宫",
+        "scale": "C 宫五声",
+        "progression": [
+          "C",
+          "Am",
+          "D",
+          "G",
+          "C",
+          "Am",
+          "D",
+          "G",
+          "Am",
+          "C",
+          "G",
+          "C"
+        ],
+        "melodyNotes": 53,
+        "renderMs": 2505,
+        "peak": 0.72,
+        "rms": 0.13239,
+        "peakBeforeNormalize": 0.8822,
+        "normalizeScale": 0.8162,
+        "seamDelta": 0.00268,
+        "renderer": "OfflineAudioContext"
+      },
+      "mode": "buffer",
+      "region": "base"
+    },
+    "probe": {
+      "region": "beach",
+      "muted": false,
+      "events": [
+        "海浪拍岸",
+        "海鸥"
+      ],
+      "regionRightAfterSet": "beach"
+    },
+    "mutePersist": {
+      "stored": "1"
+    },
+    "worldMode": null,
+    "console": {
+      "errors": [],
+      "warnings": [],
+      "audioRequests": []
+    },
+    "nonAudioConsoleErrors": []
+  },
+  "screenshots": [
+    "screenshots/audio/01-testpage-idle.png",
+    "screenshots/audio/02-testpage-unlocked.png",
+    "screenshots/audio/04-testpage-visual.png",
+    "screenshots/audio/05-bgm-waveform.png",
+    "screenshots/audio/03-testpage-selfcheck.png",
+    "screenshots/audio/06-testpage-mobile.png",
+    "screenshots/audio/07-game-intro.png",
+    "screenshots/audio/08-game-playing.png"
+  ],
+  "failures": [],
+  "finishedAt": "2026-11-06T08:37:58.416Z",
+  "passed": true
+}

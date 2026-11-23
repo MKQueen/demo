@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#efe6d4;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three';
+import { makeMaterials } from './src/lib/materials.js';
+import { createTextureSet } from './src/lib/textures.js';
+import { InkPost } from './src/lib/ink.js';
+import { buildTrees } from './src/lib/flora.js';
+import * as P from './src/lib/palette.js';
+
+const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias:false});
+renderer.setSize(1600, 1000); renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.NoToneMapping;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(P.PAPER);
+scene.fog = new THREE.FogExp2(P.MIST, 0.0008);
+const camera = new THREE.PerspectiveCamera(38, 1.6, 0.1, 3000);
+camera.position.set(6, 4.5, 11); camera.lookAt(0, 1.2, 0);
+scene.add(new THREE.HemisphereLight(0xfff6e8, 0x6d7a74, 2.9));
+scene.add(new THREE.AmbientLight(0xfff3e2, 0.55));
+const sun = new THREE.DirectionalLight(0xffe9cc, 4.6); sun.position.set(8, 14, 10); scene.add(sun);
+const tex = createTextureSet(); const mats = makeMaterials(tex);
+const post = new InkPost({renderer, paperTexture: tex.paper});
+post.setSize(1600,1000,1);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshBasicMaterial({map: tex.paper.clone()}));
+ground.material.map.needsUpdate=true; ground.material.map.repeat.set(8,8); ground.material.map.wrapS=ground.material.map.wrapT=THREE.RepeatWrapping;
+ground.rotation.x=-Math.PI/2; scene.add(ground);
+
+const specs = [];
+const kinds = ['pine','locust','willow','blossom'];
+kinds.forEach((k,i)=>{ for(let j=0;j<4;j++) specs.push({kind:k, x:-6+i*3.4, z:3-j*2.6, h:0.7+((i+j)%3)*0.22}); });
+const trees = buildTrees(specs, { onTick: (fn)=>{} });
+scene.add(trees);
+
+let t=0;
+function loop(){ requestAnimationFrame(loop); t+=0.016; camera.position.x=6*Math.cos(t*0.05); camera.position.z=11*Math.sin(t*0.05)+1; camera.lookAt(0,1.1,0); post.render(scene,camera,t); }
+loop();
+</script></body></html>

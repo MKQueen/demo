@@ -144,7 +144,6 @@ const callbacks: CbdSceneCallbacks = {
     if (poi) {
       viewMode.value = scopeToView(poi.scope);
       if (activeDistrict.value && poi.scope !== 'cbd') viewMode.value = 'district';
-      if (poi.district) activeDistrict.value = poi.district;
     }
     if (!poi) orbitActive.value = false;
     if (poi && isMobile.value) sidebarOpen.value = false;

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="/">
+<title>角色测试 · Character Harness</title>
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #9fd6d0; }
+  body { font-family: "Trebuchet MS", "PingFang SC", system-ui, sans-serif; }
+  #view { display: block; width: 100vw; height: 100vh; }
+  #overlay { position: fixed; inset: 0; pointer-events: none; }
+  .label {
+    position: absolute; transform: translate(-50%, 0); padding: 3px 9px; border-radius: 6px;
+    background: rgba(255,255,255,0.82); border: 2px solid #2f3a3a; color: #23302f;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.4px; white-space: nowrap;
+  }
+  #title {
+    position: absolute; left: 22px; top: 18px; color: #123a37; font-size: 15px;
+    font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  }
+  #title span { display: block; font-weight: 400; font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  #status {
+    position: absolute; right: 18px; top: 18px; max-width: 42vw; padding: 6px 10px;
+    background: rgba(255,255,255,0.78); border: 2px solid #2f3a3a; border-radius: 8px;
+    color: #23302f; font: 12px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap;
+  }
+  .dot {
+    position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    background: #e2603c; border: 2px solid #2f3a3a; box-sizing: border-box;
+  }
+  .dot-label {
+    position: absolute; transform: translate(-50%, 0); padding: 2px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.9); border: 2px solid #2f3a3a; color: #23302f;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  #grid { position: fixed; inset: 0; display: none; }
+  #grid canvas { width: 100vw; height: 100vh; display: block; }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+<div id="overlay">
+  <div id="title">角色测试 · Character Harness<span id="subtitle">avatar</span></div>
+  <div id="status">loading…</div>
+</div>
+<div id="grid"><canvas id="grid-canvas"></canvas></div>
+<script type="module" src="/tools/character/test.js"></script>
+</body>
+</html>

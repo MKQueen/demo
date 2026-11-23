@@ -1,6 +1,6 @@
 # DEMO LAB · 交互实验室
 
-七个可直接上手玩的 Demo 合集：统一构建进一个站点，**七个 Demo 的构建产物都是纯静态资源**，
+十二个可直接上手玩的 Demo 合集：统一构建进一个站点，**十二个 Demo 的构建产物都是纯静态资源**，
 可上传到任意静态托管。其中 **RAG 观测台的回答由真实大模型实时生成**（知识库与检索管线全部在
 浏览器里跑，本地预览服务器只做一层模型转发），**mini-opencode 是连接本机后端的真实 Agent**
 （模型真的回复、工具真的读写文件 / 执行命令）。由 `npm run serve` 一键同时拉起站点、
@@ -8,12 +8,17 @@ Agent 后端与 RAG 的模型转发。
 
 | Demo | 内容 | 技术 | 入口 |
 | --- | --- | --- | --- |
+| **村庄** THE VILLAGE | 根据卫星图程序化生成的太行山谷大场景：开放地形、河道与远村、约三十座石屋小院、盘山路、上山坡地与山林；三渲二渲染 + 四季可切换（键盘 1-4），全程序化、零 UI | Three.js · 三渲二 · 四季 · 纯静态 | `apps/jiaojiaogou` |
+| **雨夜便利店** RAINY KONBINI | Three.js 全程序化的日式便利店雨夜街角微缩模型：11×11 胡桃木底座、可自由拖拽旋转缩放；三渲二卡通渲染与描边，大面积玻璃后的暖光店内（货架/饮料冷柜/便当饭团/收银台/关东煮/咖啡机/杂志架）、自动贩卖机/自行车/雨伞架/电线杆电线/护栏/斑马线/停车位/小巷/空调外机，湿路面真实平面反射 + 持续降雨/屋檐滴水/玻璃水痕/招牌微闪/自动门开合 | Three.js · 三渲二 · 全程序化 · 纯静态 | `apps/konbini-rain` |
+| **水墨北京** INK BEIJING | 用 Three.js 程序化「画」一座北京：中轴宫阙九门与上千座四合院、北海白塔/天坛/颐和园/圆明园、西山长城卢沟桥，到国贸 CBD 中国尊/央视大楼/鸟巢/水立方/国家大剧院/奥林匹克塔，古今同框；湖面波纹涟漪小舟、淡墨远山、双 Sobel 墨线后期 + 晨暮切换 + 墨色滑杆 | Three.js · 程序化生成 · 自定义水墨后期 | `apps/ink-beijing` |
+| **水墨清明上河图** INK · QINGMING | 用 Three.js 把《清明上河图》扩成整座东京城的水墨长卷：郊野、汴河、放大的无柱木拱虹桥与桥下大船过桥、城门街市（四百余人）、州桥、御街、相国寺、樊楼、大内宣德门；绢本设色（淡赭/花青/朱砂）+ 程序化人物/水面/绢纹；拖动/滚轮展卷，卷尺直达八段 | Three.js · 程序化生成 · 绢本水墨长卷 | `apps/ink-qingming` |
 | **钢铁黎明** STEEL DAWN | 环太平洋风格 3D 机甲 Boss 战，键盘 / 摄像头体感双操作 | Three.js · Rapier3D · MediaPipe | `apps/mecha-battle` |
 | **富华大厦** 建筑数字档案 | 六座一庭的建筑外观重建 + 楼层分层 / 逐层平面 + 东四十条街区语境（OSM 周边白模 / 路网 / 地标 / 昼夜三态） | Three.js · GLB · OSM | `apps/building-atlas` |
 | **北京数字孪生** BEIJING DIGITAL TWIN | 16 个行政区逐区探索：每区独立边界 / 相机 / 地标 / POI；中心城区 86,706 实例化体块 + 国贸 CBD + 6 个免费地标 | CesiumJS · Vue 3 · TypeScript | `apps/cbd-digital-twin` |
 | **潮线 TIDELINE** 3D 动态水淹模拟 | 程序化 DEM 河谷 + 1067 栋本地 3D Tiles 滨海城市（老城/西城/北城/滨海新区/CBD）+ 地形框选蓄水区 + ShaderToy「Seascape」移植的屏幕空间水面；滑块实时调节水位并统计淹没建筑 / 面积 | CesiumJS · Vue 3 · WebGL Shader | `apps/flood-sim` |
 | **RAG 观测台** | 检索 → 融合 → Prompt → 流式回答全链路可视化：8 篇知识库、48 块切块、哈希向量 + BM25 + RRF、PCA、引用解析全在浏览器内运行，回答由**真实大模型**流式生成（本地服务器只做 CORS 绕行 + Key 注入） | 原生 JS · 哈希向量 + BM25 + RRF · 真实模型转发 | `apps/rag-lab` |
-| **视觉感知** VISION LAB | 摄像头 / 视频 / 图片三路输入，实时检测 COCO 80 类物体：高精度 (Lite2) / 快速 (Lite0) 双模型、Worker 内推理、可选用本地视觉大模型「AI 精读」当前帧 | MediaPipe · Web Worker · Canvas 2D | `apps/vision-lab` |
+| **视觉感知** VISION LAB | 摄像头 / 视频 / 图片三路输入，实时检测 COCO 80 类物体：高精度 (Lite2) / 快速 (Lite0) 双模型、稳定 #ID 跟踪 + 轨迹 + 事件流、可选用本地视觉大模型「AI 精读 / 自动观察」 | MediaPipe · Web Worker · Canvas 2D | `apps/vision-lab` |
+| **手势贪吃蛇** HAND SNAKE | 摄像头手部追踪体感游戏：21 关键点、食指指尖控制蛇头、吃光点变长、金色奖励、握拳暂停；无摄像头可鼠标模式 | MediaPipe HandLandmarker · Web Worker · Canvas 2D | `apps/hand-snake` |
 | **mini-opencode** Agent 面板 | **真实 AI Agent**：真模型、真工具、真权限审批、真会话轨迹；安静克制的中性浅色界面，实时可观察每一步 | Node 24 TS（原项目后端）· 原生 JS 前端 · SSE | `apps/agent-lab` |
 
 首页：`hub/`（纯静态，无构建依赖）。
@@ -22,7 +27,7 @@ Agent 后端与 RAG 的模型转发。
 
 ## 怎么打开（先看这里）
 
-七个 demo 的**构建产物都是纯静态的**（`site/` 里的资源不依赖 Node）；但其中 **RAG 观测台的
+十二个 demo 的**构建产物都是纯静态的**（`site/` 里的资源不依赖 Node）；但其中 **RAG 观测台的
 回答生成需要本地模型转发**（检索、切块、Prompt 拼装仍然全在浏览器内），`mini-opencode` 则需要
 **本地真实 Agent 后端**。这两层服务都由 `npm run serve` / `START.command` 一并拉起。
 无论哪种，都**不能直接双击 `site/index.html` 或 `apps/*/index.html`**：浏览器会以 `file://` 协议
@@ -36,7 +41,7 @@ Agent 后端与 RAG 的模型转发。
    的检索可视化照常可看，但回答生成会显示「未连接」（要展示真实生成请在本机用 `npm run serve`）；
    `mini-opencode` 需要本机后端（详见下文「部署」里的两个「真实性边界」）。
 
-> 打开是空白页时先排查：① 是不是直接双击了 html 文件（需换成本地服务）；② 本地预览服务是否在运行；③ `site/` 是否完整（执行 `npm run build`，构建输出应包含 7 个 demo）。
+> 打开是空白页时先排查：① 是不是直接双击了 html 文件（需换成本地服务）；② 本地预览服务是否在运行；③ `site/` 是否完整（执行 `npm run build`，构建输出应包含 12 个 demo）。
 
 ---
 
@@ -78,10 +83,10 @@ npm run zip            # → site.zip
 
 ## 预览
 
-`npm run serve` 后打开 <http://127.0.0.1:5180/>。七个 demo 的实机截图在
+`npm run serve` 后打开 <http://127.0.0.1:5180/>。十二个 demo 的实机截图在
 `screenshots/preview/`（合集：`00-collage.jpg`，首页：`01-hub-hero.jpg`、`02-hub-work.jpg`）。
 
-当前构建产物大小以 `npm run build` 末尾输出为准（完整 `site/` 约 219 MB：含 3D 模型、Cesium 运行时与 MediaPipe 视觉模型；其中 `vision-lab` 的模型/WASM 约 61 MB（含 Lite2 高精度模型；Lite0 复用自 `apps/mecha-battle/public/mediapipe`））。
+当前构建产物大小以 `npm run build` 末尾输出为准（完整 `site/` 约 270 MB：含 3D 模型、Cesium 运行时、MediaPipe 视觉/手部模型等；其中 `vision-lab` 约 63 MB、`hand-snake` 约 33 MB，两者的 MediaPipe 运行时与 WASM 复用自 `apps/mecha-battle/public/mediapipe`）。
 如果托管平台限制体积，可参考 `apps/mecha-battle/README.md` 中「体感模型」一节按需精简钢铁黎明的体感模型后重新构建。
 
 ## 目录结构
@@ -89,11 +94,15 @@ npm run zip            # → site.zip
 ```
 .
 ├── hub/                    # 合集首页（纯静态：index.html / css / js / demos.json / favicon）
-├── apps/                   # 七个独立 demo（各自 package.json，互不干扰）
+├── apps/                   # 十二个独立 demo（各自 package.json，互不干扰）
+│   ├── ink-beijing/       #   水墨北京：Vite + Three.js 程序化水墨京城
+│   ├── konbini-rain/      #   雨夜小镇：Vite + Three.js 三渲二四季微缩模型
+│   ├── jiaojiaogou/       #   村庄 · 太行山谷：Vite + Three.js 三渲二四季山村大场景
 │   ├── mecha-battle/       #   钢铁黎明：Vite + Three.js
 │   ├── building-atlas/     #   富华大厦：Vite + Three.js，楼层分层 + 东四十条街区语境（OSM 白模）
 │   ├── cbd-digital-twin/   #   北京数字孪生：Vite + Vue 3 + CesiumJS（16,432 km² + 中心城区 + CBD）
 │   ├── vision-lab/         #   视觉感知：实时物体识别（MediaPipe Worker，纯静态零依赖）
+│   ├── hand-snake/         #   手势贪吃蛇：摄像头手部追踪体感游戏（纯静态零依赖）
 │   ├── rag-lab/            #   RAG 观测台：浏览器内检索管线 + 真实模型转发（零 npm 依赖）
 │   └── agent-lab/          #   mini-opencode：真实 Agent 后端 + 可观测面板（本地真跑）
 ├── scripts/
@@ -118,7 +127,7 @@ npm run zip            # → site.zip
 ```
 site/
 ├── index.html              # 合集首页
-├── demos/<id>/             # 七个 demo，各自独立、相对路径资源
+├── demos/<id>/             # 十二个 demo，各自独立、相对路径资源
 ├── thumbs/<id>.jpg         # 首页封面
 └── build-info.json
 ```
@@ -150,7 +159,7 @@ node scripts/serve-app.mjs apps/rag-lab/dist /demos/rag-lab 5283 --llm
 
 ## 部署
 
-`npm run build` 后把 `site/` 整个目录上传即可。**七个 demo 的构建产物都是纯静态资源，不需要 Node、
+`npm run build` 后把 `site/` 整个目录上传即可。**十二个 demo 的构建产物都是纯静态资源，不需要 Node、
 数据库或任何重写规则**；但有两个 Demo 要完整跑起来依赖本机服务，对外展示时请如实说明：
 
 - **RAG 观测台**：知识库、检索管线、向量空间、召回、Prompt、评测全部在浏览器内，纯静态托管照常可看；
@@ -168,7 +177,7 @@ node scripts/serve-app.mjs apps/rag-lab/dist /demos/rag-lab 5283 --llm
 ### 部署到 GitHub Pages（推荐，已内置工作流）
 
 仓库已经包含 `.github/workflows/deploy-pages.yml`：推送到 `main` 后，GitHub Actions 会自动构建
-7 个 demo、拼装 `site/` 并发布到 GitHub Pages，**不需要提交 `site/` 或 `node_modules`**。
+12 个 demo、拼装 `site/` 并发布到 GitHub Pages，**不需要提交 `site/` 或 `node_modules`**。
 
 首次部署步骤：
 
@@ -230,7 +239,7 @@ Node 进程里，纯静态托管做不到。所以：
 
 - **本地演示（推荐）**：`npm run serve` 会同时启动站点和真实 Agent 后端，并把 `/api/*`
   同源代理到后端，页面里的一切（模型回复、工具执行、权限审批、会话落盘）都是真的；
-- **只上传 site/ 到静态托管（含 GitHub Pages）**：前五个 demo（机甲 / 建筑 / 北京数字孪生 / 潮线水淹 / 视觉感知）
+- **只上传 site/ 到静态托管（含 GitHub Pages）**：前十二个 demo（竹海 / 水墨北京 / 清明上河图 / 雨夜小镇 / 村庄 / 机甲 / 建筑 / 北京数字孪生 / 潮线水淹 / 视觉感知 / 手势贪吃蛇）
   完全照常运行，RAG 观测台的检索可视化也能看（但没有模型生成）；
   `mini-opencode` 页面会显示「未连接到真实 Agent 后端」，并提示在本地执行 `npm run serve` —— 不会用假数据冒充；
 - **公网部署 mini-opencode**：后端默认只监听 `127.0.0.1` 且没有鉴权，**不要直接暴露到公网**；
@@ -303,3 +312,18 @@ cd apps/agent-lab      && npm run web      # 真实 Agent 网页面板（默认 
 2. 在 `hub/demos.json` 的 `demos` 数组加一项（`id / name / en / kicker / tagline / description / tags / highlights / accent / cover / href / cta`）；
 3. 可选：放一张 `apps/<id>/screenshots/cover.jpg`；
 4. `npm run build`。
+
+
+### 京城来信 · Beijing Courier
+
+独立入口：[京城来信](http://127.0.0.1:5180/demos/beijing-courier/)。以 [Messenger](https://messenger.abeto.co)
+为参考重做的高保真 3D 小行星递送游戏：逆向复用原站的角色模型/骨骼动画/星球场景/贴图与音频，
+自建 MRT 卡通描边 + 3D LUT 调色管线，在一颗可绕行一整圈的小行星上替 10 位 NPC 送五封手写信。
+纯静态、单人可离线（PWA），带中文手写信体 UI、清单、换装、区域环境音与触屏摇杆。
+
+- 源码与说明：`apps/beijing-courier/README.md`（v3：原创北京主角/街区/道具/音频，见 `ASSETS.md`）
+- 开发：`npm run dev:courier`（127.0.0.1:5190）
+- 验证：`npm run build --prefix apps/beijing-courier && npm test --prefix apps/beijing-courier`
+- 说明：为学习/复刻性质的技术 Demo，角色/场景/音频资产来自 <https://messenger.abeto.co>（Abeto），
+  版权归原作者所有，请勿商用；详见 app README 的素材来源声明。
+

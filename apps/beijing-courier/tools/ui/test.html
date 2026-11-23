@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <title>京城来信 · UI 静态验收台</title>
+    <style>
+      /* ---- harness 专用背景 + 调试条（不进入游戏） ---------------------- */
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #65c1bc;
+        font-family: 'Patrick Hand', 'Kaiti SC', serif;
+      }
+
+      /* 假场景：只为观察 UI 在游戏画面上的可读性，不是游戏渲染 */
+      #stage {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: linear-gradient(180deg, #6fcac5 0%, #67c3be 46%, #63bdb8 60%, #7fc0a5 60.2%, #5b9d6b 100%);
+        transition: filter 0.4s ease;
+      }
+      #stage::before {
+        content: '';
+        position: absolute;
+        left: -6vw;
+        top: 4vh;
+        width: 46vw;
+        height: 22vh;
+        border-radius: 50%;
+        background: rgba(148, 229, 214, 0.55);
+        box-shadow:
+          18vw 6vh 0 -3vh rgba(148, 229, 214, 0.45),
+          30vw -2vh 0 -5vh rgba(148, 229, 214, 0.4),
+          10vw 9vh 0 -6vh rgba(148, 229, 214, 0.5);
+        filter: blur(1px);
+      }
+      #stage::after {
+        content: '';
+        position: absolute;
+        left: 8vw;
+        right: 8vw;
+        top: 30vh;
+        height: 20vh;
+        border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%;
+        background: rgba(158, 231, 219, 0.28);
+        filter: blur(2px);
+      }
+      .stage--intro #stage::before {
+        display: none;
+      }
+      .stage--intro #stage::after {
+        display: none;
+      }
+
+      .island {
+        position: absolute;
+        left: 50%;
+        top: 46%;
+        width: 56vmin;
+        height: 44vmin;
+        transform: translate(-50%, -50%) rotate(-2deg);
+        border-radius: 47% 53% 44% 56% / 55% 46% 54% 45%;
+        background:
+          radial-gradient(ellipse 60% 45% at 42% 34%, #d9d6c0 0 46%, transparent 47%),
+          radial-gradient(ellipse 32% 30% at 66% 46%, #cfccb5 0 60%, transparent 61%),
+          linear-gradient(160deg, #6ba173 0%, #4f8260 55%, #3f6d51 100%);
+        box-shadow: inset -14px -16px 0 rgba(31, 74, 54, 0.16);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .island::before,
+      .island::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: #3f7a52;
+        box-shadow: 2vmin -3vmin 0 -0.4vmin #4a8a5c, -3vmin 2vmin 0 -0.6vmin #356b48;
+      }
+      .island::before {
+        width: 9vmin;
+        height: 7vmin;
+        left: 18%;
+        top: 46%;
+      }
+      .island::after {
+        width: 7vmin;
+        height: 6vmin;
+        left: 62%;
+        top: 58%;
+      }
+      .stage--intro .island {
+        opacity: 1;
+      }
+
+      .hill {
+        position: absolute;
+        left: -10vw;
+        right: -10vw;
+        bottom: -18vh;
+        height: 52vh;
+        border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        background: #4e8a5f;
+        box-shadow: inset 0 3vh 0 rgba(255, 255, 255, 0.06);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .hill::after {
+        content: '';
+        position: absolute;
+        left: 6vw;
+        right: 6vw;
+        bottom: 24vh;
+        height: 22vh;
+        border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        background: #8ea997;
+        border-top: 3px solid #455762;
+        opacity: 0.9;
+      }
+      .road {
+        position: absolute;
+        left: -4vw;
+        right: -4vw;
+        bottom: 0;
+        height: 30vh;
+        background: #7e9a95;
+        clip-path: ellipse(78% 68% at 50% 110%);
+        opacity: 0;
+      }
+      .road::after {
+        content: '';
+        position: absolute;
+        left: 20vw;
+        right: 20vw;
+        top: 4vh;
+        height: 0.8vh;
+        border-radius: 1vh;
+        background: rgba(237, 242, 228, 0.85);
+        transform: rotate(-1.4deg);
+      }
+      .tree {
+        position: absolute;
+        width: 10vmin;
+        height: 16vmin;
+        opacity: 0;
+      }
+      .tree::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 4vmin;
+        width: 1.6vmin;
+        height: 7vmin;
+        margin-left: -0.8vmin;
+        border-radius: 1vmin;
+        background: #6b5a45;
+        box-shadow: 1.2vmin 0 0 -0.6vmin #6b5a45;
+      }
+      .tree::after {
+        content: '';
+        position: absolute;
+        left: 6%;
+        right: 6%;
+        top: 0;
+        bottom: 7vmin;
+        border-radius: 50%;
+        background: #3d7350;
+        box-shadow: inset -1vmin -1.6vmin 0 rgba(24, 60, 40, 0.2);
+      }
+      .tree--a {
+        left: 5vw;
+        top: 22vh;
+        transform: scale(0.9) rotate(-2deg);
+      }
+      .tree--b {
+        right: 7vw;
+        top: 16vh;
+        transform: scale(1.2) rotate(2deg);
+      }
+      .house {
+        position: absolute;
+        right: 12vw;
+        bottom: 26vh;
+        width: 22vw;
+        height: 30vh;
+        background: #e3dcc2;
+        border: 3px solid #455762;
+        opacity: 0;
+        transform: rotate(1deg);
+        box-shadow: inset -2vw 0 0 rgba(0, 0, 0, 0.06);
+      }
+      .house::before {
+        content: '';
+        position: absolute;
+        left: -1vw;
+        right: -1vw;
+        top: -4vh;
+        height: 5vh;
+        background: #b68a70;
+        border: 3px solid #455762;
+        transform: skewX(-4deg);
+      }
+      .house::after {
+        content: '';
+        position: absolute;
+        left: 4vw;
+        bottom: 8vh;
+        width: 6vw;
+        height: 9vh;
+        background: #5c7f86;
+        border: 2.5px solid #455762;
+      }
+      .stage--game .hill,
+      .stage--game .road,
+      .stage--game .tree,
+      .stage--game .house {
+        opacity: 1;
+      }
+
+      #ui-root {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      /* 调试条 */
+      #debug {
+        position: fixed;
+        left: 14px;
+        bottom: 14px;
+        z-index: 200;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        max-width: 60vw;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(15, 15, 15, 0.72);
+        color: #f8f8f8;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+        backdrop-filter: blur(4px);
+      }
+      #debug button {
+        font: inherit;
+        color: #f8f8f8;
+        background: rgba(248, 248, 248, 0.12);
+        border: 1px solid rgba(248, 248, 248, 0.35);
+        border-radius: 7px;
+        padding: 4px 9px;
+        cursor: pointer;
+      }
+      #debug button.is-active {
+        background: #f0d055;
+        color: #253037;
+        border-color: #253037;
+        font-weight: 700;
+      }
+      #debug .sep {
+        width: 1px;
+        background: rgba(248, 248, 248, 0.25);
+        margin: 2px 3px;
+      }
+      #debug a {
+        color: #9fe1ee;
+        text-decoration: none;
+        padding: 4px 6px;
+      }
+      #hint {
+        position: fixed;
+        left: 16px;
+        top: 14px;
+        z-index: 200;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: #253037;
+        background: rgba(248, 248, 248, 0.7);
+        border: 1.5px solid rgba(69, 87, 98, 0.5);
+        border-radius: 8px;
+        padding: 5px 10px;
+      }
+      body.clean #debug,
+      body.clean #hint {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <div class="island"></div>
+      <div class="hill"></div>
+      <div class="road"></div>
+      <div class="tree tree--a"></div>
+      <div class="tree tree--b"></div>
+      <div class="house"></div>
+    </div>
+    <div id="ui-root"></div>
+
+    <div id="hint">京城来信 · 静态 UI 验收台（不是游戏本体） — <span id="scene-name">intro</span></div>
+    <nav id="debug" aria-label="场景切换">
+      <button data-screen="intro">intro</button>
+      <button data-screen="loading">loading</button>
+      <button data-screen="dialogue">dialogue</button>
+      <button data-screen="checklist">checklist</button>
+      <button data-screen="outfit">outfit</button>
+      <button data-screen="emoji">emoji</button>
+      <button data-screen="hud">hud</button>
+      <span class="sep"></span>
+      <a href="../../docs/messenger-reference/01-intro-title.png" target="_blank">参考图</a>
+    </nav>
+
+    <script type="module" src="./test.js"></script>
+  </body>
+</html>

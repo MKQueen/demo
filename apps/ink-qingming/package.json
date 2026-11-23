@@ -1,0 +1,16 @@
+{
+  "name": "ink-qingming",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "水墨清明上河图 · 汴京长卷：Three.js 程序化水墨长卷",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0",
+    "vite": "^6.0.0"
+  }
+}

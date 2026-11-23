@@ -112,6 +112,7 @@ try {
 } catch (error) {
   console.error(`✗ 静态服务启动失败（${host}:${port}）：${error.message}`);
   if (agent) await agent.stop();
+  if (courier) await courier.close();
   process.exit(1);
 }
 const { url, close } = staticHandle;
@@ -140,6 +141,7 @@ async function shutdown(signal) {
       /* ignore */
     }
   }
+  if (courier) await courier.close();
   process.exit(0);
 }
 

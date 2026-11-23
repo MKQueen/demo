@@ -1,0 +1,1678 @@
+/* ===========================================================================
+   京城来信 · UI 样式
+   手绘风：黑描边、米白纸、青绿天、暖黄按钮、蓝色名牌。
+   基准画布 1440×900，用 --s 等比缩放（min(宽/1440, 高/900)）。
+   字体全部自托管于 /fonts/。
+   =========================================================================== */
+
+/* ---- 字体 ---------------------------------------------------------------- */
+@font-face {
+  font-family: 'Patrick Hand';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/patrick-hand-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ma-shan-zheng-chinese-simplified-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zhi Mang Xing';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/zhi-mang-xing-chinese-simplified-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/zcool-kuaile-chinese-simplified-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Gochi Hand';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/gochi-hand-latin-400-normal.woff2') format('woff2');
+}
+
+/* ---- 设计变量 ------------------------------------------------------------ */
+/* 各模块根节点都自带完整变量与基础字号，所以 Lead 可以单独组合任一模块
+   （不必包一层 .bc-ui）。--u = 1 设计像素（1440×900 基准）。 */
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) {
+  --bc-ink: #0f0f0f;
+  --bc-ink-soft: #3c3c3a;
+  --bc-edge: #253037;
+  --bc-outline: #455762;
+  --bc-paper: #f8f8f8;
+  --bc-paper-dim: #efece3;
+  --bc-shadow: #647a87;
+  --bc-blue: #66bde6;
+  --bc-blue-deep: #3d97c2;
+  --bc-cream: #edf2e4;
+  --bc-gold: #f0d055;
+  --bc-gold-top: #bf8838;
+  --bc-gold-line: #725409;
+  --bc-red: #d85656;
+  --bc-icon: #6b8697;
+  --bc-green: #8cc48c;
+  --bc-disabled: #6d6d6d;
+  --bc-teal: #65c1bc;
+
+  --f-hand: 'Patrick Hand', 'Ma Shan Zheng', 'LXGW WenKai', 'Kaiti SC', 'STKaiti', 'KaiTi', serif;
+  --f-cn: 'Ma Shan Zheng', 'Patrick Hand', 'Kaiti SC', 'STKaiti', 'KaiTi', serif;
+  --f-title: 'ZCOOL KuaiLe', 'Ma Shan Zheng', 'Patrick Hand', 'Kaiti SC', serif;
+  --f-write: 'Zhi Mang Xing', 'Ma Shan Zheng', 'Kaiti SC', 'STKaiti', serif;
+
+  --u: clamp(calc(100vw / 1440 * 0.72), min(calc(100vw / 1440), calc(100vh / 900)), calc(100vw / 1440 * 1.34));
+
+  color: var(--bc-ink);
+  font-family: var(--f-hand);
+  font-size: calc(16 * var(--u));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 最外层容器（Lead 提供的 #ui-root 内部）。
+   单独使用模块时不需要它；模块根节点已经自带定位。 */
+.bc-ui {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch),
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) *,
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) *::before,
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) *::after {
+  box-sizing: border-box;
+}
+
+/* 按钮 reset 用 :where() 降低优先级，组件自己的 background/border 才能生效 */
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+:where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) svg {
+  display: block;
+}
+
+/* 通用：手绘纸片 ---------------------------------------------------------- */
+.bc-paper {
+  background: var(--bc-paper);
+  border: calc(2.4 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(13 * var(--u)) calc(17 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u)) /
+    calc(16 * var(--u)) calc(12 * var(--u)) calc(17 * var(--u)) calc(13 * var(--u));
+  box-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 var(--bc-shadow);
+}
+
+/* =========================================================================
+   1 · 开场（INTRO）
+   ========================================================================= */
+.bc-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: calc(150 * var(--u));
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.7s ease;
+}
+.bc-intro.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.7s ease, visibility 0s linear 0.7s;
+}
+.bc-intro__veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 68% at 50% 46%, rgba(101, 193, 188, 0) 42%, rgba(52, 132, 137, 0.2) 100%),
+    linear-gradient(180deg, rgba(101, 193, 188, 0.14), rgba(101, 193, 188, 0) 30%);
+}
+
+/* 标题：用 SVG 里叠字的假 3D 方块字（intro.js 生成） */
+.bc-title {
+  position: relative;
+  z-index: 2;
+  width: calc(640 * var(--u));
+  max-width: 92vw;
+  margin-top: calc(-34 * var(--u));
+  pointer-events: none;
+  filter: drop-shadow(0 calc(14 * var(--u)) calc(20 * var(--u)) rgba(40, 82, 84, 0.18));
+}
+.bc-title svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 标题上的小字 + 下方拉丁副标 */
+.bc-intro__eyebrow {
+  position: relative;
+  z-index: 2;
+  margin-bottom: calc(10 * var(--u));
+  font-family: var(--f-write);
+  font-size: calc(24 * var(--u));
+  letter-spacing: calc(5 * var(--u));
+  color: var(--bc-edge);
+  opacity: 0.72;
+  transform: rotate(-1.6deg);
+  text-shadow: 0 1px 0 rgba(237, 242, 228, 0.4);
+}
+.bc-intro__latin {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(2 * var(--u));
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(27 * var(--u));
+  letter-spacing: calc(9 * var(--u));
+  text-indent: calc(9 * var(--u));
+  color: var(--bc-cream);
+  text-transform: uppercase;
+  transform: rotate(-0.8deg);
+  text-shadow:
+    calc(-1.6 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.6 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.6 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.6 * var(--u)) 0 var(--bc-edge),
+    calc(2 * var(--u)) calc(3 * var(--u)) 0 rgba(37, 48, 55, 0.35);
+}
+.bc-intro__cn {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(8 * var(--u));
+  font-family: var(--f-cn);
+  font-size: calc(17 * var(--u));
+  letter-spacing: calc(4 * var(--u));
+  color: var(--bc-edge);
+  opacity: 0.66;
+}
+
+/* BEGIN 按钮 */
+.bc-begin {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: calc(66 * var(--u));
+  width: calc(196 * var(--u));
+  height: calc(86 * var(--u));
+  margin-left: calc(-98 * var(--u));
+  transform: rotate(-1.6deg);
+  background: var(--bc-gold);
+  border: calc(3.2 * var(--u)) solid var(--bc-edge);
+  border-radius: calc(10 * var(--u)) calc(14 * var(--u)) calc(11 * var(--u)) calc(9 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(1 * var(--u));
+  line-height: 1;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  box-shadow:
+    0 calc(-13 * var(--u)) 0 calc(0px) var(--bc-gold-top),
+    0 calc(-16 * var(--u)) 0 calc(0px) var(--bc-edge),
+    calc(3 * var(--u)) calc(-13 * var(--u)) 0 calc(0px) var(--bc-gold-top),
+    calc(6 * var(--u)) calc(7 * var(--u)) 0 calc(0px) var(--bc-edge);
+}
+.bc-begin::before {
+  /* 顶面高光的一道线 */
+  content: '';
+  position: absolute;
+  left: calc(6 * var(--u));
+  right: calc(12 * var(--u));
+  top: calc(-9 * var(--u));
+  height: calc(3 * var(--u));
+  border-radius: 2px;
+  background: rgba(255, 238, 170, 0.55);
+  transform: rotate(-0.4deg);
+}
+.bc-begin__en {
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(35 * var(--u));
+  letter-spacing: calc(3 * var(--u));
+  text-indent: calc(3 * var(--u));
+  color: var(--bc-cream);
+  text-shadow:
+    calc(-1.5 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.5 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.5 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.5 * var(--u)) 0 var(--bc-edge),
+    calc(2 * var(--u)) calc(3 * var(--u)) 0 rgba(114, 84, 9, 0.5);
+}
+.bc-begin__cn {
+  font-family: var(--f-cn);
+  font-size: calc(14 * var(--u));
+  letter-spacing: calc(5 * var(--u));
+  text-indent: calc(5 * var(--u));
+  color: var(--bc-gold-line);
+  opacity: 0.8;
+}
+.bc-begin:hover {
+  transform: rotate(-1.6deg) translateY(calc(-3 * var(--u))) scale(1.035);
+  box-shadow:
+    0 calc(-13 * var(--u)) 0 calc(0px) var(--bc-gold-top),
+    0 calc(-16 * var(--u)) 0 calc(0px) var(--bc-edge),
+    calc(3 * var(--u)) calc(-13 * var(--u)) 0 calc(0px) var(--bc-gold-top),
+    calc(8 * var(--u)) calc(10 * var(--u)) 0 calc(0px) var(--bc-edge);
+}
+.bc-begin:active {
+  transform: rotate(-1.6deg) translateY(calc(2 * var(--u))) scale(0.985);
+}
+.bc-begin:focus-visible {
+  outline: calc(2.5 * var(--u)) dashed var(--bc-edge);
+  outline-offset: calc(5 * var(--u));
+}
+
+/* 角落装饰 */
+.bc-corner {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  color: var(--bc-edge);
+}
+.bc-corner--postmark {
+  top: calc(46 * var(--u));
+  left: calc(48 * var(--u));
+  width: calc(122 * var(--u));
+  opacity: 0.62;
+  transform: rotate(-11deg);
+}
+.bc-corner--postmark svg {
+  width: 100%;
+  height: auto;
+}
+.bc-corner--stamp {
+  right: calc(54 * var(--u));
+  top: calc(52 * var(--u));
+  width: calc(112 * var(--u));
+  transform: rotate(7deg);
+  opacity: 0.85;
+  animation: bc-float 5.4s ease-in-out infinite;
+}
+.bc-corner--stamp svg {
+  width: 100%;
+  height: auto;
+}
+.bc-corner--note {
+  left: calc(54 * var(--u));
+  bottom: calc(54 * var(--u));
+  font-family: var(--f-write);
+  font-size: calc(24 * var(--u));
+  line-height: 1.2;
+  letter-spacing: calc(2 * var(--u));
+  opacity: 0.66;
+  transform: rotate(-2.4deg);
+  max-width: calc(300 * var(--u));
+}
+.bc-corner--colon {
+  right: calc(52 * var(--u));
+  bottom: calc(50 * var(--u));
+  text-align: right;
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(14 * var(--u));
+  letter-spacing: calc(2.4 * var(--u));
+  line-height: 1.55;
+  opacity: 0.62;
+  transform: rotate(1.4deg);
+}
+.bc-corner--colon b {
+  display: block;
+  font-family: var(--f-cn);
+  font-size: calc(21 * var(--u));
+  letter-spacing: calc(3 * var(--u));
+  font-weight: 400;
+}
+
+/* 飘着的两枚小信封 */
+.bc-float-mail {
+  position: absolute;
+  z-index: 1;
+  width: calc(54 * var(--u));
+  opacity: 0.8;
+  pointer-events: none;
+  animation: bc-drift 7s ease-in-out infinite;
+}
+.bc-float-mail--a {
+  left: calc(15% + 0px);
+  top: 24%;
+  transform: rotate(-16deg);
+}
+.bc-float-mail--b {
+  right: 17%;
+  bottom: 24%;
+  width: calc(42 * var(--u));
+  transform: rotate(12deg);
+  animation-delay: -3.4s;
+  animation-duration: 8.5s;
+}
+.bc-float-mail svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(calc(2 * var(--u)) calc(3 * var(--u)) 0 rgba(37, 48, 55, 0.22));
+}
+
+@keyframes bc-float {
+  0%,
+  100% {
+    transform: rotate(7deg) translateY(0);
+  }
+  50% {
+    transform: rotate(4deg) translateY(calc(-9 * var(--u)));
+  }
+}
+@keyframes bc-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate(calc(8 * var(--u)), calc(-14 * var(--u))) rotate(2deg);
+  }
+}
+
+/* =========================================================================
+   2 · LOADING
+   ========================================================================= */
+.bc-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: var(--bc-paper);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+.bc-loading.is-on {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.35s ease;
+}
+.bc-loading__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(11 * var(--u));
+  transform: translateY(calc(-4vh));
+}
+.bc-loading__envelope {
+  width: calc(57 * var(--u));
+  animation: bc-mail-bob 1.6s ease-in-out infinite;
+}
+.bc-loading__envelope svg {
+  width: 100%;
+  height: auto;
+}
+.bc-loading__word {
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(12 * var(--u));
+  letter-spacing: calc(5.5 * var(--u));
+  text-indent: calc(5.5 * var(--u));
+  color: var(--bc-ink);
+  opacity: 0.82;
+  display: flex;
+}
+.bc-loading__word span {
+  animation: bc-letter-hop 1.05s ease-in-out infinite;
+}
+.bc-loading__word span:nth-child(2) {
+  animation-delay: 0.09s;
+}
+.bc-loading__word span:nth-child(3) {
+  animation-delay: 0.18s;
+}
+.bc-loading__word span:nth-child(4) {
+  animation-delay: 0.27s;
+}
+.bc-loading__word span:nth-child(5) {
+  animation-delay: 0.36s;
+}
+.bc-loading__word span:nth-child(6) {
+  animation-delay: 0.45s;
+}
+.bc-loading__word span:nth-child(7) {
+  animation-delay: 0.54s;
+}
+.bc-loading__cn {
+  font-family: var(--f-write);
+  font-size: calc(17 * var(--u));
+  letter-spacing: calc(4 * var(--u));
+  color: var(--bc-ink-soft);
+  opacity: 0.55;
+}
+@keyframes bc-mail-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(calc(-5 * var(--u))) rotate(1.5deg);
+  }
+}
+@keyframes bc-letter-hop {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(calc(-2.5 * var(--u)));
+  }
+}
+
+/* =========================================================================
+   3 · HUD：右侧按钮 / 目标 / 对话 / 提示 / toast / 区域标题
+   ========================================================================= */
+.bc-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.bc-hud.is-on {
+  opacity: 1;
+}
+.bc-hud__hidden {
+  visibility: hidden;
+}
+
+/* ---- 右侧竖排按钮 ---- */
+.bc-sides {
+  position: absolute;
+  top: calc(50 * var(--u));
+  right: calc(30 * var(--u));
+  bottom: calc(50 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.bc-sides.is-hidden {
+  opacity: 0;
+  transform: translateX(calc(12 * var(--u)));
+  pointer-events: none;
+}
+.bc-sides.is-hidden .bc-sides__btn {
+  pointer-events: none;
+}
+.bc-sides__lower {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(17.5 * var(--u));
+}
+.bc-sides__btn {
+  position: relative;
+  width: calc(65 * var(--u));
+  height: calc(65 * var(--u));
+  padding: calc(10 * var(--u));
+  background: var(--bc-paper);
+  border: calc(2.3 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(13 * var(--u)) calc(17 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u)) /
+    calc(16 * var(--u)) calc(12 * var(--u)) calc(17 * var(--u)) calc(13 * var(--u));
+  box-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 var(--bc-shadow);
+  pointer-events: auto;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.bc-sides__btn svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-sides__btn:nth-child(1) {
+  transform: rotate(-2.2deg);
+}
+.bc-sides__lower .bc-sides__btn:nth-child(1) {
+  transform: rotate(1.8deg);
+}
+.bc-sides__lower .bc-sides__btn:nth-child(2) {
+  transform: rotate(-1.5deg);
+}
+.bc-sides__lower .bc-sides__btn:nth-child(3) {
+  transform: rotate(2.4deg);
+}
+.bc-sides__btn:hover {
+  transform: translate(calc(-1 * var(--u)), calc(-2 * var(--u))) scale(1.07) rotate(0deg);
+  box-shadow: calc(7 * var(--u)) calc(8 * var(--u)) 0 var(--bc-shadow);
+}
+.bc-sides__btn:active {
+  transform: translate(calc(2 * var(--u)), calc(2 * var(--u))) scale(0.97);
+  box-shadow: calc(2 * var(--u)) calc(2 * var(--u)) 0 var(--bc-shadow);
+}
+.bc-sides__btn:focus-visible {
+  outline: calc(2 * var(--u)) dashed var(--bc-edge);
+  outline-offset: calc(3 * var(--u));
+}
+.bc-sides__btn .bc-sides__muted {
+  display: none;
+}
+.bc-sides__btn.is-muted .bc-sides__sound {
+  display: none;
+}
+.bc-sides__btn.is-muted .bc-sides__muted {
+  display: block;
+}
+.bc-sides__dot {
+  position: absolute;
+  top: calc(-5 * var(--u));
+  right: calc(-5 * var(--u));
+  width: calc(15 * var(--u));
+  height: calc(15 * var(--u));
+  border-radius: 50%;
+  background: var(--bc-red);
+  border: calc(2.4 * var(--u)) solid var(--bc-edge);
+  display: none;
+}
+.bc-sides__btn.has-dot .bc-sides__dot {
+  display: block;
+  animation: bc-dot-pop 2.4s ease-in-out infinite;
+}
+@keyframes bc-dot-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.16);
+  }
+}
+
+/* ---- 任务目标小纸片 ---- */
+.bc-objective {
+  position: absolute;
+  top: calc(50 * var(--u));
+  left: calc(30 * var(--u));
+  z-index: 2;
+  max-width: calc(330 * var(--u));
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10 * var(--u));
+  padding: calc(12 * var(--u)) calc(16 * var(--u)) calc(13 * var(--u));
+  transform: rotate(-1.2deg);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.bc-objective.is-on {
+  opacity: 1;
+}
+.bc-objective__icon {
+  flex: 0 0 auto;
+  width: calc(30 * var(--u));
+  margin-top: calc(2 * var(--u));
+}
+.bc-objective__icon svg {
+  width: 100%;
+  height: auto;
+}
+.bc-objective__body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(3 * var(--u));
+  min-width: 0;
+}
+.bc-objective__kicker {
+  display: block;
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(12 * var(--u));
+  letter-spacing: calc(1.8 * var(--u));
+  color: var(--bc-outline);
+  text-transform: uppercase;
+  margin-bottom: calc(2 * var(--u));
+}
+.bc-objective__text {
+  display: block;
+  font-family: var(--f-cn);
+  font-size: calc(16 * var(--u));
+  line-height: 1.4;
+  color: var(--bc-ink);
+}
+
+/* ---- 对话气泡 ---- */
+.bc-dialog {
+  position: absolute;
+  left: 50%;
+  bottom: calc(94 * var(--u));
+  width: calc(722 * var(--u));
+  max-width: 92vw;
+  margin-left: calc(-353 * var(--u));
+  z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.bc-dialog.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+}
+.bc-dialog__tag {
+  position: absolute;
+  left: calc(-22 * var(--u));
+  top: calc(-59 * var(--u));
+  height: calc(67 * var(--u));
+  min-width: calc(140 * var(--u));
+  padding: 0 calc(20 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bc-blue);
+  border: calc(2.6 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(10 * var(--u)) calc(15 * var(--u)) calc(12 * var(--u)) calc(8 * var(--u)) /
+    calc(13 * var(--u)) calc(9 * var(--u)) calc(15 * var(--u)) calc(11 * var(--u));
+  transform: rotate(-1.6deg);
+  transform-origin: 12% 100%;
+  box-shadow: calc(2.5 * var(--u)) calc(2.5 * var(--u)) 0 rgba(100, 122, 135, 0.5);
+  z-index: 2;
+}
+.bc-dialog__tag-name {
+  font-family: var(--f-hand);
+  font-size: calc(27 * var(--u));
+  line-height: 1;
+  color: var(--bc-ink);
+  letter-spacing: calc(1.6 * var(--u));
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.bc-dialog__tag-name.is-cn {
+  font-family: var(--f-cn);
+  font-size: calc(26 * var(--u));
+  letter-spacing: calc(5 * var(--u));
+  text-indent: calc(5 * var(--u));
+}
+.bc-dialog__box {
+  position: relative;
+  min-height: calc(124 * var(--u));
+  padding: calc(21 * var(--u)) calc(64 * var(--u)) calc(21 * var(--u)) calc(30 * var(--u));
+  background: var(--bc-paper);
+  border: calc(2.6 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(15 * var(--u)) calc(19 * var(--u)) calc(14 * var(--u)) calc(18 * var(--u)) /
+    calc(18 * var(--u)) calc(14 * var(--u)) calc(19 * var(--u)) calc(15 * var(--u));
+  transform: rotate(-0.32deg);
+  box-shadow: calc(3 * var(--u)) calc(3 * var(--u)) 0 rgba(100, 122, 135, 0.35);
+}
+.bc-dialog__text {
+  margin: 0;
+  font-family: var(--f-hand);
+  font-size: calc(29 * var(--u));
+  line-height: 1.42;
+  color: var(--bc-ink);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.bc-dialog__text.is-cn {
+  font-family: var(--f-cn);
+  font-size: calc(28 * var(--u));
+  line-height: 1.5;
+  letter-spacing: calc(1.4 * var(--u));
+}
+.bc-dialog__caret {
+  display: inline-block;
+  width: 0.5em;
+  border-bottom: calc(2.5 * var(--u)) solid rgba(15, 15, 15, 0.55);
+  margin-left: 0.08em;
+  animation: bc-blink 0.9s steps(2, jump-none) infinite;
+}
+@keyframes bc-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.bc-dialog__next {
+  position: absolute;
+  right: calc(-2 * var(--u));
+  bottom: calc(-43 * var(--u));
+  width: calc(66 * var(--u));
+  height: calc(66 * var(--u));
+  padding: calc(9 * var(--u));
+  background: var(--bc-paper);
+  border: calc(2.5 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(12 * var(--u)) calc(15 * var(--u)) calc(13 * var(--u)) calc(16 * var(--u));
+  box-shadow: calc(5.5 * var(--u)) calc(5.5 * var(--u)) 0 var(--bc-shadow);
+  transform: rotate(2.2deg);
+  pointer-events: auto;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  z-index: 3;
+}
+.bc-dialog__next svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-dialog__next:hover {
+  transform: rotate(1deg) scale(1.07);
+  box-shadow: calc(7 * var(--u)) calc(8 * var(--u)) 0 var(--bc-shadow);
+}
+.bc-dialog__next:active {
+  transform: rotate(2deg) scale(0.95);
+}
+.bc-dialog__next:focus-visible {
+  outline: calc(2 * var(--u)) dashed var(--bc-edge);
+  outline-offset: calc(3 * var(--u));
+}
+.bc-dialog.is-on .bc-dialog__tag {
+  animation: bc-tag-in 0.26s steps(3, end) both;
+}
+.bc-dialog.is-on .bc-dialog__box {
+  animation: bc-box-in 0.26s steps(3, end) both;
+}
+.bc-dialog.is-on .bc-dialog__next {
+  animation: bc-next-in 0.3s steps(3, end) 0.1s both;
+}
+@keyframes bc-tag-in {
+  from {
+    opacity: 0;
+    transform: rotate(-1.6deg) scale(0.82) translateX(calc(-8 * var(--u)));
+  }
+}
+@keyframes bc-box-in {
+  from {
+    opacity: 0;
+    transform: rotate(-0.32deg) scale(0.955) translateY(calc(6 * var(--u)));
+  }
+}
+@keyframes bc-next-in {
+  from {
+    opacity: 0;
+    transform: rotate(2.2deg) scale(0.8);
+  }
+}
+
+/* ---- 互动提示 ---- */
+.bc-interact {
+  position: absolute;
+  left: 50%;
+  bottom: calc(258 * var(--u));
+  transform: translateX(-50%) rotate(-1.2deg);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  padding: calc(9 * var(--u)) calc(18 * var(--u)) calc(9 * var(--u)) calc(10 * var(--u));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+.bc-interact.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.bc-interact__key {
+  display: grid;
+  place-items: center;
+  width: calc(38 * var(--u));
+  height: calc(38 * var(--u));
+  background: var(--bc-paper-dim);
+  border: calc(2.2 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(8 * var(--u));
+  box-shadow: 0 calc(2.5 * var(--u)) 0 var(--bc-shadow);
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(20 * var(--u));
+  line-height: 1;
+  transform: rotate(-2deg);
+}
+.bc-interact.is-touch .bc-interact__key {
+  display: none;
+}
+.bc-interact__label {
+  font-family: var(--f-cn);
+  font-size: calc(21 * var(--u));
+  color: var(--bc-ink);
+  white-space: nowrap;
+}
+
+/* ---- Toast ---- */
+.bc-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(186 * var(--u));
+  transform: translate(-50%, calc(8 * var(--u))) rotate(-0.8deg);
+  z-index: 8;
+  padding: calc(10 * var(--u)) calc(24 * var(--u));
+  font-family: var(--f-cn);
+  font-size: calc(20 * var(--u));
+  letter-spacing: calc(1.4 * var(--u));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
+  white-space: nowrap;
+  max-width: 86vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bc-toast.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0) rotate(-0.8deg);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* ---- 区域标题 ---- */
+.bc-zone {
+  position: absolute;
+  left: 50%;
+  top: 16.5%;
+  transform: translate(-50%, calc(-6 * var(--u)));
+  text-align: center;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.bc-zone.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.bc-zone__cn {
+  font-family: var(--f-title);
+  font-size: calc(52 * var(--u));
+  letter-spacing: calc(10 * var(--u));
+  text-indent: calc(10 * var(--u));
+  color: var(--bc-cream);
+  text-shadow:
+    calc(-2 * var(--u)) calc(-2 * var(--u)) 0 var(--bc-edge),
+    calc(2 * var(--u)) calc(-2 * var(--u)) 0 var(--bc-edge),
+    calc(-2 * var(--u)) calc(3 * var(--u)) 0 var(--bc-edge),
+    calc(2 * var(--u)) calc(3 * var(--u)) 0 var(--bc-edge),
+    calc(4 * var(--u)) calc(6 * var(--u)) 0 rgba(37, 48, 55, 0.32);
+}
+.bc-zone__latin {
+  margin-top: calc(4 * var(--u));
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(16 * var(--u));
+  letter-spacing: calc(6 * var(--u));
+  text-indent: calc(6 * var(--u));
+  color: var(--bc-cream);
+  opacity: 0.9;
+  text-shadow:
+    calc(-1.4 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.4 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.4 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.4 * var(--u)) 0 var(--bc-edge);
+}
+.bc-zone__rule {
+  width: calc(92 * var(--u));
+  height: calc(3 * var(--u));
+  margin: calc(9 * var(--u)) auto 0;
+  border-radius: 2px;
+  background: var(--bc-cream);
+  box-shadow: 0 calc(2 * var(--u)) 0 rgba(37, 48, 55, 0.55);
+  transform: rotate(-1.4deg);
+}
+
+/* =========================================================================
+   4 · 清单 CHECKLIST
+   ========================================================================= */
+.bc-checklist {
+  position: absolute;
+  top: calc(50 * var(--u));
+  right: calc(115 * var(--u));
+  width: calc(396 * var(--u));
+  max-height: calc(100vh - calc(100 * var(--u)));
+  z-index: 26;
+  opacity: 0;
+  visibility: hidden;
+  transform-origin: 100% 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+.bc-checklist.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.12s ease;
+}
+.bc-checklist__paper {
+  position: relative;
+  background: var(--bc-paper);
+  box-shadow: calc(5.5 * var(--u)) calc(5.5 * var(--u)) 0 var(--bc-shadow);
+  padding: calc(32 * var(--u)) calc(36 * var(--u)) calc(28 * var(--u));
+  border-radius: calc(2 * var(--u));
+  transform: rotate(0.32deg);
+  max-height: calc(100vh - calc(60 * var(--u)) - 60px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.bc-checklist.is-open .bc-checklist__paper {
+  animation: bc-paper-pop 0.28s steps(4, end) both;
+}
+@keyframes bc-paper-pop {
+  from {
+    transform: rotate(0.32deg) scale(0.82);
+    opacity: 0;
+  }
+}
+.bc-checklist__head {
+  display: flex;
+  align-items: baseline;
+  gap: calc(10 * var(--u));
+  margin-bottom: calc(14 * var(--u));
+}
+.bc-checklist__title {
+  font-family: var(--f-cn);
+  font-size: calc(33 * var(--u));
+  letter-spacing: calc(3 * var(--u));
+  color: var(--bc-ink);
+}
+.bc-checklist__latin {
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(13 * var(--u));
+  letter-spacing: calc(2.6 * var(--u));
+  color: var(--bc-outline);
+  text-transform: uppercase;
+}
+.bc-checklist__rule {
+  height: calc(2 * var(--u));
+  margin-bottom: calc(16 * var(--u));
+  background: repeating-linear-gradient(
+    90deg,
+    var(--bc-outline) 0,
+    var(--bc-outline) calc(9 * var(--u)),
+    transparent calc(9 * var(--u)),
+    transparent calc(16 * var(--u))
+  );
+  opacity: 0.45;
+  transform: rotate(-0.25deg);
+}
+.bc-checklist__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(17 * var(--u));
+}
+.bc-checklist__item {
+  display: flex;
+  gap: calc(8 * var(--u));
+  align-items: flex-start;
+  font-family: var(--f-cn);
+  color: var(--bc-ink);
+}
+.bc-checklist__num {
+  flex: 0 0 auto;
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(19 * var(--u));
+  line-height: 1.35;
+  color: var(--bc-ink);
+  min-width: calc(16 * var(--u));
+}
+.bc-checklist__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bc-checklist__row {
+  display: flex;
+  align-items: baseline;
+  gap: calc(6 * var(--u));
+}
+.bc-checklist__name {
+  font-size: calc(20 * var(--u));
+  line-height: 1.3;
+  letter-spacing: calc(0.8 * var(--u));
+}
+.bc-checklist__count {
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(15 * var(--u));
+  color: var(--bc-outline);
+  white-space: nowrap;
+}
+.bc-checklist__meta {
+  margin-top: calc(5 * var(--u));
+  font-family: var(--f-hand);
+  font-size: calc(14 * var(--u));
+  line-height: 1.3;
+  letter-spacing: calc(0.5 * var(--u));
+  color: var(--bc-outline);
+}
+.bc-checklist__check {
+  flex: 0 0 auto;
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  margin-top: calc(2 * var(--u));
+  visibility: hidden;
+}
+.bc-checklist__check svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-checklist__item.is-done .bc-checklist__check {
+  visibility: visible;
+  animation: bc-check-pop 0.3s steps(3, end) both;
+}
+.bc-checklist__item.is-done .bc-checklist__name {
+  color: var(--bc-disabled);
+  text-decoration: line-through;
+  text-decoration-thickness: calc(1.6 * var(--u));
+}
+.bc-checklist__item.is-done .bc-checklist__meta {
+  opacity: 0.6;
+}
+.bc-checklist__item.is-carrying .bc-checklist__name {
+  color: var(--bc-blue-deep);
+}
+.bc-checklist__item.is-carrying .bc-checklist__name::after {
+  content: ' · 身上';
+  font-family: var(--f-write);
+  font-size: calc(14 * var(--u));
+  color: var(--bc-blue-deep);
+}
+@keyframes bc-check-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+.bc-checklist__foot {
+  margin-top: calc(18 * var(--u));
+  font-family: var(--f-write);
+  font-size: calc(14 * var(--u));
+  letter-spacing: calc(1 * var(--u));
+  color: var(--bc-outline);
+  opacity: 0.7;
+  text-align: right;
+}
+
+/* =========================================================================
+   5 · 换装 OUTFIT
+   ========================================================================= */
+.bc-outfit {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+}
+.bc-outfit.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.18s ease;
+}
+.bc-outfit__btn {
+  position: absolute;
+  width: calc(68 * var(--u));
+  height: calc(68 * var(--u));
+  padding: calc(11 * var(--u));
+  background: var(--bc-paper);
+  border: calc(2.3 * var(--u)) solid var(--bc-outline);
+  border-radius: calc(14 * var(--u)) calc(17 * var(--u)) calc(13 * var(--u)) calc(16 * var(--u));
+  box-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 var(--bc-shadow);
+  transform: translate(-50%, -50%) rotate(-1.5deg);
+  pointer-events: auto;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.bc-outfit__btn svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-outfit__btn:hover {
+  transform: translate(-50%, -50%) rotate(0deg) scale(1.09);
+  box-shadow: calc(7 * var(--u)) calc(8 * var(--u)) 0 var(--bc-shadow);
+}
+.bc-outfit__btn:active {
+  transform: translate(-50%, -50%) scale(0.94);
+}
+.bc-outfit.is-open .bc-outfit__btn {
+  animation: bc-outfit-pop 0.3s steps(3, end) both;
+}
+.bc-outfit.is-open .bc-outfit__btn:nth-child(2n) {
+  animation-delay: 0.04s;
+}
+@keyframes bc-outfit-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+}
+.bc-outfit__close {
+  top: calc(179 * var(--u));
+  left: 50%;
+  width: calc(70 * var(--u));
+  height: calc(70 * var(--u));
+  padding: calc(12 * var(--u));
+  border-radius: calc(15 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u)) calc(13 * var(--u));
+  transform: translate(-50%, -50%) rotate(1.8deg);
+}
+.bc-outfit__close:hover {
+  transform: translate(-50%, -50%) rotate(0deg) scale(1.09);
+}
+.bc-outfit__arrow--left {
+  left: 40.3%;
+}
+.bc-outfit__arrow--right {
+  left: 61.9%;
+}
+.bc-outfit__row1 {
+  top: calc(310 * var(--u));
+}
+.bc-outfit__row2 {
+  top: calc(452 * var(--u));
+}
+.bc-outfit__row3 {
+  top: calc(594 * var(--u));
+}
+.bc-outfit__row4 {
+  top: calc(736 * var(--u));
+}
+.bc-outfit__label {
+  position: absolute;
+  left: calc(40.3% - 108 * var(--u));
+  transform: translateY(-50%) rotate(-1.2deg);
+  text-align: right;
+  width: calc(92 * var(--u));
+  pointer-events: none;
+}
+.bc-outfit__label b {
+  display: block;
+  font-family: var(--f-cn);
+  font-weight: 400;
+  font-size: calc(21 * var(--u));
+  color: var(--bc-cream);
+  letter-spacing: calc(3 * var(--u));
+  text-shadow:
+    calc(-1.6 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.6 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.6 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.6 * var(--u)) 0 var(--bc-edge);
+}
+.bc-outfit__label span {
+  display: block;
+  font-family: 'Patrick Hand', sans-serif;
+  font-size: calc(13 * var(--u));
+  letter-spacing: calc(1.6 * var(--u));
+  color: var(--bc-cream);
+  opacity: 0.9;
+  text-shadow:
+    calc(-1.2 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.2 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.2 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.2 * var(--u)) 0 var(--bc-edge);
+}
+.bc-outfit__hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(42 * var(--u));
+  transform: translateX(-50%) rotate(-0.8deg);
+  font-family: var(--f-write);
+  font-size: calc(20 * var(--u));
+  letter-spacing: calc(2 * var(--u));
+  color: var(--bc-cream);
+  text-shadow:
+    calc(-1.4 * var(--u)) 0 0 var(--bc-edge),
+    calc(1.4 * var(--u)) 0 0 var(--bc-edge),
+    0 calc(-1.4 * var(--u)) 0 var(--bc-edge),
+    0 calc(1.4 * var(--u)) 0 var(--bc-edge);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   6 · 表情轮盘 EMOJI
+   ========================================================================= */
+.bc-emoji {
+  position: absolute;
+  right: calc(115 * var(--u));
+  bottom: calc(50 * var(--u));
+  width: calc(320 * var(--u));
+  padding: calc(15 * var(--u));
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: calc(13.6 * var(--u));
+  z-index: 27;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s ease, visibility 0s linear 0.16s;
+}
+.bc-emoji.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.1s ease;
+}
+.bc-emoji::after {
+  content: '';
+  position: absolute;
+  right: calc(30 * var(--u));
+  bottom: calc(-14 * var(--u));
+  width: calc(22 * var(--u));
+  height: calc(22 * var(--u));
+  background: var(--bc-paper);
+  border-right: calc(2.4 * var(--u)) solid var(--bc-outline);
+  border-bottom: calc(2.4 * var(--u)) solid var(--bc-outline);
+  transform: rotate(45deg);
+  border-radius: 0 0 calc(4 * var(--u)) 0;
+}
+.bc-emoji.is-open .bc-emoji__face {
+  animation: bc-emoji-pop 0.22s steps(2, end) both;
+}
+.bc-emoji__face {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: calc(3 * var(--u));
+  border-radius: 50%;
+  pointer-events: auto;
+  transition: transform 0.1s ease;
+  z-index: 1;
+}
+.bc-emoji__face svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-emoji__face:hover {
+  transform: scale(1.18) rotate(-4deg);
+}
+@keyframes bc-emoji-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+.bc-emoji__face:nth-child(2) {
+  animation-delay: 0.02s;
+}
+.bc-emoji__face:nth-child(3) {
+  animation-delay: 0.04s;
+}
+.bc-emoji__face:nth-child(4) {
+  animation-delay: 0.06s;
+}
+.bc-emoji__face:nth-child(5) {
+  animation-delay: 0.08s;
+}
+.bc-emoji__face:nth-child(6) {
+  animation-delay: 0.1s;
+}
+.bc-emoji__face:nth-child(7) {
+  animation-delay: 0.12s;
+}
+.bc-emoji__face:nth-child(8) {
+  animation-delay: 0.14s;
+}
+.bc-emoji__face:nth-child(9) {
+  animation-delay: 0.16s;
+}
+.bc-emoji__face:nth-child(10) {
+  animation-delay: 0.18s;
+}
+
+/* =========================================================================
+   7 · 触屏控件
+   ========================================================================= */
+.bc-touch {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  pointer-events: none;
+  display: none;
+}
+.bc-touch.is-on {
+  display: block;
+}
+.bc-stick {
+  position: absolute;
+  left: calc(46 * var(--u));
+  bottom: calc(54 * var(--u));
+  width: calc(136 * var(--u));
+  height: calc(136 * var(--u));
+  border-radius: 50%;
+  background: rgba(248, 248, 248, 0.22);
+  border: calc(2.6 * var(--u)) solid rgba(37, 48, 55, 0.45);
+  pointer-events: auto;
+  touch-action: none;
+  transition: background 0.15s ease;
+}
+.bc-stick.is-active {
+  background: rgba(248, 248, 248, 0.36);
+}
+.bc-stick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(58 * var(--u));
+  height: calc(58 * var(--u));
+  margin: calc(-29 * var(--u)) 0 0 calc(-29 * var(--u));
+  border-radius: 50%;
+  background: var(--bc-paper);
+  border: calc(2.6 * var(--u)) solid var(--bc-outline);
+  box-shadow: calc(3 * var(--u)) calc(3 * var(--u)) 0 rgba(100, 122, 135, 0.7);
+  transform: translate(0, 0);
+}
+.bc-touchbtn {
+  position: absolute;
+  right: calc(52 * var(--u));
+  width: calc(92 * var(--u));
+  height: calc(92 * var(--u));
+  padding: calc(22 * var(--u));
+  border-radius: 50%;
+  background: rgba(248, 248, 248, 0.88);
+  border: calc(2.6 * var(--u)) solid var(--bc-outline);
+  box-shadow: calc(4 * var(--u)) calc(4 * var(--u)) 0 var(--bc-shadow);
+  pointer-events: auto;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+.bc-touchbtn svg {
+  width: 100%;
+  height: 100%;
+}
+.bc-touchbtn:active {
+  transform: translate(calc(2 * var(--u)), calc(2 * var(--u)));
+  box-shadow: calc(1 * var(--u)) calc(1 * var(--u)) 0 var(--bc-shadow);
+}
+.bc-touchbtn--jump {
+  bottom: calc(48 * var(--u));
+}
+.bc-touchbtn--interact {
+  right: calc(158 * var(--u));
+  bottom: calc(120 * var(--u));
+  width: calc(74 * var(--u));
+  height: calc(74 * var(--u));
+  padding: calc(14 * var(--u));
+  display: none;
+}
+.bc-touchbtn--interact.is-on {
+  display: grid;
+}
+
+/* =========================================================================
+   8 · 响应式（手机 / 矮屏）
+   ========================================================================= */
+@media (max-width: 720px) and (orientation: portrait) {
+  :where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) {
+    --u: 1px;
+    font-size: 15px;
+  }
+  .bc-title {
+    width: 94vw;
+    margin-top: -2vh;
+  }
+  .bc-intro__eyebrow {
+    font-size: 19px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .bc-intro__latin {
+    font-size: 18px;
+    letter-spacing: 5px;
+    text-indent: 5px;
+  }
+  .bc-intro__cn {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  .bc-begin {
+    width: 172px;
+    height: 72px;
+    margin-left: -86px;
+    bottom: 11vh;
+  }
+  .bc-begin__en {
+    font-size: 30px;
+  }
+  .bc-begin__cn {
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+  .bc-corner--postmark {
+    width: 82px;
+    top: 22px;
+    left: 22px;
+  }
+  .bc-corner--stamp {
+    width: 68px;
+    top: 24px;
+    right: 22px;
+  }
+  .bc-corner--note,
+  .bc-corner--colon {
+    display: none;
+  }
+  .bc-float-mail {
+    width: 38px;
+  }
+
+  .bc-dialog {
+    left: 3vw;
+    right: 3vw;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    bottom: 206px;
+  }
+  .bc-dialog__tag {
+    left: -4px;
+    top: -44px;
+    height: 46px;
+    min-width: 100px;
+    padding: 0 14px;
+  }
+  .bc-dialog__tag-name {
+    font-size: 19px;
+    letter-spacing: 1px;
+  }
+  .bc-dialog__tag-name.is-cn {
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-indent: 3px;
+  }
+  .bc-dialog__box {
+    min-height: 104px;
+    padding: 16px 54px 16px 18px;
+  }
+  .bc-dialog__text {
+    font-size: 21px;
+    line-height: 1.4;
+  }
+  .bc-dialog__text.is-cn {
+    font-size: 20px;
+    letter-spacing: 0.6px;
+    line-height: 1.5;
+  }
+  .bc-dialog__next {
+    width: 50px;
+    height: 50px;
+    padding: 9px;
+    right: -2px;
+    bottom: -32px;
+  }
+
+  .bc-sides {
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .bc-sides__btn {
+    width: 46px;
+    height: 46px;
+    padding: 7px;
+    box-shadow: 3px 3px 0 var(--bc-shadow);
+  }
+  .bc-sides__lower {
+    gap: 11px;
+  }
+  .bc-objective {
+    top: 12px;
+    left: 12px;
+    max-width: 56vw;
+    padding: 8px 12px;
+  }
+  .bc-objective__icon {
+    width: 22px;
+  }
+  .bc-objective__kicker {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+  }
+  .bc-objective__text {
+    font-size: 12.5px;
+  }
+  .bc-interact {
+    bottom: 300px;
+  }
+  .bc-interact__label {
+    font-size: 17px;
+  }
+  .bc-toast {
+    bottom: 380px;
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+  .bc-zone {
+    top: 12vh;
+  }
+  .bc-zone__cn {
+    font-size: 38px;
+    letter-spacing: 6px;
+    text-indent: 6px;
+  }
+  .bc-zone__latin {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-indent: 4px;
+  }
+
+  .bc-checklist {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-height: 78vh;
+  }
+  .bc-checklist__paper {
+    padding: 20px 20px 18px;
+    max-height: 78vh;
+  }
+  .bc-checklist__title {
+    font-size: 24px;
+  }
+  .bc-checklist__name {
+    font-size: 15px;
+  }
+  .bc-checklist__meta {
+    font-size: 11px;
+  }
+
+  .bc-outfit__btn {
+    width: 54px;
+    height: 54px;
+    padding: 9px;
+    box-shadow: 3px 3px 0 var(--bc-shadow);
+  }
+  .bc-outfit__close {
+    width: 56px;
+    height: 56px;
+    padding: 10px;
+    top: 92px;
+  }
+  .bc-outfit__arrow--left {
+    left: 15%;
+  }
+  .bc-outfit__arrow--right {
+    left: 85%;
+  }
+  .bc-outfit__row1 {
+    top: 32%;
+  }
+  .bc-outfit__row2 {
+    top: 46%;
+  }
+  .bc-outfit__row3 {
+    top: 60%;
+  }
+  .bc-outfit__row4 {
+    top: 74%;
+  }
+  .bc-outfit__label {
+    display: none;
+  }
+  .bc-outfit__hint {
+    font-size: 15px;
+    bottom: 26px;
+  }
+
+  .bc-emoji {
+    right: 10px;
+    bottom: 118px;
+    width: 268px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .bc-loading__envelope {
+    width: 52px;
+  }
+
+  .bc-touchbtn--jump {
+    right: 70px;
+  }
+
+  .bc-touch.is-on {
+    display: block;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: landscape), (max-height: 560px) {
+  :where(.bc-ui, .bc-intro, .bc-loading, .bc-hud, .bc-checklist, .bc-outfit, .bc-emoji, .bc-touch) {
+    --u: min(calc(100vw / 1440), calc(100vh / 900));
+  }
+  .bc-dialog {
+    bottom: calc(72 * var(--u));
+  }
+  .bc-side {
+    top: calc(30 * var(--u));
+    bottom: calc(30 * var(--u));
+    right: calc(20 * var(--u));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-ui *,
+  .bc-ui *::before,
+  .bc-ui *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

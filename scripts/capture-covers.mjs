@@ -46,6 +46,9 @@ const WAIT = {
   'flood-sim': 14000,
   'rag-lab': 6000,
   'agent-lab': 7000,
+  'ink-beijing': 15000,
+  'konbini-rain': 7000,
+  'jiaojiaogou': 8500,
 };
 
 // agent-lab 需要真实后端；其他 demo 用不到，但一起起来也没坏处
@@ -185,6 +188,31 @@ for (const demo of demos) {
   } else if (demo.id === 'rag-lab') {
     const ok = await captureRagLab(page);
     console.log(ok ? '  ✓ 真实模型回答已生成，开始截图' : '  ⚠ 未拿到真实回答');
+  } else if (demo.id === 'ink-beijing') {
+    // 水墨北京：先按「起卷」，等相机飞入全城机位、地标朱印出现，再截图
+    try {
+      await page.waitForFunction(() => !!globalThis.__ink, null, { timeout: 30000 });
+      // 等首帧完成、研墨遮罩消失
+      await page
+        .waitForFunction(() => document.getElementById('loading')?.classList.contains('is-hidden'), null, { timeout: 40000 })
+        .catch(() => {});
+      await page.waitForTimeout(800);
+      await page.click('#btn-start', { timeout: 8000 });
+      // 等开场动画把相机带进 HOME_VIEW（dist 收紧到全城机位）再截图
+      await page
+        .waitForFunction(
+          () => {
+            const ink = globalThis.__ink;
+            return ink && ink.rig && ink.rig.dist < 320 && document.getElementById('intro')?.classList.contains('is-hidden');
+          },
+          null,
+          { timeout: 15000 },
+        )
+        .catch(() => {});
+      await page.waitForTimeout(2200);
+    } catch {
+      console.warn('  ⚠ ink-beijing 开场按钮未就绪，按当前界面截图');
+    }
   }
 
   const dir = path.join(ROOT, 'apps', demo.id, 'screenshots');

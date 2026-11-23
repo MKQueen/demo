@@ -1,0 +1,39 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script type="importmap">{"imports":{"three":"/apps/beijing-courier/node_modules/three/build/three.module.js","three/addons/":"/apps/beijing-courier/node_modules/three/examples/jsm/"}}</script>
+<script src="/apps/beijing-courier/public/assets-messenger/libs/basis/basis_transcoder.js"></script>
+</head><body><script type="module">
+import * as THREE from 'three';
+import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+const renderer = new THREE.WebGLRenderer({antialias:false});
+renderer.setSize(8,8);
+document.body.appendChild(renderer.domElement);
+const ktx2 = new KTX2Loader().setTranscoderPath('/apps/beijing-courier/node_modules/three/examples/jsm/libs/basis/').detectSupport(renderer);
+window.__decodeBasisPng = async (url) => {
+  await BASIS.ready;
+  if (!window.__basis) { window.__basis = BASIS; window.__keys = Object.keys(BASIS).slice(0,60); }
+  if (!window.__basisInited) { (BASIS.initializeBasis || (()=>{})).call(BASIS); window.__basisInited = true; }
+  const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  const file = new BASIS.BasisFile(buf);
+  file.startTranscoding();
+  const w = file.getImageWidth(0,0), h = file.getImageHeight(0,0);
+  const numLevels = file.getNumLevels(0); const levelW = file.getImageWidth(0,0), levelH = file.getImageHeight(0,0);
+  const dst = new Uint8Array(w*h*4);
+  file.transcodeImage(dst, 0, 0, BASIS.transcoder_texture_format.cTFRGBA32, 0, 0);
+  file.close(); file.delete();
+  // write to canvas
+  const canvas = document.createElement('canvas'); canvas.width=w; canvas.height=h;
+  const ctx = canvas.getContext('2d'); const img = ctx.createImageData(w,h);
+  // Basis gives bottom-up? test later; flip vertically to conventional top-left
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++){ const si=((h-1-y)*w+x)*4, di=(y*w+x)*4; img.data[di]=dst[si]; img.data[di+1]=dst[si+1]; img.data[di+2]=dst[si+2]; img.data[di+3]=dst[si+3]; }
+  ctx.putImageData(img,0,0);
+  return {dataUrl: canvas.toDataURL('image/png'), w, h, numLevels};
+};
+window.__decodeLut = async (url) => {
+  const tex = await new Promise((res,rej)=>ktx2.load(url,res,undefined,rej));
+  const mm = tex.mipmaps?.[0];
+  const data = mm?.data;
+  let b64=''; if (data){ const bytes = new Uint8Array(data.buffer||data, data.byteOffset||0, data.byteLength); let bin=''; for(let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode.apply(null, bytes.subarray(i,i+0x8000)); b64=btoa(bin); }
+  return {w:tex.image.width,h:tex.image.height,format:tex.format,type:tex.type,isData3D:tex.isData3DTexture,dataLen:data?.length, b64};
+};
+window.__ready = true;
+</script></body></html>

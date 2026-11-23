@@ -1,12 +1,11 @@
 name: Deploy static site to GitHub Pages
 
-# 推送 main 后自动构建 6 个 demo，拼装 site/ 并发布到 GitHub Pages。
-# 首次使用需要在仓库 Settings → Pages → Build and deployment 里把 Source 设为
-# "GitHub Actions"（只需设置一次）。详见根目录 README「部署到 GitHub Pages」。
+# 手动兜底工作流：重新构建并发布 Pages。
+# 日常部署走 gh-pages 分支（根目录 `npm run deploy:gh-pages -- --skip-build`），
+# 这样不需要在 CI 里重新安装 12 个 demo 的依赖。
+# 使用本工作流前，把 Settings → Pages → Source 改成 "GitHub Actions"。
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

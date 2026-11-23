@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="水墨北京 · 一纸山河：用 Three.js 程序化生成的水墨京城，中轴线、宫阙、湖山、长城，皆在一张宣纸上。" />
+    <title>水墨北京 · 一纸山河</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <!-- 2D 场景之上的墨色压角 -->
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <!-- 地标朱印（每帧投影定位） -->
+      <div id="labels" aria-label="地标"></div>
+
+      <header id="hud">
+        <div class="brand">
+          <span class="brand-seal">京</span>
+          <span class="brand-text">
+            <b>水墨北京</b>
+            <em>INK · BEIJING</em>
+          </span>
+        </div>
+        <div class="inscription" aria-hidden="true">
+          <div class="inscription-text">燕山如黛 宫阙生烟</div>
+          <div class="inscription-seal">山河</div>
+        </div>
+      </header>
+
+      <!-- 地标竖幅纸卡 -->
+      <aside id="card" class="card is-hidden" role="dialog" aria-modal="false" aria-hidden="true" aria-label="地标介绍">
+        <button class="card-close" id="card-close" aria-label="关闭">×</button>
+        <div class="card-seal" id="card-seal">禁</div>
+        <div class="card-title" id="card-title">紫禁城</div>
+        <div class="card-en" id="card-en">THE FORBIDDEN CITY</div>
+        <p class="card-text" id="card-text"></p>
+        <button class="card-go" id="card-go">去看看</button>
+      </aside>
+
+      <div class="hint" id="hint">拖动旋转 · 滚轮远近 · 点击朱印</div>
+
+      <div id="dock">
+        <button class="seal-btn seal-btn--ghost" id="btn-scenic" title="从景山眺望宫城">宫阙远眺</button>
+        <button class="seal-btn seal-btn--ghost" id="btn-country" title="游览城外田园村落">城外烟树</button>
+        <button class="seal-btn" id="btn-center" title="回到全城视角">
+          <span>京城总览</span>
+        </button>
+      </div>
+
+      <div id="tools">
+        <button class="seal-btn seal-btn--ghost" id="btn-labels" aria-pressed="false" title="隐藏地标题签">藏签</button>
+        <button class="seal-btn seal-btn--ghost" id="btn-snow" title="雪中北京">
+          <span id="btn-snow-text">雪霁</span>
+        </button>
+        <button class="seal-btn seal-btn--ghost" id="btn-time" title="切换晨暮">
+          <span id="btn-time-text">暮色</span>
+        </button>
+        <label class="ink-range" title="调节墨色浓淡">
+          <span>墨色</span>
+          <input id="ink-range" type="range" min="0.35" max="1.35" step="0.01" value="1" />
+        </label>
+      </div>
+
+      <!-- 开场：一张宣纸，一笔题款 -->
+      <section id="intro" class="intro">
+
+        <div class="intro-inner">
+          <div class="intro-poem" id="intro-poem">燕山如黛，宫阙生烟</div>
+          <h1 class="intro-title" id="intro-title">
+            <span>水</span><span>墨</span><span>北</span><span>京</span>
+          </h1>
+          <div class="intro-line"><i></i></div>
+          <div class="intro-sub" id="intro-sub">一纸山河 · 九门烟树</div>
+          <button class="start" id="btn-start">
+            <span>入</span><span>京</span>
+          </button>
+          <div class="intro-tip" id="intro-tip">拖动旋转 · 滚轮远近 · 点击朱印</div>
+        </div>
+        <div class="intro-foot">
+          <span>景山望宫城</span>
+          <span>中轴八里 · 城郭万家</span>
+        </div>
+      </section>
+
+      <div id="loading" class="loading">
+        <div class="loading-brush"></div>
+        <span>研墨中…</span>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

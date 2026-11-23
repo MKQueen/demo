@@ -2,8 +2,8 @@
   "site": {
     "name": "DEMO LAB",
     "title": "交互实验室 · 作品集",
-    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent",
-    "description": "七个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台，实时识别摄像头/视频里物体的 VISION LAB，以及真调用模型、真读写文件的 mini-opencode Agent。七个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
+    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 竹海轻功 · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩 · 小行星邮差",
+    "description": "十三个可交互 Demo，新增《京城来信》北京小行星递送冒险。十三个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台、实时识别摄像头的 VISION LAB、真调用模型真读写文件的 mini-opencode Agent、3D 武侠竹海轻功、用 Three.js 程序化生成的水墨北京、用 Three.js 三渲二渲染的雨夜小镇微缩模型、用摄像头手势控制的《手势贪吃蛇》十三个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
     "keywords": [
       "Three.js",
       "CesiumJS",
@@ -11,6 +11,9 @@
       "数字孪生",
       "3D Tiles",
       "ShaderToy",
+      "三渲二",
+      "微缩模型",
+      "四季",
       "水体渲染",
       "RAG",
       "AI Agent",
@@ -19,11 +22,11 @@
     ],
     "stats": [
       {
-        "value": "07",
+        "value": "13",
         "label": "独立 Demo"
       },
       {
-        "value": "05",
+        "value": "12",
         "label": "纯静态即完整运行"
       },
       {
@@ -31,9 +34,116 @@
         "label": "接本地真模型"
       }
     ],
-    "footer": "七个纯静态构建产物 · 两个本地真模型 Demo（RAG 观测台 + mini-opencode）"
+    "footer": "十三个独立 Demo · 京城来信可离线探索，联机需 WebSocket · 两个接本地真模型"
   },
   "demos": [
+    {
+      "id": "ink-qingming",
+      "name": "水墨清明上河图",
+      "en": "INK · QINGMING",
+      "kicker": "Three.js · 程序化水墨长卷",
+      "tagline": "整个东京城的水墨长卷：三重城、四水贯都、虹桥、州桥、御街、大内、铁塔繁塔、金明池，一卷看尽汴京。",
+      "description": "用 Three.js 把《清明上河图》扩成整座东京城：外城罗城十二门、里城五门、宫城大内，汴河/蔡河/五丈河/金水河四水贯都，虹桥、州桥、开封铁塔与繁塔、太庙、景灵宫、上清宫、金明池琼林苑、马行街夜市与瓦舍勾栏；郊野、河市、桥市、城门、街市沿长卷展开，相国寺、樊楼、御街、宣德门直到大庆殿。全城视角与长卷视角一键切换；人物为手绘人物谱 + InstancedMesh，水面线描、墨线、绢纹全部程序化。",
+      "tags": [
+        "Three.js",
+        "程序化生成",
+        "绢本设色",
+        "北宋东京",
+        "全城",
+        "纯静态"
+      ],
+      "highlights": [
+        "三重城 · 四水贯都 · 全城视角与长卷视角",
+        "放大虹桥 · 州桥 · 御街 · 大内 · 铁塔繁塔 · 金明池 · 马行街夜市",
+        "绢本设色 · 近千人市井 · 100% 程序化生成"
+      ],
+      "accent": "#b98a5c",
+      "cover": "thumbs/ink-qingming.jpg",
+      "href": "demos/ink-qingming/",
+      "cta": "起卷",
+      "meta": "Three.js · 全程序化 · 离线可玩"
+    },
+    {
+      "id": "beijing-courier",
+      "name": "京城来信",
+      "en": "BEIJING COURIER",
+      "kicker": "Three.js · 北京元素 · 小行星递送",
+      "tagline": "一颗小行星，五封没有地址的信。",
+      "description": "以 Messenger 的卡通描边 + 3D LUT 渲染语言重做的 3D 小行星递送游戏，内容改为北京主题：出生在春风胡同，牌楼/四合院/灯笼/邮筒就在身边，可一路走到中轴（鼓楼+天坛）、CBD（中国尊/央视/鸟巢）与长城烽火台。原创北京邮差主角、程序化北京街区、自建投递道具、原创程序化五声音阶 BGM 与中文手写信 UI。",
+      "tags": [
+        "Three.js",
+        "开放世界",
+        "北京",
+        "卡通渲染",
+        "程序化生成",
+        "剧情"
+      ],
+      "highlights": [
+        "360° 可绕行小行星 + 10 位 NPC 的递送任务链",
+        "原创北京邮差主角 / 遛鸟大爷 / 广场舞大妈 / 红领巾小学生",
+        "自建春风胡同、牌楼、四合院、天坛、中国尊、央视、长城烽火台",
+        "自研 MRT 描边 + 3D LUT 调色管线，1.4× 超采样抗闪烁",
+        "原创五声音阶 BGM、区域环境音与合成音效，零外部音频文件"
+      ],
+      "accent": "#efc85d",
+      "cover": "thumbs/beijing-courier.jpg",
+      "href": "demos/beijing-courier/",
+      "cta": "开始送信",
+      "meta": "纯静态 · 单人可离线"
+    },
+    {
+      "id": "konbini-rain",
+      "name": "雨夜小镇",
+      "en": "RAINY TOWN",
+      "kicker": "Three.js · 三渲二 · 44×44 雨夜/晴日大镇",
+      "tagline": "一座 44×44 的日式小镇：雨夜 / 晴天随时切换，全景与街景都能看。",
+      "description": "用 Three.js 程序化生成的 44×44 日式小镇：中央十字街 + 四条次街，14 栋拉开间距的独栋住宅、3 栋公寓、15 家店面/设施（含洋服、电器、邮局、交番、24h 药局、花店、河边喫茶）、带体育馆/泳池/操场的大校园、神社、5 层医院、有电车与平交道口的车站，以及南侧河、双桥、河岸公园和夜市。右上角可切换雨夜 / 晴日，进入 1.75m 街景；电车、汽车、行人、猫、灯笼、花瓣、蒸汽等动效持续运行。",
+      "tags": [
+        "Three.js",
+        "三渲二",
+        "程序化生成",
+        "日式小镇",
+        "微缩模型",
+        "纯静态"
+      ],
+      "highlights": [
+        "44×44 程序化大镇 · 住宅拉开间距",
+        "全景 / 街景 + 雨夜 / 晴日双模式",
+        "商店街 / 校园 / 神社 / 医院 / 车站 / 河流",
+        "动效：电车 / 汽车 / 行人 / 猫 / 灯笼 / 花瓣 / 蒸汽"
+      ],
+      "accent": "#ffc46b",
+      "cover": "thumbs/konbini-rain.jpg",
+      "href": "demos/konbini-rain/",
+      "cta": "走进雨夜",
+      "meta": "Three.js · 44×44 · 雨夜/晴日 · 街景"
+    },
+    {
+      "id": "ink-beijing",
+      "name": "水墨北京",
+      "en": "INK BEIJING",
+      "kicker": "Three.js · 程序化水墨",
+      "tagline": "一纸山河，古今同框。皇城坛庙、胡同炊烟、国贸天际线，如今还会落雪。",
+      "description": "用 Three.js 在浏览器里“画”一座北京：皇城六门围着宫城与三海，太庙社稷坛分列东西，外城七门与护城河、四郊坛庙、上千座程序化四合院与升起的炊烟；中轴线一路串起宫阙、景山、钟鼓楼，串到国贸 CBD 的中国尊/央视大楼、鸟巢、水立方、国家大剧院、奥林匹克塔；湖面有细密波纹、涟漪与小舟，山上淡墨化入雾中。双 Sobel 墨线后期把古今两座北京压成宣纸上的水墨，可晨暮切换、可一键落雪（红墙白瓦、湖面成冰）、可调墨色浓淡。",
+      "tags": [
+        "Three.js",
+        "程序化生成",
+        "水墨渲染",
+        "城市规划",
+        "雪景",
+        "纯静态"
+      ],
+      "highlights": [
+        "明清规划骨架：皇城六门 · 太庙社稷坛 · 外城七门 · 四郊坛庙",
+        "千座四合院 + 胡同炊烟 · 湖面波纹与小舟 · 现代北京天际线",
+        "晨光暮色 · 雪中北京（红墙白瓦） · 全程序化生成"
+      ],
+      "accent": "#d9b46a",
+      "cover": "thumbs/ink-beijing.jpg",
+      "href": "demos/ink-beijing/",
+      "cta": "起卷",
+      "meta": "Three.js · 全程序化 · 离线可玩"
+    },
     {
       "id": "cbd-digital-twin",
       "name": "北京数字孪生",
@@ -138,23 +248,47 @@
       "en": "VISION LAB",
       "kicker": "实时物体识别",
       "tagline": "打开摄像头，让 AI 逐帧标出画面里的每一件东西。",
-      "description": "摄像头 / 视频 / 图片三路输入，MediaPipe 在浏览器 Worker 内实时检测 COCO 80 类物体：高精度 EfficientDet-Lite2（448 输入）与快速 Lite0 双模型一键切换，检测框 / 中文类别 / 置信度 / FPS / 延迟实时可见；还能用本地多模态大模型「AI 精读」当前帧，得到更准确的物体清单与场景描述。",
+      "description": "摄像头 / 视频 / 图片三路输入，MediaPipe 在浏览器 Worker 内实时检测 COCO 80 类物体：高精度 EfficientDet-Lite2 与快速 Lite0 双模型；检测框带稳定 #ID 跟踪、运动轨迹、进入/离开事件流与累计目标统计；还能用本地多模态大模型「AI 精读 / 自动观察」做语义分析。",
       "tags": [
         "MediaPipe",
         "EfficientDet-Lite2",
-        "Web Worker",
-        "AI 精读"
+        "多目标跟踪",
+        "AI 观察"
       ],
       "highlights": [
+        "稳定 #ID 跟踪 · 轨迹与事件流",
         "高精度 / 快速双检测模型",
-        "AI 精读当前帧 · 视觉大模型",
-        "本地推理 · 画面不上传（精读可选上传）"
+        "AI 自动观察 · 每 8 秒一句画面描述"
       ],
       "accent": "#8ef0a8",
       "cover": "thumbs/vision-lab.jpg",
       "href": "demos/vision-lab/",
       "cta": "打开视觉实验",
       "meta": "纯本地 AI · 零后端"
+    },
+    {
+      "id": "hand-snake",
+      "name": "手势贪吃蛇",
+      "en": "HAND SNAKE",
+      "kicker": "摄像头体感游戏",
+      "tagline": "伸出食指，指尖就是蛇头。吃光点，变长，停不下来。",
+      "description": "用摄像头捕捉手部 21 个关键点：食指指尖控制蛇头，伸手去吃粉色光点，蛇就会变长、变快；每 5 个光点出现金色奖励光点，握拳可以暂停。MediaPipe 在本机 Worker 内推理，画面不上传；没有摄像头也能用鼠标模式玩。",
+      "tags": [
+        "MediaPipe",
+        "HandLandmarker",
+        "Canvas 2D",
+        "体感游戏"
+      ],
+      "highlights": [
+        "21 关键点 · 指尖实时控制",
+        "吃光点变长 · 金色奖励",
+        "握拳暂停 · 鼠标模式兜底"
+      ],
+      "accent": "#9dffb0",
+      "cover": "thumbs/hand-snake.jpg",
+      "href": "demos/hand-snake/",
+      "cta": "伸手开玩",
+      "meta": "纯静态 · 本地推理"
     },
     {
       "id": "rag-lab",

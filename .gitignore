@@ -18,6 +18,9 @@ apps/*/playwright-report/
 apps/*/test-results/
 
 # misc
+tmp/
+resume/
+resume/
 .DS_Store
 .idea/
 *.log

@@ -1,0 +1,18 @@
+{
+  "name": "beijing-courier",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "京城来信 · 一颗小行星上的五封手写信（Messenger 风格高保真 3D 递送游戏）",
+  "scripts": {
+    "dev": "node dev.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5190",
+    "shots": "node scripts/shots.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "three": "^0.170.0",
+    "vite": "^6.0.0"
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "baseUrl": "http://127.0.0.1:5190",
+  "startedAt": "2026-11-06T07:48:31.759Z",
+  "screenshots": [
+    {
+      "file": "screenshots/character/01-lineup.png",
+      "mode": "lineup"
+    },
+    {
+      "file": "screenshots/character/02-pose-idle.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/03-pose-run.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/04-pose-sprint.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/05-pose-air.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/06-pose-back.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/07-head-detail.png",
+      "mode": "single"
+    },
+    {
+      "file": "screenshots/character/08-npcs-world.png",
+      "mode": "npcs"
+    },
+    {
+      "file": "screenshots/character/09-npc-talking.png",
+      "mode": "npc"
+    },
+    {
+      "file": "screenshots/character/10-catalog-accessories.png",
+      "mode": "catalog"
+    },
+    {
+      "file": "screenshots/character/11-compare-reference.png",
+      "mode": "compare"
+    }
+  ],
+  "renders": {
+    "lineup": "pipeline",
+    "02-pose-idle.png": "pipeline",
+    "03-pose-run.png": "pipeline",
+    "04-pose-sprint.png": "pipeline",
+    "05-pose-air.png": "pipeline",
+    "06-pose-back.png": "pipeline",
+    "07-head-detail.png": "pipeline",
+    "npcs": "pipeline",
+    "npcTalking": "pipeline",
+    "catalog": "basic",
+    "compare": "pipeline",
+    "basicLineup": "basic"
+  },
+  "info": {
+    "lineup": {
+      "renderMode": "pipeline",
+      "drawCalls": 1,
+      "triangles": 1,
+      "avatars": [
+        {
+          "pose": "idle",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair3",
+            "top": "top2",
+            "bottom": "bottom4",
+            "shoes": "shoes5"
+          },
+          "height": 1.641,
+          "materials": "messenger-base",
+          "skinned": true
+        },
+        {
+          "pose": "run",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair6",
+            "top": "top2",
+            "bottom": "bottom3",
+            "shoes": "shoes2"
+          },
+          "height": 1.614,
+          "materials": "messenger-base",
+          "skinned": true
+        },
+        {
+          "pose": "air",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair1",
+            "top": "top9",
+            "bottom": "bottom6",
+            "shoes": "shoes6"
+          },
+          "height": 1.506,
+          "materials": "messenger-base",
+          "skinned": true
+        },
+        {
+          "pose": "sprint",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair4",
+            "top": "top6",
+            "bottom": "bottom2",
+            "shoes": "shoes1"
+          },
+          "height": 1.58,
+          "materials": "messenger-base",
+          "skinned": true
+        }
+      ],
+      "npcs": []
+    },
+    "npcs": {
+      "renderMode": "pipeline",
+      "drawCalls": 1,
+      "triangles": 1,
+      "avatars": [],
+      "npcs": [
+        {
+          "type": "chef",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.92,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "oldwoman",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.229,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "musician",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.922,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "office-worker",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.942,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "young-lady",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.91,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "scout",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.671,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "mountainman",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 2.005,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "diver",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 1.949,
+          "yaw": 0,
+          "targetYaw": 0
+        },
+        {
+          "type": "fox",
+          "pose": "idle",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": false,
+          "height": 0.993,
+          "yaw": 0,
+          "targetYaw": 0
+        }
+      ]
+    },
+    "npcTalking": {
+      "renderMode": "pipeline",
+      "drawCalls": 1,
+      "triangles": 1,
+      "avatars": [],
+      "npcs": [
+        {
+          "type": "young-lady",
+          "pose": "talk",
+          "poses": [
+            "idle",
+            "talk",
+            "idleTalk",
+            "walk"
+          ],
+          "talking": true,
+          "height": 1.91,
+          "yaw": 0.6365,
+          "targetYaw": 0.6365
+        }
+      ]
+    },
+    "lineupBasic": {
+      "renderMode": "basic",
+      "drawCalls": 6,
+      "triangles": 18806,
+      "avatars": [
+        {
+          "pose": "idle",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair3",
+            "top": "top2",
+            "bottom": "bottom4",
+            "shoes": "shoes5"
+          },
+          "height": 1.642,
+          "materials": "actor-fallback-character",
+          "skinned": true
+        },
+        {
+          "pose": "run",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair6",
+            "top": "top2",
+            "bottom": "bottom3",
+            "shoes": "shoes2"
+          },
+          "height": 1.556,
+          "materials": "actor-fallback-character",
+          "skinned": true
+        },
+        {
+          "pose": "air",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair1",
+            "top": "top9",
+            "bottom": "bottom6",
+            "shoes": "shoes6"
+          },
+          "height": 1.497,
+          "materials": "actor-fallback-character",
+          "skinned": true
+        },
+        {
+          "pose": "sprint",
+          "clips": [
+            "idle",
+            "run",
+            "sprint",
+            "air",
+            "afk1",
+            "afk2",
+            "afk3"
+          ],
+          "outfit": {
+            "hair": "hair4",
+            "top": "top6",
+            "bottom": "bottom2",
+            "shoes": "shoes1"
+          },
+          "height": 1.529,
+          "materials": "actor-fallback-character",
+          "skinned": true
+        }
+      ],
+      "npcs": []
+    }
+  },
+  "npcTypes": {},
+  "finishedAt": "2026-11-06T07:48:40.147Z"
+}

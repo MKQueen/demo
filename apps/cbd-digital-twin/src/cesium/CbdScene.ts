@@ -1004,9 +1004,9 @@ export class CbdScene {
     ).replace(/^\/+/, '');
     try {
       const tileset = await Cesium.Cesium3DTileset.fromUrl(assetUrl(url), {
-        maximumScreenSpaceError: 32,
-        dynamicScreenSpaceError: true,
-        dynamicScreenSpaceErrorDensity: 0.002,
+        // 单 root 无 LOD：与北京体块同理，压到 0.1 保证行政区视角也加载 content。
+        maximumScreenSpaceError: 0.1,
+        dynamicScreenSpaceError: false,
         shadows: Cesium.ShadowMode.DISABLED,
       });
       tileset.show = this.layerState.districtMassing;
@@ -1358,9 +1358,9 @@ export class CbdScene {
   private async buildWhiteModels(): Promise<void> {
     try {
       const tileset = await Cesium.Cesium3DTileset.fromUrl(assetUrl('data/tiles/white-models/tileset.json'), {
-        maximumScreenSpaceError: 16,
-        dynamicScreenSpaceError: true,
-        dynamicScreenSpaceErrorDensity: 0.002,
+        // 单 root + 单 GLB；maxSSE 太大时 34km 行政区视角会直接跳过 content，导致「没有白模」。
+        maximumScreenSpaceError: 0.1,
+        dynamicScreenSpaceError: false,
         shadows: Cesium.ShadowMode.DISABLED,
       });
       tileset.show = this.layerState.whiteModels;
@@ -1593,7 +1593,7 @@ export class CbdScene {
     for (const landmark of LANDMARKS) {
       if (!landmark.glb.includes('/free/')) continue;
       const center = Cesium.Cartesian3.fromDegrees(landmark.lon, landmark.lat, landmark.height * 0.5);
-      if (Cesium.Cartesian3.distance(camera, center) < 5200) return true;
+      if (Cesium.Cartesian3.distance(camera, center) < 15000) return true;
     }
     return false;
   }
@@ -1789,6 +1789,7 @@ export class CbdScene {
       this.massingDetailMode = height > 250;
       this.closeBasemapMode = height < 5000;
       this.districtMassingDetailMode = height > 1800;
+      this.updateLandmarkCloseupMode();
       this.applyLayerState();
     } else {
       this.viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(target, radius), {

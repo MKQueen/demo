@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#75bdc3">
+  <meta name="description" content="在一颗小行星上走街串巷，替人送信。京城来信 · Beijing Courier">
+  <title>京城来信 · Beijing Courier</title>
+  <link rel="icon" href="./icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+  <canvas id="world" aria-label="京城来信三维场景"></canvas>
+  <div id="ui-root"></div>
+  <div id="boot">正在展开星球…</div>
+  <div id="fatal" hidden>暂时无法开启三维场景，请启用浏览器的 WebGL / 硬件加速后刷新。</div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

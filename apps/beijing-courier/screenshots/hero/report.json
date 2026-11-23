@@ -1,0 +1,331 @@
+{
+  "baseUrl": "http://127.0.0.1:5190",
+  "startedAt": "2026-11-06T08:39:22.134Z",
+  "screenshots": [
+    {
+      "file": "screenshots/hero/01-hero-front.png",
+      "mode": "single:idle"
+    },
+    {
+      "file": "screenshots/hero/02-hero-back.png",
+      "mode": "single:idle"
+    },
+    {
+      "file": "screenshots/hero/03-hero-run.png",
+      "mode": "single:run"
+    },
+    {
+      "file": "screenshots/hero/04-hero-sprint.png",
+      "mode": "single:sprint"
+    },
+    {
+      "file": "screenshots/hero/05-hero-air.png",
+      "mode": "single:air"
+    },
+    {
+      "file": "screenshots/hero/06-hero-head.png",
+      "mode": "single:idle"
+    },
+    {
+      "file": "screenshots/hero/07-hero-poses.png",
+      "mode": "lineup"
+    },
+    {
+      "file": "screenshots/hero/08-hero-outfits.png",
+      "mode": "outfits"
+    },
+    {
+      "file": "screenshots/hero/09-npcs.png",
+      "mode": "npcs"
+    },
+    {
+      "file": "screenshots/hero/10-npc-daye.png",
+      "mode": "npc:beijing-daye"
+    },
+    {
+      "file": "screenshots/hero/11-npc-dama.png",
+      "mode": "npc:beijing-dama"
+    },
+    {
+      "file": "screenshots/hero/12-npc-kid.png",
+      "mode": "npc:xiaoxuesheng"
+    },
+    {
+      "file": "screenshots/hero/13-compare-avatar.png",
+      "mode": "compare"
+    },
+    {
+      "file": "screenshots/hero/14-hutong-scene.png",
+      "mode": "scene"
+    },
+    {
+      "file": "screenshots/hero/15-game-duo.png",
+      "mode": "game:duo"
+    },
+    {
+      "file": "screenshots/hero/16-game-hero.png",
+      "mode": "game:hero"
+    },
+    {
+      "file": "screenshots/hero/17-game-back.png",
+      "mode": "game:back"
+    },
+    {
+      "file": "screenshots/hero/18-game-run.png",
+      "mode": "game:run"
+    },
+    {
+      "file": "screenshots/hero/19-game-jump.png",
+      "mode": "game:jump"
+    }
+  ],
+  "renders": {
+    "01-hero-front.png": "pipeline",
+    "02-hero-back.png": "pipeline",
+    "03-hero-run.png": "pipeline",
+    "04-hero-sprint.png": "pipeline",
+    "05-hero-air.png": "pipeline",
+    "06-hero-head.png": "pipeline",
+    "lineup": "pipeline",
+    "outfits": "pipeline",
+    "npcs": "pipeline",
+    "10-npc-daye.png": "pipeline",
+    "11-npc-dama.png": "pipeline",
+    "12-npc-kid.png": "pipeline",
+    "compare": "pipeline",
+    "scene": "pipeline"
+  },
+  "info": {
+    "hero": {
+      "renderMode": "pipeline",
+      "couriers": [
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        }
+      ],
+      "npcs": [],
+      "triangles": 1,
+      "calls": 1
+    },
+    "lineup": {
+      "renderMode": "pipeline",
+      "couriers": [
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.644,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        },
+        {
+          "pose": "run",
+          "height": 1.64,
+          "bbox": 1.57,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        },
+        {
+          "pose": "air",
+          "height": 1.64,
+          "bbox": 1.574,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        },
+        {
+          "pose": "sprint",
+          "height": 1.64,
+          "bbox": 1.496,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        }
+      ],
+      "npcs": [],
+      "triangles": 1,
+      "calls": 1
+    },
+    "outfits": {
+      "renderMode": "pipeline",
+      "couriers": [
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        },
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "navy",
+            "bag": "navy",
+            "scarf": "mustard"
+          }
+        },
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "red",
+            "bag": "red",
+            "scarf": "cream"
+          }
+        }
+      ],
+      "npcs": [],
+      "triangles": 1,
+      "calls": 1
+    },
+    "npcs": {
+      "renderMode": "pipeline",
+      "couriers": [],
+      "npcs": [
+        {
+          "type": "beijing-daye",
+          "height": 1.588,
+          "pose": "idle",
+          "meshes": 40
+        },
+        {
+          "type": "beijing-dama",
+          "height": 1.471,
+          "pose": "idle",
+          "meshes": 32
+        },
+        {
+          "type": "xiaoxuesheng",
+          "height": 1.229,
+          "pose": "idle",
+          "meshes": 38
+        }
+      ],
+      "triangles": 1,
+      "calls": 1
+    },
+    "compare": {
+      "renderMode": "pipeline",
+      "couriers": [
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        }
+      ],
+      "npcs": [],
+      "triangles": 1,
+      "calls": 1
+    },
+    "scene": {
+      "renderMode": "pipeline",
+      "couriers": [
+        {
+          "pose": "idle",
+          "height": 1.64,
+          "bbox": 1.645,
+          "bones": 13,
+          "meshes": 56,
+          "materials": 29,
+          "outfit": {
+            "hat": "postal-green",
+            "bag": "canvas-brown",
+            "scarf": "scarlet"
+          }
+        }
+      ],
+      "npcs": [
+        {
+          "type": "beijing-daye",
+          "height": 1.588,
+          "pose": "idle",
+          "meshes": 40
+        }
+      ],
+      "triangles": 1,
+      "calls": 1
+    }
+  },
+  "game": {
+    "injected": {
+      "integrated": true,
+      "heroHeight": 1.64,
+      "dayeHeight": 1.5882804242983692,
+      "sceneChildren": 21,
+      "position": [
+        5.8,
+        5.8,
+        25.78
+      ]
+    },
+    "live": {
+      "integrated": true,
+      "runState": {
+        "pose": "run",
+        "speed": 2.6,
+        "grounded": true
+      },
+      "jumpState": {
+        "pose": "air",
+        "speed": 2.6,
+        "grounded": false
+      }
+    },
+    "renderMode": "pipeline (real game scene)"
+  },
+  "finishedAt": "2026-11-06T08:39:48.065Z"
+}

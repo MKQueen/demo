@@ -1,0 +1,1512 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>京城来信 · 程序化音频验收台</title>
+    <style>
+      @font-face {
+        font-family: 'Ma Shan Zheng';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/ma-shan-zheng-chinese-simplified-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Patrick Hand';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/patrick-hand-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'ZCOOL KuaiLe';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/zcool-kuaile-chinese-simplified-400-normal.woff2') format('woff2');
+      }
+
+      :root {
+        --ink: #2f4a4a;
+        --ink-soft: #5b7472;
+        --paper: #fbf4e3;
+        --paper-2: #f4ecd8;
+        --sky: #75bdc3;
+        --sky-deep: #4f9ea1;
+        --accent: #e2834a;
+        --accent-deep: #c9692f;
+        --green: #5da46b;
+        --font-hand: 'Ma Shan Zheng', 'Kaiti SC', 'STKaiti', serif;
+        --font-latin: 'Patrick Hand', 'Comic Sans MS', cursive;
+        --shadow: 3px 4px 0 rgba(47, 74, 74, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: var(--font-latin);
+        color: var(--ink);
+        background:
+          radial-gradient(1000px 340px at 8% -6%, rgba(255, 252, 235, 0.55), transparent 60%),
+          radial-gradient(800px 300px at 96% 4%, rgba(255, 246, 213, 0.35), transparent 60%),
+          linear-gradient(180deg, #8ed3cd 0%, #75bdc3 34%, #63b2b1 66%, #589f9d 100%);
+        background-attachment: fixed;
+      }
+
+      /* 手绘纸纹 */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.16;
+        background-image: radial-gradient(rgba(47, 74, 74, 0.5) 0.7px, transparent 0.8px);
+        background-size: 7px 7px;
+        mix-blend-mode: multiply;
+      }
+
+      .page {
+        width: min(1440px, 100%);
+        margin: 0 auto;
+        padding: 30px 32px 46px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 6px 6px 20px;
+      }
+
+      .hero__kicker {
+        font-size: 15px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: rgba(47, 74, 74, 0.72);
+        margin-bottom: 6px;
+      }
+
+      .hero h1 {
+        font-family: var(--font-hand);
+        font-weight: 400;
+        font-size: clamp(34px, 4.4vw, 56px);
+        line-height: 1.02;
+        margin: 0 0 8px;
+        color: #233d3d;
+        text-shadow: 2px 2px 0 rgba(251, 244, 227, 0.55);
+      }
+
+      .hero h1 .stamp {
+        display: inline-block;
+        font-size: 0.36em;
+        vertical-align: middle;
+        margin-left: 14px;
+        padding: 5px 12px 3px;
+        border: 2px solid var(--accent-deep);
+        border-radius: 8px 12px 9px 11px;
+        color: var(--accent-deep);
+        transform: rotate(-3deg);
+        font-family: var(--font-hand);
+        letter-spacing: 0.08em;
+        background: rgba(251, 244, 227, 0.4);
+      }
+
+      .hero__sub {
+        margin: 0;
+        max-width: 620px;
+        font-size: 18px;
+        color: rgba(35, 61, 61, 0.82);
+        line-height: 1.45;
+      }
+
+      .hero__side {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+
+      .hero__scale {
+        font-family: var(--font-hand);
+        font-size: 20px;
+        color: #233d3d;
+        background: rgba(251, 244, 227, 0.42);
+        border: 2px solid rgba(47, 74, 74, 0.24);
+        border-radius: 30px;
+        padding: 6px 18px 4px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .chip {
+        font-size: 14px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        border: 2px solid rgba(47, 74, 74, 0.3);
+        background: rgba(251, 244, 227, 0.62);
+        color: var(--ink);
+        white-space: nowrap;
+      }
+
+      .chip--live {
+        background: #2f6b60;
+        border-color: #2f6b60;
+        color: #f2f7ea;
+      }
+
+      .chip--warn {
+        background: #f7d9b7;
+        border-color: #c9692f;
+        color: #7a3d14;
+      }
+
+      /* ---------- grid ---------- */
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(340px, 0.92fr) minmax(0, 1.5fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .grid > .card {
+        min-width: 0;
+      }
+
+      .card {
+        background:
+          linear-gradient(178deg, rgba(255, 255, 255, 0.5), transparent 40%),
+          var(--paper);
+        border: 2px solid var(--ink);
+        border-radius: 18px 24px 16px 22px;
+        box-shadow: var(--shadow);
+        padding: 18px 20px 20px;
+        position: relative;
+      }
+
+      .card:nth-child(2n) {
+        border-radius: 24px 16px 22px 18px;
+      }
+
+      .card h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-hand);
+        font-weight: 400;
+        font-size: 25px;
+        margin: 0 0 14px;
+        color: #233d3d;
+      }
+
+      .card h2 .n {
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fffaf0;
+        font-family: var(--font-latin);
+        font-size: 17px;
+        border: 2px solid var(--accent-deep);
+        transform: rotate(-4deg);
+        box-shadow: 1px 2px 0 rgba(47, 74, 74, 0.2);
+      }
+
+      .card h2 small {
+        font-family: var(--font-latin);
+        font-size: 13px;
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+        margin-left: auto;
+      }
+
+      /* ---------- buttons ---------- */
+      button {
+        font-family: var(--font-latin);
+        font-size: 16px;
+        color: var(--ink);
+        background: #fffaf0;
+        border: 2px solid var(--ink);
+        border-radius: 12px 14px 11px 15px;
+        padding: 7px 14px 6px;
+        cursor: pointer;
+        box-shadow: 2px 3px 0 rgba(47, 74, 74, 0.18);
+        transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      }
+
+      button:hover {
+        background: #fff3d6;
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 4px 0 rgba(47, 74, 74, 0.22);
+      }
+
+      button:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0 1px 0 rgba(47, 74, 74, 0.2);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .btn-big {
+        width: 100%;
+        font-family: var(--font-hand);
+        font-size: 25px;
+        padding: 14px 18px 11px;
+        color: #fffaf0;
+        background: linear-gradient(180deg, #ef9a5f, #e2834a);
+        border-color: var(--accent-deep);
+        box-shadow: 3px 4px 0 rgba(122, 61, 20, 0.35);
+        letter-spacing: 0.06em;
+      }
+
+      .btn-big.is-on {
+        background: linear-gradient(180deg, #7cc08a, #5da46b);
+        border-color: #3f7a4c;
+        box-shadow: 3px 4px 0 rgba(38, 83, 50, 0.32);
+      }
+
+      .btn-big small {
+        display: block;
+        font-family: var(--font-latin);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        opacity: 0.92;
+        margin-top: 2px;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      /* ---------- 状态 / 信息 ---------- */
+      .notice {
+        margin-top: 12px;
+        font-size: 15px;
+        line-height: 1.5;
+        color: var(--ink-soft);
+        background: rgba(47, 74, 74, 0.05);
+        border-left: 4px solid var(--accent);
+        border-radius: 4px 10px 10px 4px;
+        padding: 8px 12px;
+        min-height: 38px;
+      }
+
+      .notice b {
+        color: var(--ink);
+      }
+
+      .music-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .music-badges .chip {
+        background: #fff7e4;
+        border-color: rgba(47, 74, 74, 0.26);
+      }
+
+      .music-badges .chip b {
+        color: var(--accent-deep);
+        font-weight: 400;
+      }
+
+      .music-badges .chip {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.35;
+      }
+
+      /* ---------- 可视化 ---------- */
+      .scope-wrap {
+        position: relative;
+        border: 2px solid var(--ink);
+        border-radius: 14px;
+        background: #f7eede;
+        overflow: hidden;
+        box-shadow: inset 0 2px 8px rgba(47, 74, 74, 0.08);
+      }
+
+      .scope-wrap canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .scope-label {
+        position: absolute;
+        top: 10px;
+        left: 14px;
+        font-size: 13px;
+        color: rgba(47, 74, 74, 0.6);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        pointer-events: none;
+      }
+
+      .scope-badge {
+        position: absolute;
+        top: 9px;
+        right: 12px;
+        font-size: 13px;
+        color: #2f6b60;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1.5px solid rgba(47, 74, 74, 0.25);
+        border-radius: 999px;
+        padding: 1px 10px;
+      }
+
+      .meters {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px 12px;
+        align-items: center;
+        margin: 12px 2px 4px;
+        font-size: 15px;
+      }
+
+      .meter-name {
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+      }
+
+      .meter-track {
+        height: 15px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: #efe3ca;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .meter-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #8fcf9c 0%, #e9c063 62%, #e2834a 100%);
+        transition: width 0.08s linear;
+      }
+
+      .meter-value {
+        font-size: 14px;
+        color: var(--ink);
+        min-width: 74px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .bgm-wave-wrap {
+        margin-top: 14px;
+        border: 2px solid var(--ink);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f7eede;
+      }
+
+      .bgm-wave-wrap canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .bgm-wave-cap {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 12px 4px;
+        font-size: 13px;
+        color: var(--ink-soft);
+        border-top: 1.5px dashed rgba(47, 74, 74, 0.25);
+      }
+
+      /* ---------- 区域 ---------- */
+      .region-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .region-chip {
+        font-family: var(--font-hand);
+        font-size: 19px;
+        padding: 7px 16px 5px;
+        border-radius: 999px;
+        border: 2px solid rgba(47, 74, 74, 0.4);
+        background: #fff7e4;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .region-chip .lat {
+        font-family: var(--font-latin);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        color: var(--ink-soft);
+        text-transform: uppercase;
+      }
+
+      .region-chip:hover {
+        border-color: var(--ink);
+        transform: translateY(-1px);
+      }
+
+      .region-chip.is-active {
+        background: #2f6b60;
+        border-color: #234f47;
+        color: #f4f8ea;
+        box-shadow: 2px 3px 0 rgba(35, 61, 61, 0.3);
+      }
+
+      .region-chip.is-active .lat {
+        color: rgba(244, 248, 234, 0.75);
+      }
+
+      .region-info {
+        margin-top: 14px;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--ink-soft);
+      }
+
+      .region-info b {
+        color: var(--ink);
+        font-family: var(--font-hand);
+        font-size: 18px;
+        font-weight: 400;
+      }
+
+      .event-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .event-tag {
+        font-size: 13px;
+        padding: 2px 10px;
+        border-radius: 8px;
+        background: #f0e5cc;
+        border: 1.5px dashed rgba(47, 74, 74, 0.35);
+        color: var(--ink-soft);
+      }
+
+      /* ---------- cue / 角色音 ---------- */
+      .cue-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+        gap: 8px;
+      }
+
+      .cue-btn {
+        font-size: 14px;
+        padding: 6px 8px 5px;
+        text-align: left;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+
+      .cue-btn .en {
+        font-family: var(--font-latin);
+        font-size: 14px;
+        color: #233d3d;
+      }
+
+      .cue-btn .cn {
+        font-family: var(--font-hand);
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.05;
+      }
+
+      .cue-btn.is-playing {
+        background: #fff0cc;
+        border-color: var(--accent-deep);
+        transform: translate(1px, 1px);
+        box-shadow: 1px 2px 0 rgba(47, 74, 74, 0.2);
+      }
+
+      .foot-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-bottom: 16px;
+      }
+
+      .slider-row {
+        display: grid;
+        grid-template-columns: 88px 1fr 46px;
+        align-items: center;
+        gap: 10px;
+        margin: 9px 0;
+        font-size: 16px;
+      }
+
+      .slider-row input[type='range'] {
+        width: 100%;
+        accent-color: var(--accent);
+        height: 22px;
+      }
+
+      .slider-row .val {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-soft);
+        font-size: 15px;
+      }
+
+      /* ---------- 自检表 ---------- */
+      .check-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .check-summary {
+        font-size: 16px;
+        color: var(--ink-soft);
+      }
+
+      .check-summary b {
+        font-family: var(--font-hand);
+        font-size: 20px;
+        color: #2f6b60;
+        font-weight: 400;
+      }
+
+      .check-table-wrap {
+        margin-top: 14px;
+        max-height: 420px;
+        overflow: auto;
+        border: 2px solid var(--ink);
+        border-radius: 12px;
+        background: #fffaf0;
+      }
+
+      table.check-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      table.check-table th {
+        position: sticky;
+        top: 0;
+        background: #efe3ca;
+        font-family: var(--font-hand);
+        font-size: 17px;
+        font-weight: 400;
+        color: #233d3d;
+        text-align: left;
+        padding: 6px 10px 5px;
+        border-bottom: 2px solid var(--ink);
+        z-index: 2;
+      }
+
+      table.check-table td {
+        padding: 4px 10px;
+        border-bottom: 1px dashed rgba(47, 74, 74, 0.18);
+      }
+
+      table.check-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      table.check-table .grp {
+        color: var(--ink-soft);
+        font-family: var(--font-hand);
+        font-size: 16px;
+        white-space: nowrap;
+      }
+
+      .pass {
+        display: inline-block;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: #dcefd8;
+        color: #2f6b45;
+        border: 1.5px solid #5da46b;
+        font-size: 13px;
+      }
+
+      .pass.bad {
+        background: #f7d9b7;
+        color: #7a3d14;
+        border-color: #c9692f;
+      }
+
+      .check-meta {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-top: 8px;
+        font-family: var(--font-latin);
+      }
+
+      footer {
+        margin-top: 26px;
+        text-align: center;
+        color: rgba(35, 61, 61, 0.62);
+        font-size: 14px;
+        letter-spacing: 0.04em;
+      }
+
+      footer code {
+        font-family: var(--font-latin);
+        background: rgba(251, 244, 227, 0.42);
+        border-radius: 6px;
+        padding: 1px 7px;
+        color: var(--ink);
+      }
+
+      @media (max-width: 1080px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .page {
+          padding: 22px 16px 36px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .hero h1 {
+          font-size: 34px;
+        }
+        .hero__sub {
+          font-size: 15px;
+        }
+        .hero__side {
+          align-items: flex-start;
+        }
+        .cue-grid {
+          grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        }
+        .card {
+          padding: 15px 14px 16px;
+        }
+        .card h2 {
+          font-size: 21px;
+        }
+        .slider-row {
+          grid-template-columns: 70px 1fr 42px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <div class="hero__kicker">Beijing Courier · Audio Lab · 内部验收页</div>
+          <h1>程序化音频验收台<span class="stamp">100% 合成</span></h1>
+          <p class="hero__sub">
+            五声音阶 Lo-fi BGM、八个区域环境音、25 个 UI / 角色音效 —— 全部由 WebAudio
+            实时或离线合成。没有 <code>.ogg</code>，没有 <code>.mp3</code>，没有网络音频请求。
+          </p>
+        </div>
+        <div class="hero__side">
+          <div class="hero__scale">宫 · 商 · 角 · 徵 · 羽</div>
+          <div class="chips">
+            <span class="chip" id="chip-ctx">AudioContext：等待解锁</span>
+            <span class="chip" id="chip-music">BGM：未开始</span>
+            <span class="chip" id="chip-region">区域：—</span>
+            <span class="chip" id="chip-buses">总线：—</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card" id="card-transport">
+          <h2><span class="n">1</span>解锁 &amp; 播放<small>user gesture</small></h2>
+          <button class="btn-big" id="btn-unlock">
+            ▶ 解锁 WebAudio · 开始播放
+            <small>点击后 resume AudioContext，渲染 36s 原创 BGM 并铺开区域环境音</small>
+          </button>
+          <div class="row">
+            <button id="btn-mute">🔊 静音 / 恢复</button>
+            <button id="btn-cue-sweep">🎹 连播全部 cue</button>
+            <button id="btn-restart">↻ 重放当前区域</button>
+          </div>
+          <div class="notice" id="notice">点上面的按钮开始。首次解锁会花约 3–4 秒离线渲染 BGM（OfflineAudioContext）。</div>
+          <div class="music-badges" id="music-badges"></div>
+        </section>
+
+        <section class="card" id="card-visual">
+          <h2><span class="n">2</span>实时波形 / 电平<small>AnalyserNode</small></h2>
+          <div class="scope-wrap">
+            <canvas id="scope" width="1200" height="240"></canvas>
+            <span class="scope-label">master · waveform · 显示 ×3</span>
+            <span class="scope-badge" id="scope-state">未解锁</span>
+          </div>
+          <div class="meters">
+            <span class="meter-name">RMS</span>
+            <div class="meter-track"><div class="meter-fill" id="meter-rms"></div></div>
+            <span class="meter-value" id="meter-rms-val">−∞ dB</span>
+            <span class="meter-name">PEAK</span>
+            <div class="meter-track"><div class="meter-fill" id="meter-peak"></div></div>
+            <span class="meter-value" id="meter-peak-val">−∞ dB</span>
+          </div>
+          <div class="bgm-wave-wrap" id="bgm-wave-wrap">
+            <canvas id="bgm-wave" width="1200" height="150"></canvas>
+            <div class="bgm-wave-cap">
+              <span>BGM 预渲染波形 · 36s 无缝循环</span>
+              <span id="bgm-wave-cap">等待 BGM…</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="card-regions">
+          <h2><span class="n">3</span>区域环境音<small>crossfade 1.8s</small></h2>
+          <div class="region-chips" id="region-chips"></div>
+          <div class="region-info" id="region-info">解锁后可切换区域，旧区域 1.4s 淡出，新区域 1.8s 淡入。</div>
+        </section>
+
+        <section class="card" id="card-cues">
+          <h2><span class="n">4</span>合成音效 cues<small>25 个 · 全部程序化</small></h2>
+          <div class="cue-grid" id="cue-grid"></div>
+        </section>
+
+        <section class="card" id="card-player">
+          <h2><span class="n">5</span>角色音 &amp; 总线<small>footstep / jump</small></h2>
+          <div class="foot-group">
+            <button data-foot="walk">👣 走路</button>
+            <button data-foot="run">🏃 跑步</button>
+            <button data-foot="water">💧 涉水</button>
+            <button data-foot="jump">🦘 跳跃</button>
+            <button data-foot="land">⬇ 落地</button>
+          </div>
+          <div class="slider-row">
+            <label for="vol-music">🎼 音乐</label>
+            <input id="vol-music" type="range" min="0" max="100" value="50" />
+            <span class="val" id="vol-music-val">50%</span>
+          </div>
+          <div class="slider-row">
+            <label for="vol-ambience">🌊 环境音</label>
+            <input id="vol-ambience" type="range" min="0" max="100" value="40" />
+            <span class="val" id="vol-ambience-val">40%</span>
+          </div>
+          <div class="slider-row">
+            <label for="vol-sfx">🔔 音效</label>
+            <input id="vol-sfx" type="range" min="0" max="100" value="65" />
+            <span class="val" id="vol-sfx-val">65%</span>
+          </div>
+          <div class="notice" id="persist-note">静音与三路音量会写入 localStorage（键名与游戏一致，此页使用独立前缀）。</div>
+        </section>
+
+        <section class="card" id="card-verify">
+          <h2><span class="n">6</span>离线自检<small>OfflineAudioContext</small></h2>
+          <div class="check-actions">
+            <button id="btn-selfcheck" disabled>运行离线 RMS 自检</button>
+            <span class="check-summary" id="check-summary">解锁后可运行：逐个离线渲染 8 个区域 + 25 个 cue，统计 RMS / 峰值，证明非静音。</span>
+          </div>
+          <div class="check-table-wrap" id="check-table-wrap" hidden>
+            <table class="check-table">
+              <thead>
+                <tr><th>组</th><th>项目</th><th>时长</th><th>RMS</th><th>峰值</th><th>结论</th></tr>
+              </thead>
+              <tbody id="check-tbody"></tbody>
+            </table>
+          </div>
+          <div class="check-meta" id="check-meta"></div>
+        </section>
+      </main>
+
+      <footer>
+        京城来信 · 程序化音频 · <code>src/game/audio.js</code> + <code>src/game/music.js</code> ·
+        验收脚本 <code>node tools/audio/verify.mjs</code>
+      </footer>
+    </div>
+
+    <script type="module">
+      import {
+        createAudio,
+        CUES,
+        AMBIENCE_KEYS,
+        AMBIENT_META,
+        AMBIENT_EVENT_NAMES,
+        MUSIC,
+        createNoiseBuffer,
+        buildAmbience,
+        makeSfxSession,
+      } from '/src/game/audio.js';
+
+      const $ = (sel) => document.querySelector(sel);
+      const params = new URLSearchParams(location.search);
+
+      const CUE_CN = {
+        click: '点击',
+        hover: '悬停',
+        buttons: '按钮',
+        open: '开箱',
+        checklist: '清单',
+        paper: '翻纸',
+        quest: '任务完成',
+        questStart: '任务开始',
+        title: '标题',
+        clothes: '换衣',
+        customize: '换装',
+        bubbleStart: '气泡开',
+        bubbleEnd: '气泡关',
+        emoteStart: '表情开',
+        emoteEnd: '表情关',
+        emoji: 'emoji',
+        letter: '信件风铃',
+        turn: '翻页',
+        out: '退出',
+        whoosh: '相机 whoosh',
+        zoomIn: '推进',
+        zoomOut: '拉远',
+        note: '提示音',
+        error: '错误',
+        toggle: '开关',
+      };
+
+      const REGION_ORDER = ['beach', 'base', 'village', 'city', 'forest', 'factory', 'temple', 'waterfalls'];
+
+      const ui = {
+        unlock: $('#btn-unlock'),
+        mute: $('#btn-mute'),
+        sweep: $('#btn-cue-sweep'),
+        restart: $('#btn-restart'),
+        notice: $('#notice'),
+        badges: $('#music-badges'),
+        chipCtx: $('#chip-ctx'),
+        chipMusic: $('#chip-music'),
+        chipRegion: $('#chip-region'),
+        chipBuses: $('#chip-buses'),
+        scope: $('#scope'),
+        scopeState: $('#scope-state'),
+        meterRms: $('#meter-rms'),
+        meterRmsVal: $('#meter-rms-val'),
+        meterPeak: $('#meter-peak'),
+        meterPeakVal: $('#meter-peak-val'),
+        bgmWave: $('#bgm-wave'),
+        bgmWaveCap: $('#bgm-wave-cap'),
+        regionChips: $('#region-chips'),
+        regionInfo: $('#region-info'),
+        cueGrid: $('#cue-grid'),
+        selfCheck: $('#btn-selfcheck'),
+        checkSummary: $('#check-summary'),
+        checkTableWrap: $('#check-table-wrap'),
+        checkTbody: $('#check-tbody'),
+        checkMeta: $('#check-meta'),
+      };
+
+      let audio = null;
+      let analyser = null;
+      let waveData = null;
+      let freqData = null;
+      let drawing = false;
+      let currentRegion = null;
+      let unlockTime = 0;
+      let lastFrame = 0;
+      const state = {
+        unlocked: false,
+        busy: false,
+        checking: false,
+        checkDone: false,
+        results: null,
+        cueSweepTimer: 0,
+      };
+
+      // ---------------------------------------------------------------- 小工具
+      function setChip(el, text, tone) {
+        el.textContent = text;
+        el.classList.remove('chip--live', 'chip--warn');
+        if (tone) el.classList.add(tone);
+      }
+
+      function readBus(bus) {
+        if (!audio) return 0;
+        return audio.getBusVolume(bus);
+      }
+
+      function syncMuteButton() {
+        if (!audio) return;
+        const muted = audio.isMuted();
+        ui.mute.textContent = muted ? '🔇 已静音 · 点击恢复' : '🔊 静音 / 恢复';
+        ui.mute.classList.toggle('is-on', muted);
+      }
+
+      function updateBusesChip() {
+        if (!audio) return;
+        const m = Math.round(readBus('music') * 100);
+        const a = Math.round(readBus('ambience') * 100);
+        const s = Math.round(readBus('sfx') * 100);
+        setChip(ui.chipBuses, `总线：音乐 ${m}% · 环境 ${a}% · 音效 ${s}%`);
+      }
+
+      function updateSliders() {
+        if (!audio) return;
+        const buses = [
+          ['music', $('#vol-music'), $('#vol-music-val')],
+          ['ambience', $('#vol-ambience'), $('#vol-ambience-val')],
+          ['sfx', $('#vol-sfx'), $('#vol-sfx-val')],
+        ];
+        for (const [bus, input, label] of buses) {
+          const value = Math.round(readBus(bus) * 100);
+          input.value = String(value);
+          label.textContent = value + '%';
+        }
+      }
+
+      function waitFor(predicate, timeoutMs = 40000) {
+        const started = performance.now();
+        return new Promise((resolve) => {
+          const timer = setInterval(() => {
+            if (predicate()) {
+              clearInterval(timer);
+              resolve(true);
+            } else if (performance.now() - started > timeoutMs) {
+              clearInterval(timer);
+              resolve(false);
+            }
+          }, 120);
+        });
+      }
+
+      // ---------------------------------------------------------------- 建 UI
+      for (const key of REGION_ORDER) {
+        if (!AMBIENT_META[key]) continue;
+        const meta = AMBIENT_META[key];
+        const button = document.createElement('button');
+        button.className = 'region-chip';
+        button.dataset.region = key;
+        button.innerHTML = `${meta.name}<span class="lat">${meta.latin}</span>`;
+        button.addEventListener('click', () => selectRegion(key));
+        ui.regionChips.appendChild(button);
+      }
+
+      function updateRegionInfo(key) {
+        const meta = AMBIENT_META[key];
+        if (!meta) return;
+        const events = (AMBIENT_EVENT_NAMES[key] || []).map((name) => `<span class="event-tag">${name}</span>`).join('');
+        ui.regionInfo.innerHTML = `<b>${meta.name} · ${meta.latin}</b><br>${meta.layers}<div class="event-tags">${events}</div>`;
+      }
+
+      function highlightRegion(key) {
+        for (const button of ui.regionChips.querySelectorAll('.region-chip')) {
+          button.classList.toggle('is-active', button.dataset.region === key);
+        }
+        setChip(ui.chipRegion, `区域：${AMBIENT_META[key] ? AMBIENT_META[key].name : key}`);
+      }
+
+      function selectRegion(key) {
+        if (!audio || !state.unlocked) {
+          ui.notice.innerHTML = '请先点 <b>「解锁 WebAudio · 开始播放」</b>，再切换区域。';
+          return;
+        }
+        currentRegion = key;
+        audio.setRegion(key);
+        highlightRegion(key);
+        updateRegionInfo(key);
+      }
+
+      for (const cue of Object.keys(CUES)) {
+        const button = document.createElement('button');
+        button.className = 'cue-btn';
+        button.dataset.cue = cue;
+        button.innerHTML = `<span class="en">${cue}</span><span class="cn">${CUE_CN[cue] || '提示音'}</span>`;
+        button.addEventListener('click', () => playCue(cue));
+        ui.cueGrid.appendChild(button);
+      }
+
+      function playCue(name) {
+        if (!audio || !state.unlocked) {
+          ui.notice.innerHTML = '请先点 <b>「解锁 WebAudio · 开始播放」</b>。';
+          return;
+        }
+        audio.playCue(name);
+        const button = ui.cueGrid.querySelector(`[data-cue="${name}"]`);
+        if (button) {
+          button.classList.add('is-playing');
+          setTimeout(() => button.classList.remove('is-playing'), 220);
+        }
+      }
+
+      function playFoot(kind) {
+        if (!audio || !state.unlocked) {
+          ui.notice.innerHTML = '请先解锁。';
+          return;
+        }
+        if (kind === 'walk') audio.playFootstep();
+        else if (kind === 'run') audio.playFootstep({ run: true });
+        else if (kind === 'water') audio.playFootstepWater();
+        else if (kind === 'jump') audio.playJump();
+        else if (kind === 'land') audio.playLand();
+      }
+
+      for (const button of document.querySelectorAll('[data-foot]')) {
+        button.addEventListener('click', () => playFoot(button.dataset.foot));
+      }
+
+      // ---------------------------------------------------------------- 解锁
+      async function unlock() {
+        if (state.unlocked) return true;
+        if (!audio) audio = createAudio(null, { storagePrefix: 'bjcourier.audioTest.' });
+        try {
+          await audio.unlock();
+        } catch (err) {
+          ui.notice.textContent = '解锁失败：' + (err && err.message ? err.message : err);
+          return false;
+        }
+        state.unlocked = true;
+        unlockTime = performance.now();
+        document.body.dataset.audioReady = '1';
+        if (!analyser) {
+          analyser = audio.createAnalyser(2048);
+          if (analyser) {
+            waveData = new Float32Array(analyser.fftSize);
+            freqData = new Uint8Array(analyser.frequencyBinCount);
+          }
+        }
+        ui.unlock.classList.add('is-on');
+        ui.unlock.innerHTML = '✅ 正在播放<small>再次点击不会重启；用上方静音 / 区域 / cue 按钮试听</small>';
+        setChip(ui.chipCtx, `AudioContext：${audio.ctx.state} · ${audio.ctx.sampleRate}Hz`, 'chip--live');
+        setChip(ui.chipMusic, 'BGM：渲染中…', 'chip--warn');
+        ui.scopeState.textContent = 'live · running';
+        syncMuteButton();
+        updateSliders();
+        updateBusesChip();
+        ui.selfCheck.disabled = false;
+        currentRegion = 'base';
+        highlightRegion('base');
+        updateRegionInfo('base');
+        ui.notice.innerHTML =
+          '已解锁。BGM 正在 <b>OfflineAudioContext</b> 里渲染 36 秒循环；完成后自动淡入（约 2.6s），同时铺开黑胶底噪。';
+        startDrawing();
+        waitFor(() => audio && audio.musicPlaying, 45000).then((ok) => onMusicReady(ok));
+        return true;
+      }
+
+      function onMusicReady(ok) {
+        if (!audio) return;
+        if (!ok) {
+          setChip(ui.chipMusic, 'BGM：渲染超时', 'chip--warn');
+          return;
+        }
+        const meta = audio.musicMeta || {};
+        setChip(ui.chipMusic, `BGM：${meta.bpm || '?'}BPM · ${meta.bars || '?'} 小节 · ${Math.round(meta.loopSeconds || 0)}s 循环`, 'chip--live');
+        ui.badges.innerHTML = [
+          ['调式', meta.key || 'C 宫'],
+          ['音阶', meta.scale || '宫商角徵羽'],
+          ['和声', (meta.progression || []).join(' → ')],
+          ['旋律音', `${meta.melodyNotes || 0} 个`],
+          ['渲染', `${meta.renderMs || '?'} ms`],
+          ['峰值', `${meta.peak || 0}`],
+          ['RMS', `${meta.rms || 0}`],
+          ['循环接缝', `${meta.seamDelta || 0}`],
+        ]
+          .map(([k, v]) => `<span class="chip"><b>${k}</b> ${v}</span>`)
+          .join('');
+        ui.notice.innerHTML = `BGM 已就绪：<b>${(meta.loopSeconds || 0).toFixed(1)}s</b> 无缝循环 · 峰值 ${meta.peak} · RMS ${meta.rms} · 离线渲染 ${meta.renderMs}ms；循环接缝差值 ${meta.seamDelta}（≈ 峰值 0.4%，听不出接缝）。`;
+        ui.bgmWaveCap.textContent = `${meta.bars} 小节 · ${meta.bpm} BPM · 峰值 ${meta.peak} · RMS ${meta.rms}`;
+        drawBgmWave();
+      }
+
+      ui.unlock.addEventListener('click', unlock);
+
+      ui.mute.addEventListener('click', () => {
+        if (!audio) return;
+        audio.toggleMute();
+        syncMuteButton();
+      });
+
+      ui.sweep.addEventListener('click', () => {
+        if (!audio || !state.unlocked) return;
+        const names = Object.keys(CUES);
+        let index = 0;
+        clearTimeout(state.cueSweepTimer);
+        const next = () => {
+          if (index >= names.length) return;
+          playCue(names[index]);
+          index += 1;
+          state.cueSweepTimer = setTimeout(next, 320);
+        };
+        next();
+      });
+
+      ui.restart.addEventListener('click', () => {
+        if (!audio || !state.unlocked) return;
+        const key = currentRegion || 'base';
+        audio.setRegion(key === 'base' ? 'beach' : 'base');
+        setTimeout(() => {
+          audio.setRegion(key);
+          highlightRegion(key);
+        }, 420);
+        ui.notice.innerHTML = `正在重放 <b>${AMBIENT_META[key].name}</b> 环境音（crossfade）。`;
+      });
+
+      for (const [bus, input, label] of [
+        ['music', $('#vol-music'), $('#vol-music-val')],
+        ['ambience', $('#vol-ambience'), $('#vol-ambience-val')],
+        ['sfx', $('#vol-sfx'), $('#vol-sfx-val')],
+      ]) {
+        input.addEventListener('input', () => {
+          const value = Number(input.value) / 100;
+          label.textContent = input.value + '%';
+          if (audio) audio.setBusVolume(bus, value);
+          updateBusesChip();
+        });
+      }
+
+      // ---------------------------------------------------------------- 可视化
+      function startDrawing() {
+        if (drawing) return;
+        drawing = true;
+        const loop = (timestamp) => {
+          requestAnimationFrame(loop);
+          if (timestamp - lastFrame < 16) return;
+          lastFrame = timestamp;
+          drawScope();
+          drawMeters();
+        };
+        requestAnimationFrame(loop);
+      }
+
+      function drawScope() {
+        const canvas = ui.scope;
+        const ctx2d = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx2d.clearRect(0, 0, w, h);
+        // 纸面
+        ctx2d.fillStyle = '#f7eede';
+        ctx2d.fillRect(0, 0, w, h);
+        // 网格
+        ctx2d.strokeStyle = 'rgba(47, 74, 74, 0.12)';
+        ctx2d.lineWidth = 1;
+        for (let x = 0; x <= w; x += w / 12) {
+          ctx2d.beginPath();
+          ctx2d.moveTo(x, 0);
+          ctx2d.lineTo(x, h);
+          ctx2d.stroke();
+        }
+        for (let y = 0; y <= h; y += h / 4) {
+          ctx2d.beginPath();
+          ctx2d.moveTo(0, y);
+          ctx2d.lineTo(w, y);
+          ctx2d.stroke();
+        }
+        ctx2d.strokeStyle = 'rgba(47, 74, 74, 0.28)';
+        ctx2d.beginPath();
+        ctx2d.moveTo(0, h / 2);
+        ctx2d.lineTo(w, h / 2);
+        ctx2d.stroke();
+
+        if (!analyser || !waveData) {
+          ctx2d.fillStyle = 'rgba(47, 74, 74, 0.35)';
+          ctx2d.font = '22px "Patrick Hand", cursive';
+          ctx2d.fillText('等待解锁…', 22, h / 2 + 8);
+          return;
+        }
+        analyser.getFloatTimeDomainData(waveData);
+        ctx2d.beginPath();
+        const step = w / waveData.length;
+        for (let i = 0; i < waveData.length; i += 1) {
+          const v = Math.max(-1, Math.min(1, waveData[i] * 3)); // 显示增益 ×3，方便肉眼看安静段落
+          const x = i * step;
+          const y = h / 2 - v * (h / 2 - 14);
+          if (i === 0) ctx2d.moveTo(x, y);
+          else ctx2d.lineTo(x, y);
+        }
+        ctx2d.strokeStyle = 'rgba(61, 143, 133, 0.3)';
+        ctx2d.lineWidth = 6;
+        ctx2d.stroke();
+        ctx2d.strokeStyle = '#2f7d74';
+        ctx2d.lineWidth = 2;
+        ctx2d.stroke();
+      }
+
+      function drawMeters() {
+        if (!analyser || !waveData) return;
+        analyser.getFloatTimeDomainData(waveData);
+        let sum = 0;
+        let peak = 0;
+        for (let i = 0; i < waveData.length; i += 1) {
+          const v = waveData[i];
+          sum += v * v;
+          const abs = Math.abs(v);
+          if (abs > peak) peak = abs;
+        }
+        const rms = Math.sqrt(sum / waveData.length);
+        const rmsDb = 20 * Math.log10(Math.max(rms, 1e-6));
+        const peakDb = 20 * Math.log10(Math.max(peak, 1e-6));
+        ui.meterRms.style.width = `${Math.max(0, Math.min(100, ((rmsDb + 60) / 60) * 100)).toFixed(1)}%`;
+        ui.meterPeak.style.width = `${Math.max(0, Math.min(100, ((peakDb + 60) / 60) * 100)).toFixed(1)}%`;
+        ui.meterRmsVal.textContent = rmsDb <= -59 ? '−∞ dB' : `${rmsDb.toFixed(1)} dB`;
+        ui.meterPeakVal.textContent = peakDb <= -59 ? '−∞ dB' : `${peakDb.toFixed(1)} dB`;
+      }
+
+      function drawBgmWave() {
+        const canvas = ui.bgmWave;
+        const ctx2d = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx2d.fillStyle = '#f7eede';
+        ctx2d.fillRect(0, 0, w, h);
+        const buffer = audio && audio.musicBuffer;
+        if (!buffer) {
+          ctx2d.fillStyle = 'rgba(47, 74, 74, 0.35)';
+          ctx2d.font = '20px "Patrick Hand", cursive';
+          ctx2d.fillText('BGM 尚未渲染完成…', 22, h / 2 + 6);
+          return;
+        }
+        const data = buffer.getChannelData(0);
+        const step = data.length / w;
+        // 小节线（12 小节）
+        ctx2d.strokeStyle = 'rgba(47, 74, 74, 0.16)';
+        ctx2d.lineWidth = 1;
+        for (let bar = 0; bar <= 12; bar += 1) {
+          const x = Math.round((bar / 12) * w);
+          ctx2d.beginPath();
+          ctx2d.moveTo(x, 0);
+          ctx2d.lineTo(x, h);
+          ctx2d.stroke();
+        }
+        ctx2d.fillStyle = 'rgba(47, 121, 112, 0.82)';
+        for (let x = 0; x < w; x += 1) {
+          const start = Math.floor(x * step);
+          const end = Math.min(data.length, Math.floor((x + 1) * step));
+          let min = 0;
+          let max = 0;
+          for (let i = start; i < end; i += 4) {
+            const v = data[i];
+            if (v < min) min = v;
+            if (v > max) max = v;
+          }
+          const y0 = h / 2 - max * (h / 2 - 4);
+          const y1 = h / 2 - min * (h / 2 - 4);
+          ctx2d.fillRect(x, y0, 1, Math.max(1, y1 - y0));
+        }
+        ctx2d.strokeStyle = 'rgba(47, 74, 74, 0.3)';
+        ctx2d.beginPath();
+        ctx2d.moveTo(0, h / 2);
+        ctx2d.lineTo(w, h / 2);
+        ctx2d.stroke();
+      }
+
+      // ---------------------------------------------------------------- 离线自检
+      function statsOf(buffer) {
+        let peak = 0;
+        let sum = 0;
+        let count = 0;
+        for (let ch = 0; ch < buffer.numberOfChannels; ch += 1) {
+          const data = buffer.getChannelData(ch);
+          for (let i = 0; i < data.length; i += 1) {
+            const v = data[i];
+            const abs = Math.abs(v);
+            if (abs > peak) peak = abs;
+            sum += v * v;
+            count += 1;
+          }
+        }
+        return {
+          peak: Number(peak.toFixed(4)),
+          rms: Number(Math.sqrt(sum / Math.max(1, count)).toFixed(4)),
+        };
+      }
+
+      async function renderOffline(makeNodes, seconds, sampleRate) {
+        const oc = new OfflineAudioContext(2, Math.ceil(sampleRate * seconds), sampleRate);
+        makeNodes(oc);
+        return oc.startRendering();
+      }
+
+      async function selfCheck() {
+        if (!audio || !state.unlocked) {
+          ui.notice.innerHTML = '先解锁，再运行离线自检。';
+          return null;
+        }
+        if (state.checking) return state.results;
+        state.checking = true;
+        state.checkDone = false;
+        ui.selfCheck.disabled = true;
+        ui.selfCheck.textContent = '离线渲染中…';
+        ui.checkSummary.textContent = '正在用 OfflineAudioContext 逐个渲染：1 段 BGM + 8 个区域 + ' + Object.keys(CUES).length + ' 个 cue…';
+        ui.checkTableWrap.hidden = false;
+        ui.checkTbody.innerHTML = '';
+
+        const sampleRate = audio.ctx.sampleRate;
+        const noise = createNoiseBuffer(audio.ctx, 4, 2, 0x9e37);
+        const rows = [];
+
+        await waitFor(() => audio.musicPlaying, 45000);
+        const meta = audio.musicMeta;
+        if (meta) {
+          rows.push({
+            group: 'BGM',
+            name: '小行星邮差（原创五声循环）',
+            seconds: meta.loopSeconds,
+            rms: meta.rms,
+            peak: meta.peak,
+            pass: meta.rms > 0.01 && meta.peak > 0.05,
+            note: `${meta.bpm}BPM · ${meta.bars} 小节 · 渲染 ${meta.renderMs}ms · 接缝 ${meta.seamDelta}`,
+          });
+        }
+
+        for (const key of AMBIENCE_KEYS) {
+          const buffer = await renderOffline(
+            (oc) => {
+              buildAmbience(oc, key, oc.destination, { startAt: 0, noise });
+            },
+            3,
+            sampleRate,
+          );
+          const stats = statsOf(buffer);
+          rows.push({
+            group: '环境音',
+            name: `${AMBIENT_META[key].name}（${key}）`,
+            seconds: 3,
+            rms: stats.rms,
+            peak: stats.peak,
+            pass: stats.rms > 0.004,
+            note: AMBIENT_META[key].layers,
+          });
+        }
+
+        for (const name of Object.keys(CUES)) {
+          const buffer = await renderOffline(
+            (oc) => {
+              const gain = oc.createGain();
+              gain.gain.value = 0.8;
+              gain.connect(oc.destination);
+              const session = makeSfxSession(oc, gain, { now: 0.02, noise });
+              CUES[name](session);
+            },
+            1.6,
+            sampleRate,
+          );
+          const stats = statsOf(buffer);
+          rows.push({
+            group: '音效',
+            name: `${name}（${CUE_CN[name] || '提示音'}）`,
+            seconds: 1.6,
+            rms: stats.rms,
+            peak: stats.peak,
+            pass: stats.peak > 0.004,
+            note: '',
+          });
+        }
+
+        const passCount = rows.filter((row) => row.pass).length;
+        ui.checkTbody.innerHTML = rows
+          .map(
+            (row) => `<tr>
+              <td class="grp">${row.group}</td>
+              <td>${row.name}${row.note ? `<br><span style="color:rgba(47,74,74,.55);font-size:12px">${row.note}</span>` : ''}</td>
+              <td>${row.seconds.toFixed(1)}s</td>
+              <td>${row.rms.toFixed(4)}</td>
+              <td>${row.peak.toFixed(4)}</td>
+              <td><span class="pass${row.pass ? '' : ' bad'}">${row.pass ? '✓ 非静音' : '✗ 静音/过小'}</span></td>
+            </tr>`,
+          )
+          .join('');
+        ui.checkSummary.innerHTML = `离线自检完成：<b>${passCount}/${rows.length}</b> 项非静音。`;
+        ui.checkMeta.textContent = `OfflineAudioContext · ${sampleRate}Hz · ${new Date().toLocaleTimeString('zh-CN')} · 每项独立渲染（区域 3s / cue 1.6s / BGM 使用预渲染 buffer 统计）`;
+        ui.selfCheck.disabled = false;
+        ui.selfCheck.textContent = '重新运行离线 RMS 自检';
+        state.results = {
+          sampleRate,
+          checkedAt: new Date().toISOString(),
+          passCount,
+          total: rows.length,
+          rows,
+        };
+        state.checking = false;
+        state.checkDone = true;
+        window.__audioCheckResults = state.results;
+        window.__audioCheckDone = true;
+        return state.results;
+      }
+
+      ui.selfCheck.addEventListener('click', selfCheck);
+
+      // ---------------------------------------------------------------- 调试钩子
+      window.__audioTest = {
+        get audio() {
+          return audio;
+        },
+        get ctx() {
+          return audio ? audio.ctx : null;
+        },
+        get unlocked() {
+          return state.unlocked;
+        },
+        get ready() {
+          return !!(audio && audio.musicPlaying);
+        },
+        get checkDone() {
+          return state.checkDone;
+        },
+        get results() {
+          return state.results;
+        },
+        unlock,
+        setRegion: (key) => selectRegion(key),
+        playCue,
+        playFoot,
+        toggleMute: () => {
+          if (!audio) return;
+          audio.toggleMute();
+          syncMuteButton();
+        },
+        selfCheck,
+        diagnostics: () => (audio ? audio.diagnostics() : null),
+      };
+
+      // 截图 / 自动化方便：?region=beach&cue=quest&autounlock=1
+      window.addEventListener('load', () => {
+        ui.bgmWaveCap.textContent = '等待 BGM…';
+        drawScope();
+        drawBgmWave();
+        const region = params.get('region');
+        if (params.get('autounlock') === '1') {
+          unlock().then(() => {
+            if (region) {
+              setTimeout(() => selectRegion(region), 600);
+            }
+            if (params.get('cue')) {
+              setTimeout(() => playCue(params.get('cue')), 1200);
+            }
+          });
+        } else if (region) {
+          ui.regionInfo.innerHTML = `<b>${AMBIENT_META[region] ? AMBIENT_META[region].name : region}</b> · 解锁后自动切换`;
+        }
+      });
+    </script>
+  </body>
+</html>
