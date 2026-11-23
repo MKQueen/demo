@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#05090e" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <meta name="description" content="钢铁黎明 · 环太平洋机甲对战：浏览器里的 3D 机甲 Boss 战。驾驶二十米重装机甲 RX-09 在新港市迎战巨兽，支持摄像头体感驾驶与键盘完整操作，纯前端运行。" />
+  <title>钢铁黎明 · 环太平洋机甲对战 | STEEL DAWN</title>
+  <script type="module" crossorigin src="./assets/index-DD8dPhwo.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D6uJRYnf.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="stage" aria-label="3D 游戏画面"></canvas>
+    <div class="screen-grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="hit-fx" aria-hidden="true"></div>
+
+    <!-- 启动加载 -->
+    <div id="boot" class="boot">
+      <div class="boot-inner">
+        <div class="boot-sigil"><span></span><span></span><span></span></div>
+        <div class="boot-brand">STEEL <b>DAWN</b></div>
+        <div class="boot-sub">新港市 · 防御协议初始化</div>
+        <div class="boot-track"><i id="boot-progress"></i></div>
+        <div id="boot-status" class="boot-status">正在建立城市数据…</div>
+      </div>
+    </div>
+
+    <!-- 主菜单 -->
+    <section id="menu" class="screen menu hidden">
+      <header class="menu-top">
+        <div class="brand-mark">
+          <span class="brand-slash">///</span>
+          <span>RX-09<br /><em>DEFENSE INITIATIVE</em></span>
+        </div>
+        <div class="menu-top-actions">
+          <span class="live-chip"><i></i>NEW HARBOR · 12:30</span>
+          <button id="btn-sound" class="icon-btn" type="button" aria-label="开关声音" title="声音">SOUND: ON</button>
+          <button id="btn-settings" class="text-btn" type="button">设置</button>
+          <button id="btn-fullscreen" class="icon-btn" type="button" aria-label="全屏" title="全屏">FULLSCREEN</button>
+        </div>
+      </header>
+
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse-dot"></span> 灾厄协议 · 高威胁 / HIGH THREAT</div>
+        <h1 class="hero-title">
+          <span class="title-zh">钢铁</span>
+          <span class="title-zh title-outline">黎明</span>
+        </h1>
+        <div class="hero-latin">S T E E L &nbsp; D A W N</div>
+        <p class="hero-lead">晴空下，巨兽来袭。<br />驾驶二十米重装机甲，迎战巨兽。</p>
+        <div class="menu-actions">
+          <button id="btn-camera" class="cta cta-primary" type="button">
+            <span class="cta-index">01</span>
+            <span class="cta-label">接入摄像头<small>启动体感驾驶</small></span>
+            <span class="cta-arrow">↗</span>
+          </button>
+          <button id="btn-keyboard" class="cta cta-ghost" type="button">
+            <span class="cta-index">02</span>
+            <span class="cta-label">键盘模式<small>启动键盘驾驶</small></span>
+            <span class="cta-arrow">→</span>
+          </button>
+        </div>
+        <div class="menu-meta">
+          <span><i class="safe-dot"></i> 画面仅在本机处理，不上传</span>
+          <span>建议距离 1.2–2.2 m · 上半身入镜</span>
+          <span class="mouse-hint">鼠标拖拽旋转视角 · 滚轮缩放</span>
+        </div>
+      </div>
+
+      <aside class="menu-guide hangar-panel" aria-label="机甲配置选择">
+        <div class="guide-head"><span>JAEGER HANGAR</span><span>选择出战配置</span></div>
+        <div id="hangar-roster"></div>
+        <p id="hangar-description"></p>
+        <div class="hangar-disclosure">共享 Jaeger 底盘的三种装备改装<br />环太平洋风格 · 非电影官方机型</div>
+        <div class="hangar-controls"><kbd>J</kbd><kbd>K</kbd> 连击　<kbd>L</kbd> 炮击　<kbd>F</kbd> 光刃<br /><kbd>R</kbd> 导弹　<kbd>Q</kbd><kbd>E</kbd> 闪避　<kbd>V</kbd> 短飞</div>
+      </aside>
+
+      <footer class="menu-foot">
+        <span>URBAN DEFENSE AUTHORITY / HONG KONG NEW HARBOR</span>
+        <span class="menu-foot-mid">RX-09 / 城市防卫战 · 机体就绪</span>
+        <span>CAMERA FEED: LOCAL ONLY</span>
+      </footer>
+    </section>
+
+    <!-- 摄像头校准 -->
+    <section id="setup" class="overlay hidden" aria-label="摄像头体感校准">
+      <div class="setup-panel">
+        <div class="setup-head">
+          <div>
+            <div class="overline"><span class="pulse-dot"></span> HALF BODY LINK / 半身体感</div>
+            <h2>让机器看见你。</h2>
+          </div>
+          <button id="btn-close-setup" class="close-btn" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="setup-body">
+          <div class="setup-preview">
+            <video id="setup-video" playsinline muted autoplay></video>
+            <canvas id="setup-skeleton"></canvas>
+            <div class="preview-grid" aria-hidden="true"></div>
+            <div class="preview-corner tl"></div><div class="preview-corner tr"></div>
+            <div class="preview-corner bl"></div><div class="preview-corner br"></div>
+            <div class="preview-label"><i id="setup-signal"></i><span id="setup-signal-text">WAITING FOR SIGNAL</span></div>
+            <div id="setup-loading" class="setup-loading">
+              <div class="scan-ring"></div>
+              <span id="setup-loading-text">正在请求摄像头…</span>
+            </div>
+          </div>
+          <div class="setup-info">
+            <div class="setup-steps">
+              <div class="setup-step" data-step="light">
+                <b>01 / 人物锁定</b>
+                <span>站到画面中央，系统会先检测并锁定玩家。</span>
+                <i class="step-state"></i>
+              </div>
+              <div class="setup-step" data-step="pose">
+                <b>02 / 骨骼追踪</b>
+                <span>锁定后识别肩膀、肘部和手腕；腿部不入镜也可以。</span>
+                <i class="step-state"></i>
+              </div>
+              <div class="setup-step" data-step="ready">
+                <b>03 / 站定校准</b>
+                <span>双手自然放下，站定约 1.2 秒，校准后接入动作。</span>
+                <i class="step-state"></i>
+              </div>
+            </div>
+            <div class="setup-tip">
+              <span>姿态提示</span>
+              <p>站定不动，用左右倾身走位、手臂动作同步和出拳攻击；数据只留在浏览器里。</p>
+            </div>
+            <div id="setup-quality" class="setup-quality">
+              <span>TRACKING QUALITY</span>
+              <div class="quality-track"><i id="quality-bar"></i></div>
+              <b id="quality-label">—</b>
+            </div>
+            <div id="setup-error" class="setup-error hidden"></div>
+            <p id="tracking-metrics" class="tracking-metrics" aria-live="polite">等待人物检测</p>
+            <div class="setup-actions">
+              <button id="btn-activate" class="cta cta-primary" type="button" disabled>
+                <span class="cta-label">驾驶机甲<small id="activate-sub">等待体感链路</small></span>
+                <span class="cta-arrow">↗</span>
+              </button>
+              <button id="btn-setup-keyboard" class="text-btn" type="button">改用键盘模式</button>
+              <button id="btn-retrack" class="text-btn" type="button">重新锁定玩家 / 校准</button>
+            </div>
+          </div>
+        </div>
+        <div class="setup-foot">MOTION LINK // 人物检测 → 玩家锁定 → 骨骼识别 → 动作输入 · 本机处理</div>
+      </div>
+    </section>
+
+    <!-- 过场字幕 -->
+    <div id="cinematic" class="cinematic hidden">
+      <div class="cine-bar top"></div>
+      <div class="cine-bar bottom"></div>
+      <div id="cine-caption" class="cine-caption"></div>
+      <button id="btn-skip-intro" class="skip-btn" type="button">跳过过场 <span>SKIP ▸</span></button>
+    </div>
+
+    <!-- 战斗 HUD -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="unit-frame player-frame">
+          <div class="unit-tag"><span>RX-09</span><b id="hud-mech-name">先锋</b><em>MECH</em></div>
+          <div class="bar-line">
+            <span class="bar-label">装甲 HP</span>
+            <div class="bar hp-bar"><i id="mech-hp-fill"></i><b id="mech-hp-text">100</b></div>
+          </div>
+          <div class="bar-line">
+            <span class="bar-label">能量 EN</span>
+            <div class="bar energy-bar"><i id="mech-energy-fill"></i><b id="mech-energy-text">60</b></div>
+          </div>
+        </div>
+
+        <div class="boss-frame">
+          <div class="boss-top"><span>灾厄巨兽</span><b id="boss-name">「蚀」</b><em id="boss-phase">PHASE 1</em></div>
+          <div class="boss-bar"><span class="boss-hp-lag" id="boss-hp-lag"></span><i id="boss-hp-fill"></i><span class="boss-seg s1"></span><span class="boss-seg s2"></span><span class="boss-seg s3"></span><span class="boss-phase-notch"></span></div>
+          <div class="boss-sub"><span>目标：阻止城市毁灭</span><span id="boss-hp-text">100.0%</span></div>
+          <div id="boss-intent" class="boss-intent">观察起手 · 侧闪反击</div>
+          <div class="boss-stagger-row"><span>BREAK / 失衡</span><div class="boss-stagger"><i id="boss-stagger-fill"></i></div></div>
+        </div>
+
+        <div class="unit-frame city-frame">
+          <div class="unit-tag"><span>NEW HARBOR</span><b>城市完整度</b><em>CITY</em></div>
+          <div class="city-num"><strong id="city-integrity">100</strong><span>%</span></div>
+          <div class="bar city-bar"><i id="city-fill"></i></div>
+          <div class="mini-stats"><span>已损建筑 <b id="city-losses">0</b></span><span>战斗时间 <b id="battle-time">00:00</b></span></div>
+        </div>
+      </div>
+
+      <div id="boss-overhead" class="boss-overhead hidden">
+        <div class="overhead-top"><span>灾厄巨兽</span><b>「蚀」</b><em id="overhead-phase">PHASE 1</em></div>
+        <div class="overhead-hp"><i id="overhead-hp-fill"></i><span id="overhead-hp-text">100%</span></div>
+        <div class="overhead-break"><span>BREAK</span><div><i id="overhead-stagger-fill"></i></div></div>
+      </div>
+
+      <div id="phase-cutin" class="phase-cutin hidden">
+        <span>PHASE 02 // CORE OVERHEAT</span>
+        <b>暴走</b>
+        <em>灾厄巨兽「蚀」· 解放熔核</em>
+      </div>
+
+      <div id="break-banner" class="break-banner hidden">
+        <span>STAGGER BREAK</span>
+        <b>失衡</b>
+        <em>装甲核心暴露 · 全力输出</em>
+      </div>
+
+      <div id="lock-on" class="lock-on hidden">
+        <span class="lock-tl"></span><span class="lock-tr"></span><span class="lock-bl"></span><span class="lock-br"></span>
+        <div class="lock-copy"><b>TARGET LOCK</b><span id="lock-dist">24 m</span></div>
+      </div>
+
+      <div id="warning-banner" class="warning-banner">
+        <span class="warn-icon">!</span>
+        <div><b id="warning-title">巨爪横扫</b><span id="warning-sub">向后闪避 · 保持距离</span></div>
+        <i class="warn-timer"><b id="warning-timer-fill"></b></i>
+      </div>
+
+      <div id="hit-flash" class="hit-flash" aria-hidden="true"></div>
+
+      <div id="skill-callout" class="skill-callout hidden" aria-live="polite"></div>
+      <div id="hit-marker" class="hit-marker" aria-hidden="true">
+        <i class="hm-tl"></i><i class="hm-tr"></i><i class="hm-bl"></i><i class="hm-br"></i>
+        <b>HIT</b>
+      </div>
+
+      <div id="combo" class="combo">
+        <span id="combo-num">0</span>
+        <div><b>COMBO</b><small id="combo-rank">保持连击</small></div>
+      </div>
+
+      <div id="camera-panel" class="camera-panel hidden">
+        <div class="cam-head"><span><i></i> UPPER BODY SYNC</span><span id="cam-state">TRACKING</span></div>
+        <div class="cam-video">
+          <video id="game-video" playsinline muted autoplay></video>
+          <canvas id="game-skeleton"></canvas>
+          <div class="cam-corner tl"></div><div class="cam-corner tr"></div><div class="cam-corner bl"></div><div class="cam-corner br"></div>
+          <div id="cam-nodetect" class="cam-nodetect">未捕捉到上半身<br /><small>请站近一点，让头肩和双手入镜</small></div>
+        </div>
+        <div class="cam-gestures">
+          <span id="gesture-state">待机</span>
+          <span id="cam-quality">--</span>
+        </div>
+        <button id="btn-retrack-game" class="text-btn" type="button">重新锁定 / 校准</button>
+      </div>
+
+      <div id="hint" class="hint">
+        <span class="hint-key" id="hint-key">LEAN</span>
+        <div><b id="hint-title">身体倾斜</b><span id="hint-sub">横向走位 · 快速侧倾闪避</span></div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="move-readout">
+          <span class="hud-overline">LOCOMOTION</span>
+          <b id="move-state">待机</b>
+          <div class="jet-readout"><span>推进燃料 <b id="jet-fuel-text">100</b>% · V 短飞</span><div><i id="jet-fuel-fill"></i></div><small id="jet-status">Q / E 喷气闪避</small></div>
+          <div class="speed-pips"><i></i><i></i><i></i><i></i><i></i></div>
+          <small class="mouse-tip">鼠标拖拽旋转视角 · 滚轮缩放 · X 复位</small>
+        </div>
+        <div class="skill-dock">
+          <div class="skill" id="skill-punch"><span class="skill-glyph">拳</span><b>连击</b><small>交替出拳</small><i class="skill-cd"></i></div>
+          <div class="skill" id="skill-blast"><span class="skill-glyph">炮</span><b>等离子炮</b><small>双掌前推 · 30 EN</small><i class="skill-cd" id="blast-cd"></i></div>
+          <div class="skill" id="skill-missile"><span class="skill-glyph">弹</span><b>导弹齐射</b><small>双臂张开 / R · 20 EN</small><i class="skill-cd" id="missile-cd"></i></div>
+          <div class="skill" id="skill-blade"><span class="skill-glyph">刃</span><b>光刃斩</b><small>单臂高举 / F · 20 EN</small><i class="skill-cd" id="blade-cd"></i></div>
+          <div class="skill" id="skill-block"><span class="skill-glyph">盾</span><b>装甲防御</b><small>双手护胸</small><i class="skill-cd"></i></div>
+          <div class="skill" id="skill-ultimate"><span class="skill-glyph">终</span><b>天基裁决</b><small>双手高举 · 100 EN</small><i class="skill-cd" id="ult-cd"></i></div>
+        </div>
+        <div class="hud-util">
+          <button id="btn-hud-sound" class="hud-icon-btn sound-btn" type="button" title="开关声音">SND</button>
+          <button id="btn-help" class="hud-icon-btn" type="button" title="体感操作说明">?</button>
+          <button id="btn-pause" class="hud-icon-btn" type="button" title="暂停 / 菜单">Ⅱ</button>
+        </div>
+      </div>
+
+      <div id="mission-status" class="mission-status" aria-live="polite"></div>
+      <div id="mission-waypoint" class="mission-waypoint hidden"></div>
+      <div id="ultimate-cinematic" class="ultimate-cinematic hidden">
+        <span>ORBITAL JUDGEMENT</span>
+        <b>天 基 裁 决</b>
+        <em>RX-09 · FULL OUTPUT</em>
+      </div>
+
+      <div id="damage-layer" class="damage-layer" aria-hidden="true"></div>
+      <div id="kill-feed" class="kill-feed"></div>
+    </div>
+
+    <!-- 暂停 -->
+    <section id="pause" class="overlay pause hidden" aria-label="暂停菜单">
+      <div class="pause-panel">
+        <div class="overline">SYSTEM PAUSED</div>
+        <h2>战斗暂停</h2>
+        <p>巨兽不会等你太久。</p>
+        <div class="pause-actions">
+          <button id="btn-resume" class="cta cta-primary" type="button"><span class="cta-label">继续战斗<small>RESUME</small></span><span class="cta-arrow">→</span></button>
+          <button id="btn-help-pause" class="cta cta-ghost" type="button"><span class="cta-label">体感操作<small>GESTURE GUIDE</small></span><span class="cta-arrow">?</span></button>
+          <button id="btn-restart-pause" class="cta cta-ghost" type="button"><span class="cta-label">重新部署<small>RESTART</small></span><span class="cta-arrow">↻</span></button>
+          <button id="btn-settings-pause" class="text-btn" type="button">画面 / 声音 / 难度设置</button>
+          <button id="btn-quit" class="text-btn" type="button">返回主菜单</button>
+        </div>
+        <div class="pause-note">ESC 继续 · 摄像头体感在暂停时保持追踪</div>
+      </div>
+    </section>
+
+    <dialog id="game-settings" class="game-settings" aria-labelledby="settings-title">
+      <div class="overline">PILOT PREFERENCES</div><h2 id="settings-title">驾驶设置</h2>
+      <label>战斗难度 <select data-setting="difficulty"><option value="recruit">新兵 · 较宽容</option><option value="veteran">老兵 · 标准挑战</option><option value="nightmare">灾厄 · 高压挑战</option></select></label>
+      <p>难度在重新部署后生效。所有难度保留完整起手预警。</p>
+      <label>画面 <select data-setting="quality"><option value="auto">自动适配</option><option value="high">高 · 抗锯齿 / 接触阴影</option><option value="balanced">均衡 · 抗锯齿 / 1.25 倍分辨率</option><option value="low">流畅 · 关闭阴影与泛光</option></select></label>
+      <label>舒适镜头 <input type="checkbox" data-setting="comfort" /></label>
+      <p>关闭震动、倾斜和奔跑视角变化。</p>
+      <label>主音量 <input type="range" min="0" max="1" step=".05" data-setting="volume" /></label>
+      <label>音乐音量 <input type="range" min="0" max="1" step=".05" data-setting="music" /></label>
+      <button id="btn-settings-close" class="cta cta-primary" type="button">保存并返回</button>
+    </dialog>
+
+    <!-- 体感说明 -->
+    <section id="help" class="overlay help hidden" aria-label="体感操作说明">
+      <div class="help-panel">
+        <div class="help-head">
+          <div><div class="overline">MOTION PROTOCOL</div><h2>用身体驾驶机甲</h2></div>
+          <button id="btn-close-help" class="close-btn" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="help-grid">
+          <article><div class="help-num">01</div><h3>站定 / 倾身走位</h3><p>不需要腿部入镜，也不需要来回走动。身体向左/右倾斜会让机甲横移；快速侧倾触发闪避。</p></article>
+          <article><div class="help-num">02</div><h3>左右直拳</h3><p>像打沙袋一样，交替向摄像头方向快速出拳。一次只出一只手；拳头收回再出下一拳，第三拳为重击，可以打断怪兽蓄力。</p></article>
+          <article><div class="help-num">03</div><h3>等离子炮</h3><p>双掌同时向摄像头方向推出并短暂停留。消耗 30 能量，发射可见等离子弹，命中后爆开。</p></article>
+          <article><div class="help-num">04</div><h3>导弹齐射</h3><p>双臂向两侧横向张开并稍作停留。机甲的肩部发射四枚追踪导弹，适合在拉开距离时持续施压。</p></article>
+          <article><div class="help-num">05</div><h3>光刃斩</h3><p>单臂高举过头并保持约半秒。机甲展开硬光刃近身挥斩，刀身接触目标后造成伤害和失衡，距离过远会打空。</p></article>
+          <article><div class="help-num">06</div><h3>装甲防御</h3><p>双臂交叉护在胸前并保持。护盾挡下大部分正面伤害；持续举盾会被击穿，震地、突进和熔岩喷发也会破防。按住 V 可短暂喷气悬飞，消耗推进燃料，松开降落；空中可躲地面震波与灼烧，但仍会被巨爪、吐息击中。</p></article>
+          <article class="help-finale"><div class="help-num">07</div><h3>天基裁决</h3><p>能量满格时，双手高举过头并保持约一秒。轨道炮会从云层落下，造成巨额伤害并让巨兽失衡。</p></article>
+        </div>
+        <div class="help-keyboard">
+          <b>键盘 / 鼠标完整操作</b>
+          <span><kbd>W A S D</kbd> 移动</span><span><kbd>Shift</kbd> 奔跑</span><span><kbd>V</kbd> 按住短飞 / 松开降落</span><span><kbd>J</kbd><kbd>K</kbd> 左右拳</span><span><kbd>L</kbd> 等离子炮</span><span><kbd>R</kbd> 导弹齐射</span><span><kbd>F</kbd> 光刃斩</span><span><kbd>空格</kbd> 防御</span><span><kbd>Q</kbd><kbd>E</kbd> 左右闪避</span><span><kbd>U</kbd> 必杀</span><span><kbd>Esc</kbd> 暂停</span><span><kbd>鼠标拖拽</kbd> 旋转视角（左/右键均可）</span><span><kbd>滚轮</kbd> 拉近 / 拉远</span><span><kbd>X / 双击</kbd> 视角复位</span>
+        </div>
+        <div class="help-foot">战斗规则：起手可闪避取消，拳脚发力阶段不能取消；空挥会留下收招破绽，受击会打断尚未释放的技能。<br />半身体感模式：肩膀、肘部和手腕可见即可，腿部不入镜也能战斗。请保持光线充足并站定。</div>
+      </div>
+    </section>
+
+    <!-- 结算 -->
+    <section id="result" class="screen result hidden" aria-label="战斗结算">
+      <div class="result-bg"></div>
+      <div class="result-content">
+        <div id="result-overline" class="overline">BATTLE REPORT</div>
+        <h2 id="result-title">城市守住了。</h2>
+        <p id="result-sub">巨兽「蚀」已停止活动。</p>
+        <div class="result-letter" id="result-letter">A</div>
+        <div class="result-stats">
+          <div><span>战斗用时</span><b id="stat-time">00:00</b></div>
+          <div><span>最大连击</span><b id="stat-combo">0</b></div>
+          <div><span>造成伤害</span><b id="stat-damage">0</b></div>
+          <div><span>损毁建筑</span><b id="stat-buildings">0</b></div>
+          <div><span>城市完整度</span><b id="stat-city">100%</b></div>
+          <div><span>受击次数</span><b id="stat-hits">0</b></div>
+        </div>
+        <div class="result-actions">
+          <button id="btn-restart" class="cta cta-primary" type="button"><span class="cta-label">再次出击<small>REDEPLOY</small></span><span class="cta-arrow">↻</span></button>
+          <button id="btn-menu" class="cta cta-ghost" type="button"><span class="cta-label">返回主菜单<small>MAIN MENU</small></span><span class="cta-arrow">→</span></button>
+        </div>
+        <div class="result-foot">新港市防卫局 · 所有战斗数据仅保存在本机</div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast"></div>
+    <div id="system-error" class="system-error hidden"></div>
+  </div>
+  <script src="./__back-home.js" defer></script>
+</body>
+</html>

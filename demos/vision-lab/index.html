@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#04080b" />
+    <title>视觉感知 VISION LAB · 实时物体识别</title>
+    <meta
+      name="description"
+      content="浏览器里的实时物体识别：摄像头 / 视频 / 图片三路输入，MediaPipe EfficientDet-Lite0 在本地逐帧检测 COCO 80 类物体，画面不上传、无需后端。"
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="bg-grid" aria-hidden="true"></div>
+      <div class="bg-glow" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <path d="M20 6C10 6 3.5 14 3.5 20S10 34 20 34s16.5-8 16.5-14S30 6 20 6Z" stroke="currentColor" stroke-width="1.3" opacity=".7" />
+              <circle cx="20" cy="20" r="6.5" stroke="currentColor" stroke-width="1.3" />
+              <circle cx="20" cy="20" r="2.2" fill="currentColor" />
+              <path d="M20 10.5v-4M20 33.5v-4M11.5 20h-4M32.5 20h-4" stroke="currentColor" stroke-width="1.2" opacity=".6" />
+            </svg>
+          </span>
+          <div class="brand-copy">
+            <p class="brand-kicker">REALTIME OBJECT DETECTION <span>/</span> LOCAL AI</p>
+            <h1>视觉感知 <em>VISION LAB</em></h1>
+          </div>
+        </div>
+
+        <div class="topbar-center" aria-hidden="true">
+          <span class="data-pill"><i></i> LOCAL AI · 浏览器内推理</span>
+          <span class="data-stat">模型 <b>EfficientDet-Lite0</b></span>
+          <span class="data-stat">类别 <b>COCO 80</b></span>
+          <span class="data-stat">输入 <b id="source-label">未连接</b></span>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="engine-badge" id="engine-badge" data-state="idle"><i></i><span id="engine-text">引擎待命</span></span>
+          <button class="text-button" id="help-open" type="button">说明</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <!-- ================= 左侧控制面板 ================= -->
+        <aside class="panel panel-left">
+          <section class="panel-block">
+            <h2 class="panel-title"><span>01</span>输入源 <em>INPUT</em></h2>
+            <div class="source-grid">
+              <button class="source-btn" data-source="camera" type="button">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8.5h3l1.4-2h6.2l1.4 2H19a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 19 18.5H5A1.5 1.5 0 0 1 3.5 17v-7A1.5 1.5 0 0 1 5 8.5Z" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="13.5" r="3.2" stroke="currentColor" stroke-width="1.3"/></svg>
+                <b>摄像头</b><small>LIVE CAMERA</small>
+              </button>
+              <button class="source-btn" data-source="video" type="button">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="m15.5 10 4.5-2.4v8.8L15.5 14" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                <b>视频文件</b><small>VIDEO FILE</small>
+              </button>
+              <button class="source-btn" data-source="image" type="button">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9.6" r="1.6" stroke="currentColor" stroke-width="1.2"/><path d="m4.5 17 4.6-4.8 3.2 3 2.6-2.6 4.6 4.4" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                <b>图片</b><small>IMAGE</small>
+              </button>
+            </div>
+
+            <div class="samples">
+              <span>快速体验</span>
+              <button data-sample="./samples/traffic.jpg" type="button">街景车流</button>
+              <button data-sample="./samples/meeting.jpg" type="button">会议场景</button>
+              <button data-video-sample="./samples/street-pan.webm" type="button">示例视频</button>
+            </div>
+
+            <div class="source-actions">
+              <button class="ghost-btn" id="btn-pause" type="button" hidden>暂停</button>
+              <button class="ghost-btn" id="btn-stop" type="button" hidden>关闭输入</button>
+              <button class="ghost-btn" id="btn-snapshot" type="button" disabled>保存标注图</button>
+            </div>
+            <p class="hint">摄像头需要 HTTPS 或 localhost；视频 / 图片不上传，画面只在本机处理。</p>
+          </section>
+
+          <section class="panel-block">
+            <h2 class="panel-title"><span>02</span>检测参数 <em>DETECTION</em></h2>
+            <div class="model-select">
+              <div class="control-label"><span>检测模型</span><b id="model-note">EfficientDet-Lite2</b></div>
+              <div class="model-tabs" id="model-tabs">
+                <button data-model="accurate" class="is-active" type="button">
+                  高精度<small>Lite2 · 448 输入</small>
+                </button>
+                <button data-model="fast" type="button">
+                  快速<small>Lite0 · 320 输入</small>
+                </button>
+              </div>
+            </div>
+            <label class="control">
+              <span>置信度阈值 <b id="threshold-value">0.45</b></span>
+              <input id="threshold" type="range" min="0.15" max="0.9" step="0.05" value="0.45" />
+            </label>
+            <label class="control">
+              <span>最多目标 <b id="max-value">15</b></span>
+              <input id="max-objects" type="range" min="5" max="25" step="5" value="15" />
+            </label>
+            <label class="switch"><input id="mirror" type="checkbox" checked /><span>镜像摄像头预览</span></label>
+            <label class="switch"><input id="show-labels" type="checkbox" checked /><span>显示类别标签</span></label>
+          </section>
+
+          <div class="privacy-note">
+            <i aria-hidden="true"></i>
+            所有推理在浏览器内完成 · 不上传画面 · 不保存数据
+          </div>
+        </aside>
+
+        <!-- ================= 中间舞台 ================= -->
+        <section class="stage" aria-label="视频画面与检测结果">
+          <div class="viewport" id="viewport">
+            <video id="video" playsinline muted loop hidden></video>
+            <img id="image" alt="输入图片" hidden />
+            <canvas id="overlay"></canvas>
+            <div class="scanlines" aria-hidden="true"></div>
+            <div class="frame-corner tl" aria-hidden="true"></div>
+            <div class="frame-corner tr" aria-hidden="true"></div>
+            <div class="frame-corner bl" aria-hidden="true"></div>
+            <div class="frame-corner br" aria-hidden="true"></div>
+
+            <div class="empty-state" id="empty">
+              <div class="reticle" aria-hidden="true"><i></i><i></i><i></i><span></span></div>
+              <h2>看到什么，就标出什么。</h2>
+              <p>打开摄像头，或上传视频 / 图片。检测由浏览器里的 AI 模型逐帧完成，不需要后端；<br />没有素材也可以点左侧「示例视频」直接看多目标跟踪效果。</p>
+              <div class="empty-actions">
+                <button class="cta" data-source="camera" type="button">开启摄像头</button>
+                <button class="cta ghost" data-source="video" type="button">上传视频</button>
+                <button class="cta ghost" data-source="image" type="button">上传图片</button>
+              </div>
+            </div>
+
+            <div class="loading-overlay" id="loading" hidden>
+              <div class="loader-ring" aria-hidden="true"></div>
+              <b id="loading-title">正在加载视觉模型…</b>
+              <span id="loading-sub">首次加载约 40 MB（模型 + WASM），之后走浏览器缓存</span>
+            </div>
+
+            <div class="ai-caption" id="ai-caption" hidden>
+              <span class="ai-caption-label">AI 观察</span>
+              <span id="ai-caption-text"></span>
+            </div>
+
+            <div class="stage-hud">
+              <div class="hud-left">
+                <span class="live-dot" id="live-dot"></span><b id="hud-status">待机</b>
+                <span class="hud-sep" aria-hidden="true"></span><span id="hud-source">未连接输入</span>
+              </div>
+              <div class="hud-right">
+                <span><em>FPS</em><b id="hud-fps">—</b></span>
+                <span><em>LATENCY</em><b id="hud-latency">—</b></span>
+                <span><em>TRACKS</em><b id="hud-count">0</b></span>
+                <span><em>TOTAL</em><b id="hud-total">0</b></span>
+                <span><em>RES</em><b id="hud-res">—</b></span>
+              </div>
+            </div>
+
+            <div class="video-controls" id="video-controls" hidden>
+              <button id="btn-video-play" type="button" aria-label="播放 / 暂停">Ⅱ</button>
+              <input id="video-seek" type="range" min="0" max="1000" value="0" aria-label="视频进度" />
+              <span id="video-time">0:00 / 0:00</span>
+            </div>
+          </div>
+          <p class="stage-caption">
+            <span><i></i> 输入视频流 → 逐帧 AI 检测 → 画布叠加标注</span>
+            <span id="model-caption">MODEL / EfficientDet-Lite2 · 448×448 · COCO 80</span>
+          </p>
+        </section>
+
+        <!-- ================= 右侧结果面板 ================= -->
+        <aside class="panel panel-right">
+          <section class="panel-block detections-block">
+            <h2 class="panel-title"><span>03</span>检测结果 <em>TRACKS</em><b id="detections-count">0</b></h2>
+            <div class="track-summary" id="track-summary">当前 0 个目标 · 累计 0</div>
+            <ul id="detection-list" class="detection-list">
+              <li class="empty-row">等待画面…</li>
+            </ul>
+          </section>
+
+          <section class="panel-block events-block">
+            <h2 class="panel-title">
+              <span>04</span>事件流 <em>EVENTS</em>
+              <button class="mini-btn" id="events-clear" type="button">清空</button>
+            </h2>
+            <ul class="event-list" id="event-list">
+              <li class="empty-row">暂无事件</li>
+            </ul>
+          </section>
+
+          <section class="panel-block ai-block">
+            <h2 class="panel-title"><span>05</span>AI 场景解读 <em>AI INSIGHT</em></h2>
+            <p class="ai-note" id="ai-note">正在检查本地模型服务…</p>
+            <div class="ai-actions">
+              <button class="ai-btn" id="ai-ask" type="button" disabled>标签解读（不上传画面）</button>
+              <button class="ai-btn ai-btn-strong" id="ai-vision" type="button" disabled>
+                AI 精读画面（上传当前帧）
+              </button>
+            </div>
+            <label class="switch ai-auto">
+              <input id="ai-auto" type="checkbox" />
+              <span>自动观察 · 每 8 秒一句话</span>
+            </label>
+            <p class="ai-privacy">
+              检测完全本地；只有点击「AI 精读」或开启「自动观察」时才会把当前帧上传到你配置的模型网关。
+            </p>
+            <div class="ai-answer" id="ai-answer" hidden></div>
+            <ul class="ai-log" id="ai-log"></ul>
+          </section>
+        </aside>
+      </main>
+
+      <input type="file" id="file-image" accept="image/*" hidden />
+      <input type="file" id="file-video" accept="video/*" hidden />
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <dialog id="help-dialog" class="help-dialog">
+        <button class="dialog-close" id="help-close" type="button" aria-label="关闭">×</button>
+        <p class="dialog-kicker">OPERATING NOTES</p>
+        <h2>怎么玩这个 Demo</h2>
+        <ol>
+          <li><b>选输入：</b>摄像头实时流、上传视频文件，或上传图片（也可以用两张示例图快速体验）。</li>
+          <li><b>看标注：</b>检测框颜色对应类别；右侧列表按置信度排序，点击条目可以高亮对应目标。</li>
+          <li><b>调参数：</b>置信度阈值越高越严格；帧率受设备性能影响，CPU 推理通常 8–15 FPS。</li>
+          <li><b>AI 解读（可选）：</b>本地运行 <code>npm run serve</code> 并配置模型 Key 后可用。「标签解读」只把识别标签发给模型；「AI 精读」会把当前帧压缩后上传，换来更准的物体清单与场景描述。静态部署时这两个按钮会显示未连接。</li>
+          <li><b>检测模型：</b>「高精度」用 EfficientDet-Lite2（448 输入，小目标更准）；「快速」用 Lite0（320 输入，更省算力）。COCO 80 类之外、遮挡严重或过小的物体仍可能漏检。</li>
+          <li><b>跟踪与事件：</b>同一目标跨帧会保持稳定 <code>#ID</code>（IoU 匹配 + 框平滑），右侧记录进入/离开画面与停留时长；这不是生产级 MOT，目标交叉或快速运动时 ID 可能切换。</li>
+        </ol>
+        <p class="dialog-note">
+          模型：MediaPipe EfficientDet-Lite0 / Lite2（COCO 80 类），WASM + Worker 本地推理；摄像头画面不会离开你的电脑（AI 精读除外，需你主动点击并上传到本地模型网关）。
+          示例图片来自 Pexels（Pexels License，免费使用）。
+        </p>
+      </dialog>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+    <script src="./__back-home.js" defer></script>
+</body>
+</html>

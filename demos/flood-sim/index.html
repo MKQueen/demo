@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050b12" />
+    <meta
+      name="description"
+      content="3D 动态水淹模拟分析系统：CesiumJS 地形 + 3D Tiles 村庄 + ShaderToy Ms2SD1 移植的实时水体着色器，滑块控制水位、平滑上涨、淹没统计。"
+    />
+    <title>潮线 TIDELINE · 3D 动态水淹模拟分析</title>
+    <script>
+      // 必须在 CesiumJS 模块加载前设置：静态资源（Workers/Assets/Widgets）位置。
+      // 用相对路径解析，保证部署在 /demos/flood-sim/ 这类子目录也正确。
+      window.CESIUM_BASE_URL = new URL('cesium/', document.baseURI).href;
+    </script>
+    <script type="module" crossorigin src="./assets/index-Dzu0sWGf.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DQwPFC5y.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./__back-home.js" defer></script>
+</body>
+</html>

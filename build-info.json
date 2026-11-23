@@ -1,0 +1,60 @@
+{
+  "builtAt": "2026-11-23T03:15:07.680Z",
+  "demos": [
+    {
+      "id": "ink-qingming",
+      "name": "水墨清明上河图",
+      "version": null
+    },
+    {
+      "id": "konbini-rain",
+      "name": "雨夜小镇",
+      "version": null
+    },
+    {
+      "id": "ink-beijing",
+      "name": "水墨北京",
+      "version": null
+    },
+    {
+      "id": "cbd-digital-twin",
+      "name": "北京数字孪生",
+      "version": null
+    },
+    {
+      "id": "flood-sim",
+      "name": "潮线 TIDELINE",
+      "version": null
+    },
+    {
+      "id": "mecha-battle",
+      "name": "钢铁黎明",
+      "version": null
+    },
+    {
+      "id": "building-atlas",
+      "name": "富华大厦",
+      "version": null
+    },
+    {
+      "id": "vision-lab",
+      "name": "视觉感知",
+      "version": null
+    },
+    {
+      "id": "hand-snake",
+      "name": "手势贪吃蛇",
+      "version": null
+    },
+    {
+      "id": "rag-lab",
+      "name": "RAG 观测台",
+      "version": null
+    },
+    {
+      "id": "agent-lab",
+      "name": "mini-opencode",
+      "version": null
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="水墨清明上河图 · 汴京长卷：用 Three.js 程序化生成的水墨长卷，郊野、汴河、虹桥、城门、街市，一卷看尽北宋市井。" />
+    <title>水墨清明上河图 · 汴京长卷</title>
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon-ZIkrII5m.svg" />
+    <script type="module" crossorigin src="./assets/index-aaCms15q.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BgO5gTpW.css">
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <div id="labels" aria-label="长卷五段"></div>
+
+      <header id="hud">
+        <div class="brand">
+          <span class="brand-seal">清</span>
+          <span class="brand-text">
+            <b>清明上河图</b>
+            <em>INK · QINGMING</em>
+          </span>
+        </div>
+        <div class="inscription" aria-hidden="true">
+          <div class="inscription-text">河声入市 柳色生烟</div>
+          <div class="inscription-seal">上河</div>
+        </div>
+      </header>
+
+      <aside id="card" class="card is-hidden" role="dialog" aria-modal="false" aria-hidden="true" aria-label="段落介绍">
+        <button class="card-close" id="card-close" aria-label="关闭">×</button>
+        <div class="card-seal" id="card-seal">野</div>
+        <div class="card-title" id="card-title">郊野</div>
+        <div class="card-en" id="card-en">THE COUNTRYSIDE</div>
+        <p class="card-text" id="card-text"></p>
+        <button class="card-go" id="card-go">展卷至此</button>
+      </aside>
+
+      <div class="hint" id="hint">拖动展卷 · 滚轮推进 · 点击朱印</div>
+
+      <div id="ruler" class="ruler" aria-label="长卷进度">
+        <button class="ruler-play seal-btn seal-btn--ghost" id="btn-play" title="自动展卷 / 停下">
+          <span id="btn-play-text">停卷</span>
+        </button>
+        <div class="ruler-track" id="ruler-track">
+          <div class="ruler-line"></div>
+          <div class="ruler-progress" id="ruler-progress"></div>
+          <div class="ruler-marks" id="ruler-marks"></div>
+          <div class="ruler-cursor" id="ruler-cursor">清</div>
+        </div>
+      </div>
+
+      <div id="dock">
+        <button class="seal-btn" id="btn-center" title="回到长卷中段">
+          <span>卷中</span>
+        </button>
+      </div>
+
+      <div id="tools">
+        <button class="seal-btn seal-btn--ghost" id="btn-mode" title="长卷 / 全城视角">
+          <span id="btn-mode-text">全城</span>
+        </button>
+        <button class="seal-btn seal-btn--ghost" id="btn-labels" aria-pressed="true" title="隐藏段落朱印">藏签</button>
+        <label class="ink-range" title="调节墨色浓淡">
+          <span>墨色</span>
+          <input id="ink-range" type="range" min="0.35" max="1.35" step="0.01" value="1" />
+        </label>
+      </div>
+
+      <section id="intro" class="intro">
+        <div class="intro-inner">
+          <div class="intro-poem">河声入市，柳色生烟</div>
+          <h1 class="intro-title">
+            <span>清</span><span>明</span><span>上</span><span>河</span><span>图</span>
+          </h1>
+          <div class="intro-line"><i></i></div>
+          <div class="intro-sub">上河长卷 · 烟火人家</div>
+          <button class="start" id="btn-start">
+            <span>起</span><span>卷</span>
+          </button>
+          <div class="intro-tip">拖动展卷 · 滚轮推进 · 点击朱印</div>
+        </div>
+
+        <!-- 开场：一卷淡墨的河桥小景（纯 SVG） -->
+        <div class="intro-landscape" aria-hidden="true">
+          <svg viewBox="0 0 1600 520" preserveAspectRatio="xMidYMax slice">
+            <defs>
+              <linearGradient id="qmMist" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e9ddc5" stop-opacity="0" />
+                <stop offset="55%" stop-color="#e9ddc5" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#e9ddc5" stop-opacity="0.35" />
+              </linearGradient>
+              <linearGradient id="qmRiver" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a9b3aa" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#8d9a92" stop-opacity="0.75" />
+              </linearGradient>
+            </defs>
+            <!-- 远岸的淡墨树影 -->
+            <path d="M0 322 Q120 300 240 318 T520 310 T820 320 T1120 306 T1400 318 T1600 310 L1600 360 L0 360 Z" fill="#6f7568" opacity="0.16" />
+            <path d="M0 338 Q160 322 320 334 T660 330 T980 338 T1320 326 T1600 334 L1600 372 L0 372 Z" fill="#6f7568" opacity="0.12" />
+            <!-- 河水 -->
+            <path d="M0 372 Q300 360 620 372 T1280 370 T1600 366 L1600 452 L0 452 Z" fill="url(#qmRiver)" opacity="0.55" />
+            <!-- 水纹 -->
+            <g stroke="#4f5a55" stroke-width="1.4" opacity="0.22" fill="none">
+              <path d="M140 400 q40 -4 80 0 t80 0" />
+              <path d="M420 418 q40 -4 80 0 t80 0" />
+              <path d="M980 404 q40 -4 80 0 t80 0" />
+              <path d="M1160 428 q40 -4 80 0 t80 0" />
+              <path d="M700 438 q50 -5 100 0 t100 0" />
+            </g>
+            <!-- 虹桥：木拱 -->
+            <g opacity="0.92">
+              <path d="M560 452 Q700 340 850 452" fill="none" stroke="#4a4238" stroke-width="10" />
+              <path d="M566 460 Q700 356 844 460" fill="none" stroke="#4a4238" stroke-width="5" opacity="0.8" />
+              <g stroke="#4a4238" stroke-width="3" opacity="0.8">
+                <path d="M600 434 L640 404" /><path d="M650 418 L690 390" />
+                <path d="M706 410 L744 390" /><path d="M762 414 L800 398" />
+                <path d="M690 390 L690 350" /><path d="M744 390 L744 350" />
+              </g>
+              <path d="M574 446 L850 446" stroke="#5b5245" stroke-width="2" opacity="0.7" />
+            </g>
+            <!-- 过桥的船 -->
+            <g opacity="0.9">
+              <path d="M980 424 q60 12 130 8 l16 -22 q-80 6 -140 -2 Z" fill="#4e4a40" opacity="0.85" />
+              <path d="M1090 412 q6 -34 2 -46" stroke="#4a4238" stroke-width="4" />
+              <path d="M1002 424 q40 8 96 6" stroke="#6b6252" stroke-width="2" opacity="0.7" />
+              <path d="M1050 440 q30 6 70 4" stroke="#4f5a55" stroke-width="1.4" opacity="0.35" fill="none" />
+            </g>
+            <!-- 岸边的柳 -->
+            <g stroke="#5f6b54" stroke-width="2.2" opacity="0.6" fill="none">
+              <path d="M300 452 q4 -46 -2 -74" /><path d="M296 392 q-40 12 -56 52" /><path d="M298 400 q34 12 46 48" />
+              <path d="M1310 452 q2 -40 -4 -66" /><path d="M1304 398 q-36 12 -50 46" /><path d="M1306 404 q30 10 42 42" />
+            </g>
+            <g stroke="#5f6b54" stroke-width="1.1" opacity="0.42" fill="none">
+              <path d="M282 400 q-20 40 -24 90" /><path d="M302 398 q16 46 20 94" />
+              <path d="M1300 406 q-18 36 -22 84" /><path d="M1320 404 q14 42 18 86" />
+            </g>
+            <!-- 雾 -->
+            <rect x="0" y="300" width="1600" height="120" fill="url(#qmMist)" />
+          </svg>
+        </div>
+
+        <div class="intro-foot">
+          <span>上河长卷</span>
+          <span>郊野 · 河市 · 桥市 · 城门 · 街市 · 州桥 · 御街 · 大内</span>
+        </div>
+      </section>
+
+      <div id="loading" class="loading">
+        <div class="loading-brush"></div>
+        <span>铺绢研墨…</span>
+      </div>
+    </div>
+
+    <script src="./__back-home.js" defer></script>
+</body>
+</html>

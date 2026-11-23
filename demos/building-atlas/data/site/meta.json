@@ -1,0 +1,176 @@
+{
+  "name": "东四十条 · 街区语境数据",
+  "generatedAt": "2026-11-04T13:51:13+08:00",
+  "generator": "building-atlas/site-context 1.0",
+  "source": "OpenStreetMap · BBBike Beijing extract",
+  "sourceInfo": {
+    "file": "/tmp/Beijing.osm.gz",
+    "fileBytes": 49514048,
+    "extractUrl": "https://download.bbbike.org/osm/bbbike/Beijing/",
+    "nodes": 2086268,
+    "ways": 322013,
+    "relationBuildingTags": 600,
+    "note": "BBBike Beijing extract（OSM XML 0.6，先 node 后 way；relation 未参与白模构建）"
+  },
+  "attribution": "© OpenStreetMap contributors (ODbL 1.0)",
+  "license": "ODbL 1.0",
+  "licenseUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "copyrightUrl": "https://www.openstreetmap.org/copyright",
+  "origin": {
+    "lon": 116.429613,
+    "lat": 39.929566,
+    "label": "富华大厦"
+  },
+  "bbox": [
+    116.4120412,
+    39.9159963,
+    116.4471848,
+    39.9431357
+  ],
+  "radiusM": 1500.0,
+  "localExtent": {
+    "minX": -1650.0,
+    "maxX": 1650.0,
+    "minZ": -1650.0,
+    "maxZ": 1650.0
+  },
+  "coordConvention": {
+    "local": "+X = 东，+Y = 上，+Z = 南（单位米）；北 = -Z",
+    "lonlatToLocal": "x = (lon - origin.lon) * 111320 * cos(origin.lat * PI / 180); z = -(lat - origin.lat) * 110540",
+    "gltf": "顶点 (x=east, y=up, z=-north)；Three.js 加载后即为 +X 东 / +Z 南，无需旋转"
+  },
+  "layers": {
+    "whiteModels": {
+      "path": "data/site/white-models.glb",
+      "count": 1766,
+      "triangles": 27542
+    },
+    "roads": {
+      "path": "data/site/roads.geojson",
+      "count": 534
+    },
+    "landuse": {
+      "path": "data/site/landuse.geojson",
+      "count": 193
+    },
+    "poi": {
+      "path": "data/site/poi.json",
+      "count": 40
+    },
+    "siteFootprint": {
+      "path": "data/site/site-footprint.geojson",
+      "count": 8
+    }
+  },
+  "stats": {
+    "buildings": 1766,
+    "roads": 534,
+    "landuse": 193,
+    "poi": 40,
+    "carvedBuildings": 4,
+    "prunedBuildings": 0,
+    "triangles": 27542,
+    "vertices": 31074,
+    "glbBytes": 1201928,
+    "roadsPoints": 1742,
+    "heightSources": {
+      "default": 1202,
+      "override": 25,
+      "height": 9,
+      "levels": 530
+    },
+    "curatedPoi": 40
+  },
+  "heightModel": {
+    "levelHeight": 3.2,
+    "groundExtra": 1.2,
+    "priority": [
+      "height tag",
+      "building:levels",
+      "name override",
+      "type default"
+    ],
+    "validRangeM": [
+      3.0,
+      180.0
+    ],
+    "overrideCount": 37,
+    "note": "高度为 OSM / 名称估算示意值，非测绘、非实测；有效范围 3–180 m，超出夹取"
+  },
+  "carved": {
+    "count": 4,
+    "rule": {
+      "box": [
+        -72.0,
+        -78.0,
+        72.0,
+        78.0
+      ],
+      "boxSpace": "局部米 x∈[-72,72] ∧ z∈[-78,78]（footprint 与该框相交即剔除）",
+      "radiusM": 95.0,
+      "radiusRule": "质心距原点 < 95 m"
+    },
+    "buildings": [
+      {
+        "id": "way/1509812626",
+        "name": "",
+        "distanceM": 48.9,
+        "reason": "质心距原点 48.9 m < 95 m"
+      },
+      {
+        "id": "way/1509812627",
+        "name": "",
+        "distanceM": 50.2,
+        "reason": "质心距原点 50.2 m < 95 m"
+      },
+      {
+        "id": "way/1509812628",
+        "name": "",
+        "distanceM": 40.6,
+        "reason": "质心距原点 40.6 m < 95 m"
+      },
+      {
+        "id": "way/1509812629",
+        "name": "",
+        "distanceM": 41.9,
+        "reason": "质心距原点 41.9 m < 95 m"
+      }
+    ]
+  },
+  "landuseKinds": {
+    "park": 68,
+    "sports": 29,
+    "water": 5,
+    "block": 80,
+    "forest": 11
+  },
+  "poiKinds": {
+    "landmark": 7,
+    "office": 17,
+    "government": 2,
+    "hotel": 3,
+    "culture": 2,
+    "metro": 4,
+    "park": 3,
+    "stadium": 2
+  },
+  "roadNames": [
+    "东四十条",
+    "东中街",
+    "朝阳门北大街",
+    "东二环",
+    "工人体育场北路",
+    "东直门南大街",
+    "东直门内大街",
+    "朝阳门内大街",
+    "朝阳门外大街"
+  ],
+  "limitations": [
+    "OSM footprint 由社区绘制，存在简化 / 偏移 / 缺失；高度多为估算（仅少数建筑带 height tag）",
+    "高度模型为展示用估算：height → levels×3.2+1.2 → 名称 override → 类型默认，与真实竣工高度可能差别较大",
+    "未引入 DEM，地面按 0 m 处理；无地形起伏",
+    "道路 RDP 抽稀容差 0.8 m，几何误差 ≤ 0.8 m",
+    "白模不含富华大厦自身楼栋（已按挖空规则剔除），避免与英雄 GLB 重叠",
+    "非测绘 / 非 BIM 成果，坐标与几何仅供展示"
+  ]
+}

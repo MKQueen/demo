@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>DEMO LAB · 交互实验室 — 可交互作品集</title>
+  <meta name="description" content="十一个可交互 Demo：竹海轻功、水墨北京、雨夜小镇四季微缩模型、浏览器里的机甲 Boss 战、可逐层拆解的建筑数字档案、逐区探索北京 16 个行政区的数字孪生、可动态水淹分析的 Cesium 河谷村庄、实时识别摄像头/视频物体的 VISION LAB、用摄像头手势玩的《手势贪吃蛇》、全链路可视化的 RAG 观测台，以及真调用模型、真读写文件的 mini-opencode Agent。十一个 Demo 的构建产物都是纯静态资源；其中九个纯静态即可完整运行，RAG 真实模型回答与 mini-opencode Agent 由本地 npm run serve 提供极薄转发/后端。" />
+  <meta name="theme-color" content="#05070a" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="DEMO LAB · 交互实验室" />
+  <meta property="og:description" content="水墨北京 / 竹海轻功 / 3D 机甲战斗 / 建筑楼层档案 / CBD 数字孪生 / 河谷动态水淹 / 实时物体识别 / RAG 观测台 / 本地真跑的 Agent —— 纯静态构建，十个 Demo 离线完整可玩。" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+  <noscript>
+    <style>
+      .noscript-tip { display: block; margin: 120px auto; max-width: 560px; padding: 24px; border: 1px solid rgba(255,255,255,.14); border-radius: 16px; color: #e9eef6; font: 15px/1.7 -apple-system, "PingFang SC", sans-serif; text-align: center; }
+    </style>
+  </noscript>
+</head>
+<body>
+  <div class="scroll-progress" aria-hidden="true"><i id="scroll-bar"></i></div>
+
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop-grid"></div>
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="orb orb-c"></div>
+    <div class="noise"></div>
+  </div>
+
+  <header class="nav" id="nav">
+    <a class="brand" href="./" aria-label="DEMO LAB 首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2.5 25 8.6v10.8L14 25.5 3 19.4V8.6L14 2.5Z" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+          <path d="M14 8.2 20 11.6v6.2l-6 3.4-6-3.4v-6.2l6-3.4Z" fill="currentColor" opacity=".9"/>
+          <path d="M14 14.4 6 10" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+          <path d="M14 14.4 22 10" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        </svg>
+      </span>
+      <span class="brand-text">DEMO <b>LAB</b></span>
+      <span class="brand-sub">交互实验室</span>
+    </a>
+
+    <nav class="nav-links" aria-label="页面导航">
+      <a href="#work">作品<span>Work</span></a>
+      <a href="#stack">技术栈<span>Stack</span></a>
+      <a href="#about">关于<span>About</span></a>
+    </nav>
+
+    <div class="nav-right">
+      <span class="nav-badge"><i aria-hidden="true"></i>纯静态构建 + 本地真模型</span>
+      <a class="btn btn-small" href="#work">开始浏览 <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow reveal">
+            <span class="eyebrow-line" aria-hidden="true"></span>
+            DEMO LAB · 2026 · INTERACTIVE LAB
+          </p>
+          <h1 id="hero-title" class="hero-title">
+            <span class="hero-line reveal">把想法，</span>
+            <span class="hero-line reveal">做成<span class="grad-text">可交互</span>的</span>
+            <span class="hero-line reveal">数字现场。</span>
+          </h1>
+          <p class="hero-sub reveal">
+            十二个可以直接上手玩的 Demo —— 一纸宣纸上程序化生成的水墨北京、竹梢飞跃的武侠竹海、雨夜小镇的三渲二微缩模型、浏览器里的机甲 Boss 战、
+            可逐层拆解的建筑档案、飞越北京市 16,432 km² 的 Cesium 数字孪生、拨动水位看潮线吞没山谷与滨海市镇的动态水淹模拟、
+            实时识别摄像头 / 视频物体的 VISION LAB、用摄像头手势控制蛇吃东西的《手势贪吃蛇》、全链路可视化的 RAG 观测台，
+            以及真调用模型、真读写文件的 Agent 面板。
+            <strong>十二个 Demo 的构建产物都是纯静态资源；其中十个离线完整可玩，RAG 观测台的真实模型生成与 mini-opencode 的 Agent 执行需要本机服务。</strong>
+          </p>
+          <div class="hero-actions reveal">
+            <a class="btn btn-primary" href="#work">浏览作品 <span aria-hidden="true">↓</span></a>
+            <a class="btn btn-ghost" href="#about">看看怎么构建的 <span aria-hidden="true">↗</span></a>
+          </div>
+          <ul class="hero-stats reveal" id="hero-stats" aria-label="站点数据"></ul>
+        </div>
+
+        <aside class="hero-deck reveal" aria-label="作品索引">
+          <div class="deck-head">
+            <span class="deck-title">INDEX <b>/ 11</b></span>
+            <span class="deck-live"><i aria-hidden="true"></i> READY</span>
+          </div>
+          <ol class="deck-list" id="deck-list"></ol>
+          <div class="deck-foot">
+            <span>2 LOCAL MODELS</span>
+            <span>STATIC BUNDLE</span>
+          </div>
+          <span class="deck-scan" aria-hidden="true"></span>
+        </aside>
+      </div>
+
+      <div class="hero-scroll" aria-hidden="true">
+        <span>SCROLL</span>
+        <i></i>
+      </div>
+    </section>
+
+    <!-- ================= TICKER ================= -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="ticker-track"></div>
+    </div>
+
+    <!-- ================= WORK ================= -->
+    <section class="section work" id="work" aria-labelledby="work-title">
+      <div class="section-head">
+        <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>SELECTED WORK / 作品</p>
+        <h2 id="work-title">十一个现场，<br /><span class="dim">十一种交互。</span></h2>
+        <p class="section-note">
+          每个 Demo 都是独立可运行的工程，构建产物统一拼装成纯静态站点。RAG 观测台的检索与可视化静态可看，
+          真实模型回答需要项目根目录的 npm run serve 提供一层极薄转发；mini-opencode 也要它把真实 Agent 后端一起拉起来。
+        </p>
+      </div>
+
+      <div class="demo-list" id="demo-list">
+        <noscript><p class="noscript-tip">需要启用 JavaScript 才能加载作品列表。</p></noscript>
+      </div>
+    </section>
+
+    <!-- ================= STACK ================= -->
+    <section class="section stack" id="stack" aria-labelledby="stack-title">
+      <div class="section-head compact">
+        <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>TOOLBOX / 技术栈</p>
+        <h2 id="stack-title">从渲染到推理，<br /><span class="dim">大多在浏览器里发生。</span></h2>
+      </div>
+      <div class="stack-grid" id="stack-grid"></div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section class="section about" id="about" aria-labelledby="about-title">
+      <div class="about-copy">
+        <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>HOW IT'S BUILT / 关于</p>
+        <h2 id="about-title">一个仓库，<br />十一个可独立开发的 Demo。</h2>
+        <p class="about-lead">
+          这不是十二个静态截图拼成的页面。每个作品都是一个可单独开发、单独构建的前端工程，
+          由构建脚本统一拼装成一个纯静态站点 —— 可以直接上传到任意静态托管；
+          需要真实模型的两个 Demo，由本地 npm run serve 提供模型转发与 Agent 后端。
+        </p>
+        <ol class="about-steps">
+          <li>
+            <span class="step-num">01</span>
+            <div><h3>独立开发</h3><p>每个 Demo 有自己的源码、依赖与构建配置，互不干扰。</p></div>
+          </li>
+          <li>
+            <span class="step-num">02</span>
+            <div><h3>统一拼装</h3><p>一条命令构建全部作品，注入返回入口，输出可直接部署的 site/ 目录。</p></div>
+          </li>
+          <li>
+            <span class="step-num">03</span>
+            <div><h3>本地真实运行</h3><p>十二个 Demo 的构建产物都是相对路径静态资源，任意子目录托管；VISION LAB 的物体识别完全在浏览器内完成，RAG 观测台的真实模型回答经同源 /api/llm 极薄转发，mini-opencode 由 npm run serve 拉起本机 Node 后端、经同源 /api 代理真实执行模型与工具。</p></div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="about-terminal reveal" aria-hidden="true">
+        <div class="terminal-head">
+          <span class="terminal-dots"><i></i><i></i><i></i></span>
+          <span class="terminal-title">demo-lab — build</span>
+        </div>
+        <pre class="terminal-body"><code><span class="t-dim">$</span> npm install
+<span class="t-dim">$</span> npm run build
+
+<span class="t-ok">✓</span> apps/mecha-battle      <span class="t-dim">dist/</span>
+<span class="t-ok">✓</span> apps/building-atlas    <span class="t-dim">dist/</span>
+<span class="t-ok">✓</span> apps/cbd-digital-twin  <span class="t-dim">dist/</span>
+<span class="t-ok">✓</span> apps/rag-lab           <span class="t-dim">dist/</span>
+<span class="t-ok">✓</span> apps/agent-lab         <span class="t-dim">dist/</span>
+<span class="t-ok">✓</span> site/                  <span class="t-dim">static bundle</span>
+
+<span class="t-dim">$</span> npm run serve
+<span class="t-accent">http://127.0.0.1:5180</span>
+<span class="t-ok">✓</span> agent backend  <span class="t-dim">/api → 真实模型 + 真实工具</span>
+<span class="t-ok">✓</span> rag model forward <span class="t-dim">/api/llm → 真实大模型生成</span>
+
+<span class="t-dim">$</span> npm run zip
+<span class="t-ok">✓</span> site.zip  <span class="t-dim">ready to upload</span></code><span class="t-caret" aria-hidden="true"></span></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <span class="brand-mark small" aria-hidden="true">
+          <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2.5 25 8.6v10.8L14 25.5 3 19.4V8.6L14 2.5Z" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+            <path d="M14 8.2 20 11.6v6.2l-6 3.4-6-3.4v-6.2l6-3.4Z" fill="currentColor" opacity=".9"/>
+          </svg>
+        </span>
+        <div>
+          <strong>DEMO LAB</strong>
+          <span>交互实验室 · 可交互作品集</span>
+        </div>
+      </div>
+      <nav class="footer-links" aria-label="页脚导航">
+        <a href="#work">作品</a>
+        <a href="#stack">技术栈</a>
+        <a href="#about">关于</a>
+        <a href="#" class="to-top">回到顶部 <span aria-hidden="true">↑</span></a>
+      </nav>
+    </div>
+    <div class="footer-meta">
+      <span>© <span id="year">2026</span> DEMO LAB</span>
+      <span id="footer-note">十一个纯静态构建产物 · 九个离线完整可玩 · 两个接本地真模型</span>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

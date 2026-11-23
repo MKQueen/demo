@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#04070d" />
+    <title>北京 · 数字孪生 | Cesium + Vue 3</title>
+    <meta
+      name="description"
+      content="基于 Cesium.js 的北京市数字孪生可视化：16,410 km² 市域边界与卫星底图、中心城区 86,706 个实例化低模体块、国贸 CBD 精细白模 3D Tiles、29 个 POI、免费地标 glTF 模型与自适应画质。"
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+
+    <!--
+      Cesium 运行时资源（Workers / Assets / ThirdParty / Widgets）由自定义 Vite 插件
+      复制到 dist/cesium 下。用 document.baseURI 计算绝对地址，保证部署在
+      /demos/cbd-digital-twin/ 这类子路径时仍能正确加载。
+    -->
+    <script>
+      (function () {
+        var base = document.baseURI;
+        if (base.charAt(base.length - 1) !== '/') base += '/';
+        window.CESIUM_BASE_URL = new URL('./cesium/', base).href;
+      })();
+    </script>
+    <style>
+      html, body, #app { height: 100%; margin: 0; background: #04070d; }
+      body { overflow: hidden; }
+      .boot-skeleton {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; gap: 18px; color: rgba(108, 229, 255, .7);
+        font: 500 9px/1.4 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .22em;
+      }
+      .boot-mark { position: relative; width: 42px; height: 42px; border: 1px solid rgba(108,229,255,.3); border-radius: 50%; }
+      .boot-mark i { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #6ce5ff; box-shadow: 0 0 14px rgba(108,229,255,.9); animation: bootPulse 1.2s ease-in-out infinite; }
+      .boot-mark i:nth-child(2) { animation-delay: .18s; opacity: .55; }
+      .boot-mark i:nth-child(3) { animation-delay: .36s; opacity: .3; }
+      @keyframes bootPulse { 0%,100% { transform: scale(.6); opacity: .2; } 50% { transform: scale(1.3); opacity: 1; } }
+      .noscript { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; color: #dbeaf3; background: #04070d; font: 14px/1.7 -apple-system, "PingFang SC", sans-serif; text-align: center; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-ao1eE9RJ.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/cesium-CwV4D8iC.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-XgpxqnsX.css">
+  </head>
+  <body>
+    <div id="app">
+      <!-- 首屏骨架：Vue 挂载前可见，避免白屏 -->
+      <div class="boot-skeleton" aria-hidden="true">
+        <div class="boot-mark"><i></i><i></i><i></i></div>
+        <p>BEIJING DIGITAL TWIN · INITIALIZING</p>
+      </div>
+    </div>
+    <noscript>
+      <div class="noscript">需要启用 JavaScript 才能运行 Cesium 三维场景。</div>
+    </noscript>
+    <script src="./__back-home.js" defer></script>
+</body>
+</html>

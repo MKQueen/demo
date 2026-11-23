@@ -1,0 +1,419 @@
+{
+  "name": "Beijing Chaoyang CBD — Digital Twin Data",
+  "description": "北京朝阳 CBD 数字孪生静态数据资产（OSM 白模 3D Tiles + 矢量图层 + 暗色底图）",
+  "generatedAt": "2026-11-03T16:20:39+08:00",
+  "generator": "cbd-digital-twin/tools/build-city-data.py",
+  "generatorVersion": "1.0.0",
+  "source": "OpenStreetMap · BBBike Beijing extract (2026-10-31)",
+  "attribution": "© OpenStreetMap contributors (ODbL 1.0)",
+  "sourceInfo": {
+    "name": "OpenStreetMap",
+    "extract": "/tmp/cbd-data/osm-filtered.geojson",
+    "extractLabel": "BBBike Beijing extract",
+    "downloadUrl": "https://download.bbbike.org/osm/bbbike/Beijing/Beijing.osm.gz",
+    "extractDate": "2026-10-31",
+    "license": "ODbL 1.0",
+    "licenseUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "attribution": "© OpenStreetMap contributors",
+    "attributionHtml": "© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors (ODbL 1.0)",
+    "sourceMode": "geojson",
+    "sourceFeatures": 7980
+  },
+  "crs": {
+    "geographic": "WGS84 (EPSG:4326), lon/lat, degrees",
+    "vertical": "WGS84 ellipsoidal height (米)，未做大地水准面改正",
+    "local": "ENU (x=east, y=north, z=up)，单位米，原点见 origin"
+  },
+  "bbox": [
+    116.43,
+    39.885,
+    116.495,
+    39.93
+  ],
+  "coreBbox": [
+    116.448,
+    39.9,
+    116.478,
+    39.918
+  ],
+  "origin": {
+    "lon": 116.461,
+    "lat": 39.908,
+    "height": 0.0,
+    "ecef": [
+      -2183057.4692,
+      4386009.7705,
+      4070155.0796
+    ],
+    "note": "3D Tiles root.transform 的 ENU→ECEF 平移列；白模 tile 坐标 x=east, y=north, z=up"
+  },
+  "tiles": {
+    "whiteModels": {
+      "tileset": "data/tiles/white-models/tileset.json",
+      "glb": "data/tiles/white-models/white-models.glb",
+      "tilesetVersion": "1.1",
+      "contentType": "glTF 2.0 (.glb)，3D Tiles 1.1 直接支持，无需 b3dm",
+      "glbUpAxis": "Y (glTF) → Z-up (tile)：x=east, y=up, z=-north",
+      "transform": [
+        -0.8952378715,
+        -0.4455885473,
+        0.0,
+        0.0,
+        0.2858703366,
+        -0.5743458919,
+        0.7670755811,
+        0.0,
+        -0.3418000938,
+        0.6867151105,
+        0.6415567418,
+        0.0,
+        -2183057.4692456084,
+        4386009.770548782,
+        4070155.079607176,
+        1.0
+      ],
+      "transformLayout": "column-major 4x4, ENU→ECEF, 列0=east 列1=north 列2=up 列3=origin(ECEF)",
+      "boundingVolumeBox": [
+        130.411,
+        -53.999,
+        132.5,
+        2778.714,
+        0.0,
+        0.0,
+        0.0,
+        2499.193,
+        0.0,
+        0.0,
+        0.0,
+        134.5
+      ],
+      "boundingVolumeBoxLayout": "tile 坐标: [cx,cy,cz, hx,0,0, 0,hy,0, 0,0,hz]，x=east,y=north,z=up",
+      "buildingCount": 4320,
+      "vertexCount": 71187,
+      "triangleCount": 62546,
+      "boundsEnu": {
+        "min": [
+          -2646.3,
+          -2551.19,
+          0.0
+        ],
+        "max": [
+          2907.12,
+          2443.19,
+          265.0
+        ]
+      },
+      "boundsGeographic": [
+        116.4300624,
+        39.8850189,
+        116.495009,
+        39.9299992
+      ],
+      "bytes": 2745144,
+      "tilesetBytes": 797,
+      "material": {
+        "baseColor": "vertex colors (near-white cool gray, 3 height tiers)",
+        "metallic": 0.05,
+        "roughness": 0.72,
+        "emissive": [
+          0.02,
+          0.026,
+          0.045
+        ],
+        "doubleSided": true
+      }
+    }
+  },
+  "layers": {
+    "roads": {
+      "path": "data/roads.geojson",
+      "count": 1398,
+      "bytes": 365088,
+      "geometry": "LineString",
+      "fields": [
+        "id",
+        "class",
+        "name",
+        "ref",
+        "oneway",
+        "lanes",
+        "bridge",
+        "tunnel"
+      ],
+      "classes": [
+        "motorway",
+        "trunk",
+        "primary",
+        "secondary",
+        "tertiary",
+        "residential",
+        "unclassified",
+        "living_street",
+        "motorway_link",
+        "trunk_link",
+        "primary_link",
+        "secondary_link",
+        "tertiary_link"
+      ],
+      "simplifyToleranceM": 0.5,
+      "stats": {
+        "candidates": 1398,
+        "kept": 1398,
+        "clippedAway": 0,
+        "simplified": 636,
+        "pointsBefore": 6768,
+        "pointsAfter": 5085
+      }
+    },
+    "context": {
+      "path": "data/context.geojson",
+      "count": 398,
+      "bytes": 175583,
+      "geometry": "Polygon",
+      "fields": [
+        "id",
+        "kind",
+        "class",
+        "name"
+      ],
+      "kinds": {
+        "water": 9,
+        "park": 196,
+        "block": 193
+      }
+    },
+    "railways": {
+      "path": "data/railways.geojson",
+      "count": 314,
+      "bytes": 102658,
+      "geometry": "LineString",
+      "fields": [
+        "id",
+        "kind",
+        "name",
+        "tunnel",
+        "bridge"
+      ],
+      "kinds": [
+        "funicular",
+        "light_rail",
+        "monorail",
+        "narrow_gauge",
+        "rail",
+        "subway",
+        "tram"
+      ]
+    },
+    "buildingsFallback": {
+      "path": "data/buildings-fallback.geojson",
+      "count": 700,
+      "bytes": 233497,
+      "geometry": "Polygon",
+      "fields": [
+        "id",
+        "height",
+        "levels",
+        "name",
+        "kind",
+        "area"
+      ],
+      "bbox": [
+        116.448,
+        39.9,
+        116.478,
+        39.918
+      ],
+      "note": "3D Tiles 加载失败时用 Cesium Entity/Polygon 拉伸兜底；地标体块已排除"
+    }
+  },
+  "basemap": {
+    "file": "data/basemap.jpg",
+    "path": "data/basemap.jpg",
+    "url": "data/basemap.jpg",
+    "rectangle": [
+      116.43,
+      39.885,
+      116.495,
+      39.93
+    ],
+    "rectangleLayout": "[west, south, east, north]，与 Cesium.Rectangle 一致",
+    "width": 2560,
+    "height": 1772,
+    "bytes": 459971,
+    "jpegQuality": 82,
+    "supersample": 2,
+    "pixelMapping": "线性映射: x=(lon-west)/(east-west)*width, y=(north-lat)/(north-south)*height",
+    "buildingsDrawn": 4331,
+    "roadsDrawn": 1398,
+    "attribution": "© OpenStreetMap contributors"
+  },
+  "heightModel": {
+    "priority": [
+      "height tag (米)",
+      "building:levels * 3.2 + 1.2",
+      "building 类型默认值"
+    ],
+    "levelHeightM": 3.2,
+    "groundExtraM": 1.2,
+    "defaultsByType": {
+      "apartments": [
+        18.0,
+        22.0
+      ],
+      "church": 15.0,
+      "civic": 16.0,
+      "clinic": 12.0,
+      "college": 16.0,
+      "commercial": [
+        24.0,
+        40.0
+      ],
+      "construction": 8.0,
+      "detached": 9.0,
+      "dormitory": [
+        16.0,
+        24.0
+      ],
+      "factory": 11.0,
+      "garage": 8.0,
+      "garages": 8.0,
+      "government": 18.0,
+      "hospital": 25.0,
+      "hotel": [
+        28.0,
+        40.0
+      ],
+      "house": 8.0,
+      "hut": 3.0,
+      "industrial": 10.0,
+      "kindergarten": 8.0,
+      "kiosk": 3.0,
+      "library": 16.0,
+      "mosque": 14.0,
+      "museum": 18.0,
+      "office": [
+        24.0,
+        40.0
+      ],
+      "parking": 8.0,
+      "public": 16.0,
+      "residential": [
+        18.0,
+        22.0
+      ],
+      "retail": 14.0,
+      "roof": 4.0,
+      "school": 12.0,
+      "service": 5.0,
+      "shed": 4.0,
+      "temple": 12.0,
+      "terrace": 10.0,
+      "train_station": 15.0,
+      "transportation": 12.0,
+      "university": 16.0,
+      "warehouse": 9.0,
+      "yes": [
+        10.8,
+        13.2
+      ]
+    },
+    "filters": {
+      "minFootprintAreaM2": 15.0,
+      "dropRoofWithoutHeightBelowM": 2.0,
+      "landmarkExclusionRadiusM": 80
+    },
+    "heightSourceCounts": {
+      "default": 2293,
+      "levels": 1996,
+      "height": 31
+    },
+    "heightHistogramM": {
+      "<15": 3218,
+      "15-30": 841,
+      "30-60": 171,
+      "60-100": 62,
+      "100-200": 21,
+      ">=200": 7
+    }
+  },
+  "buildingCount": 4320,
+  "roadCount": 1398,
+  "landmarksExcluded": [
+    {
+      "name": "中国尊 (CITIC Tower)",
+      "lon": 116.46014,
+      "lat": 39.91157,
+      "radiusM": 80,
+      "excludedBuildingIds": [
+        "way/599547918",
+        "way/1022407217"
+      ]
+    },
+    {
+      "name": "国贸三期A (China World Tower A)",
+      "lon": 116.4523,
+      "lat": 39.91092,
+      "radiusM": 80,
+      "excludedBuildingIds": [
+        "way/116944490",
+        "way/660651177"
+      ]
+    },
+    {
+      "name": "国贸三期B (China World Tower B)",
+      "lon": 116.45451,
+      "lat": 39.91157,
+      "radiusM": 80,
+      "excludedBuildingIds": [
+        "way/660651176",
+        "way/916885302"
+      ]
+    },
+    {
+      "name": "央视总部 (CCTV HQ)",
+      "lon": 116.4647,
+      "lat": 39.9147,
+      "radiusM": 80,
+      "excludedBuildingIds": [
+        "way/764431834",
+        "way/764431835",
+        "way/764431836"
+      ]
+    }
+  ],
+  "stats": {
+    "sourceFeatures": 7980,
+    "buildingsInSource": 4331,
+    "whiteModelBuildings": 4320,
+    "roadFeatures": 1398,
+    "roadPointsBefore": 6768,
+    "roadPointsAfter": 5085,
+    "contextFeatures": 398,
+    "railwayFeatures": 314,
+    "fallbackBuildings": 700,
+    "whiteModelTriangles": 62546,
+    "whiteModelVertices": 71187
+  },
+  "notes": [
+    "所有矢量图层与 basemap 使用同一 bbox：WGS84 经纬度，可直接与 Cesium 图层对齐。",
+    "白模地面按 WGS84 椭球高 0m 处理；未引入地形/大地水准面改正，与程序化地标保持同一基准。",
+    "白模 footprint 来自 OSM，OSM 无高度的建筑按 building:levels 或类型默认值估算，仅为视觉近似。",
+    "中国尊/国贸三期A/B/央视总部 80m 半径内的体块已排除，由前端程序化地标模型呈现。",
+    "道路几何已按 RDP 0.5m 抽稀；buildings-fallback 与白模共用同一高度估算值。",
+    "若 3D Tiles 加载失败，可回退 buildings-fallback.geojson（core 内 ≤700 栋，按高度/面积优选）。"
+  ],
+  "verification": {
+    "glbBytes": 2745144,
+    "glbPositionsMin": [
+      -2646.303,
+      0.0,
+      -2443.194
+    ],
+    "glbPositionsMax": [
+      2907.125,
+      265.0,
+      2551.193
+    ],
+    "errors": 0
+  }
+}
