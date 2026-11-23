@@ -3,7 +3,7 @@
     "name": "DEMO LAB",
     "title": "交互实验室 · 作品集",
     "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 竹海轻功 · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩 · 小行星邮差",
-    "description": "十三个可交互 Demo，新增《京城来信》北京小行星递送冒险。十三个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹模拟、RAG 观测台、实时识别摄像头的 VISION LAB、真调用模型真读写文件的 mini-opencode Agent、3D 武侠竹海轻功、用 Three.js 程序化生成的水墨北京、用 Three.js 三渲二渲染的雨夜小镇微缩模型、用摄像头手势控制的《手势贪吃蛇》十三个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 观测台的检索与可视化静态可看，真实模型回答需要本地 npm run serve 提供的一层极薄转发；mini-opencode 由本机后端真实执行。",
+    "description": "十二个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹、RAG 观测台、VISION LAB、mini-opencode Agent、竹海轻功、水墨北京、雨夜小镇、手势贪吃蛇、京城来信。十二个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 的真实模型回答与 mini-opencode 的真实 Agent 需要本地 npm run serve 提供极薄转发/后端。",
     "keywords": [
       "Three.js",
       "CesiumJS",
@@ -22,11 +22,11 @@
     ],
     "stats": [
       {
-        "value": "13",
+        "value": "12",
         "label": "独立 Demo"
       },
       {
-        "value": "12",
+        "value": "10",
         "label": "纯静态即完整运行"
       },
       {
@@ -34,7 +34,7 @@
         "label": "接本地真模型"
       }
     ],
-    "footer": "十三个独立 Demo · 京城来信可离线探索，联机需 WebSocket · 两个接本地真模型"
+    "footer": "十二个独立 Demo · 京城来信可离线探索，联机需 WebSocket · 两个接本地真模型"
   },
   "demos": [
     {
