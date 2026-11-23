@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "DEMO LAB：十二个可交互 Demo 合集 — 程序化水墨北京 / 水墨清明上河图长卷 / 竹海轻功 / 3D 机甲战斗 / 建筑楼层档案 / CBD 数字孪生 / 动态水淹 / RAG 观测台 / 真实本地 Agent / 雨夜小镇三渲二微缩模型 / 三星堆风格展陈 / 太行山村四季大场景",
+  "description": "DEMO LAB：十二个可交互 Demo 合集 — 程序化水墨北京 / 水墨清明上河图长卷 / 3D 机甲战斗 / 建筑楼层档案 / CBD 数字孪生 / 动态水淹 / RAG 观测台 / 真实本地 Agent / 雨夜小镇三渲二微缩模型 / 三星堆风格展陈 / 太行山村四季大场景",
   "scripts": {
     "build": "node scripts/build-all.mjs",
     "build:fast": "node scripts/build-all.mjs --skip-build",

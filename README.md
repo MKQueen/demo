@@ -6,7 +6,7 @@
 （模型真的回复、工具真的读写文件 / 执行命令）。由 `npm run serve` 一键同时拉起站点、
 Agent 后端与 RAG 的模型转发。
 
-![DEMO LAB 合集预览](./screenshots/preview/00-collage.jpg)
+![DEMO LAB 作品集首页](./screenshots/preview/00-portfolio.jpg)
 
 **线上地址：<https://mkqueen.github.io/demo/>**（GitHub Pages，静态站；RAG 的真实生成与
 mini-opencode 的真实 Agent 需要本机后端，线上会如实显示「未连接」）
@@ -89,7 +89,7 @@ npm run zip            # → site.zip
 ## 预览
 
 `npm run serve` 后打开 <http://127.0.0.1:5180/>。十二个 demo 的实机截图在
-`screenshots/preview/`（合集：`00-collage.jpg`，首页：`01-hub-hero.jpg`、`02-hub-work.jpg`）。
+`screenshots/preview/`（首页：`00-portfolio.jpg`、`01-hub-hero.jpg`、`02-hub-work.jpg`）。
 
 当前构建产物大小以 `npm run build` 末尾输出为准（完整 `site/` 约 270 MB：含 3D 模型、Cesium 运行时、MediaPipe 视觉/手部模型等；其中 `vision-lab` 约 63 MB、`hand-snake` 约 33 MB，两者的 MediaPipe 运行时与 WASM 复用自 `apps/mecha-battle/public/mediapipe`）。
 如果托管平台限制体积，可参考 `apps/mecha-battle/README.md` 中「体感模型」一节按需精简钢铁黎明的体感模型后重新构建。
@@ -241,7 +241,7 @@ Node 进程里，纯静态托管做不到。所以：
 
 - **本地演示（推荐）**：`npm run serve` 会同时启动站点和真实 Agent 后端，并把 `/api/*`
   同源代理到后端，页面里的一切（模型回复、工具执行、权限审批、会话落盘）都是真的；
-- **只上传 site/ 到静态托管（含 GitHub Pages）**：前十二个 demo（竹海 / 水墨北京 / 清明上河图 / 雨夜小镇 / 村庄 / 机甲 / 建筑 / 北京数字孪生 / 潮线水淹 / 视觉感知 / 手势贪吃蛇）
+- **只上传 site/ 到静态托管（含 GitHub Pages）**：前十一个 demo（水墨北京 / 清明上河图 / 雨夜小镇 / 机甲 / 建筑 / 北京数字孪生 / 潮线水淹 / 视觉感知 / 手势贪吃蛇 / RAG 观测台 / mini-opencode 的界面）
   完全照常运行，RAG 观测台的检索可视化也能看（但没有模型生成）；
   `mini-opencode` 页面会显示「未连接到真实 Agent 后端」，并提示在本地执行 `npm run serve` —— 不会用假数据冒充；
 - **公网部署 mini-opencode**：后端默认只监听 `127.0.0.1` 且没有鉴权，**不要直接暴露到公网**；
