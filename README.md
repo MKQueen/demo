@@ -6,6 +6,9 @@
 （模型真的回复、工具真的读写文件 / 执行命令）。由 `npm run serve` 一键同时拉起站点、
 Agent 后端与 RAG 的模型转发。
 
+**线上地址：<https://mkqueen.github.io/demo/>**（GitHub Pages，静态站；RAG 的真实生成与
+mini-opencode 的真实 Agent 需要本机后端，线上会如实显示「未连接」）
+
 | Demo | 内容 | 技术 | 入口 |
 | --- | --- | --- | --- |
 | **村庄** THE VILLAGE | 根据卫星图程序化生成的太行山谷大场景：开放地形、河道与远村、约三十座石屋小院、盘山路、上山坡地与山林；三渲二渲染 + 四季可切换（键盘 1-4），全程序化、零 UI | Three.js · 三渲二 · 四季 · 纯静态 | `apps/jiaojiaogou` |
@@ -172,36 +175,33 @@ node scripts/serve-app.mjs apps/rag-lab/dist /demos/rag-lab 5283 --llm
 - **对象存储 / OSS / S3**：把 `site/` 内容作为静态网站根目录；
 - **Nginx / Apache**：`root` 指向 `site/`；
 - **Netlify / Vercel / Cloudflare Pages**：发布目录填 `site`，无需构建命令（已构建好）；
-- **GitHub Pages**：见下一节，仓库已内置自动部署工作流。
+- **GitHub Pages**：见下一节，已部署在 <https://mkqueen.github.io/demo/>。
 
-### 部署到 GitHub Pages（推荐，已内置工作流）
+### 部署到 GitHub Pages（已上线）
 
-仓库已经包含 `.github/workflows/deploy-pages.yml`：推送到 `main` 后，GitHub Actions 会自动构建
-12 个 demo、拼装 `site/` 并发布到 GitHub Pages，**不需要提交 `site/` 或 `node_modules`**。
+线上地址：<https://mkqueen.github.io/demo/>
 
-首次部署步骤：
+当前采用**源码与静态产物分离**的方式：
 
-1. 在 GitHub 创建仓库（**Public**；私有仓库使用 Pages 需要 GitHub Pro）。本仓库的 origin 已配置为
-   `https://github.com/MKQueen/demo.git`，如果仓库名/用户名不同，用
-   `git remote set-url origin <你的仓库地址>` 改一下。
-2. 首次推送（HTTPS 会要求输入 GitHub 用户名，密码位置填 **Personal Access Token**；
-   也可以改用 SSH remote）：
-   ```bash
-   git push -u origin main
-   ```
-3. 打开仓库 **Settings → Pages → Build and deployment → Source**，选择 **GitHub Actions**（只需设置一次）。
-4. 到 **Actions** 页签，等待 `Deploy static site to GitHub Pages` 跑完（首次要安装依赖 + 构建，约 5–8 分钟），
-   然后访问：`https://<你的用户名>.github.io/<仓库名>/`。
-5. 之后每次 `git push` 都会自动重新构建部署。
+- `main` 分支：源码（12 个 demo、构建脚本、文档）；
+- `gh-pages` 分支：预构建好的 `site/`，只有一个提交，不累积构建历史；
+- GitHub Pages 的 Source 设为 **Deploy from a branch → `gh-pages` / (root)**。
 
-> **备用方案（不用 Actions / 想用分支部署）**：
-> ```bash
-> npm run deploy:gh-pages            # 构建后把 site/ 强推到 gh-pages 分支（单提交，不累积历史）
-> ```
-> 然后在 Settings → Pages → Source 选择 `Deploy from a branch` → `gh-pages / (root)`。
-> 这条命令会推送约 160MB 的构建产物，首次推送需要 GitHub 认证。
+更新线上站点：
 
-> **注意**：仓库体积主要来自 3D 模型与体感推理模型（约 150MB），首次 `git push` 会稍慢；
+```bash
+# 1) 重新构建（按需）
+npm run build
+
+# 2) 把 site/ 强推到 gh-pages（单提交；--skip-build 复用刚构建好的 site/）
+npm run deploy:gh-pages -- --skip-build
+```
+
+> `npm run deploy:gh-pages` 会推送约 280MB 的构建产物，首次推送需要 GitHub 认证。
+> 仓库里的 `.github/workflows/deploy-pages.yml` 现在只保留**手动兜底**：如果在 Actions 里手动运行，
+> 需要先把 Settings → Pages 的 Source 改成 **GitHub Actions**，两种部署方式不要同时用。
+
+> **注意**：仓库体积主要来自 3D 模型与体感推理模型（约 280MB），首次 `git push` 会稍慢；
 > 构建产物 `site/`、`node_modules`、`.env` 都已在 `.gitignore` 中，不会被提交。
 
 注意事项：
