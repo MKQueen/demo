@@ -6,6 +6,8 @@
 （模型真的回复、工具真的读写文件 / 执行命令）。由 `npm run serve` 一键同时拉起站点、
 Agent 后端与 RAG 的模型转发。
 
+![DEMO LAB 合集预览](./screenshots/preview/00-collage.jpg)
+
 **线上地址：<https://mkqueen.github.io/demo/>**（GitHub Pages，静态站；RAG 的真实生成与
 mini-opencode 的真实 Agent 需要本机后端，线上会如实显示「未连接」）
 
