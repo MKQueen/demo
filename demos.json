@@ -2,8 +2,8 @@
   "site": {
     "name": "DEMO LAB",
     "title": "交互实验室 · 作品集",
-    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 竹海轻功 · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩",
-    "description": "十一个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹、RAG 观测台、VISION LAB、mini-opencode Agent、竹海轻功、水墨北京、雨夜小镇、手势贪吃蛇。十一个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 的真实模型回答与 mini-opencode 的真实 Agent 需要本地 npm run serve 提供极薄转发/后端。",
+    "subtitle": "3D · WebGIS · 动态水淹 · 实时视觉 · 检索增强 · AI Agent · 水墨北京 · 雨夜小镇 · 体感游戏 · 四季微缩",
+    "description": "十一个可交互 Demo：机甲 Boss 战、建筑数字档案、国贸 CBD 数字孪生、动态水淹、RAG 观测台、VISION LAB、mini-opencode Agent、水墨北京、雨夜小镇、手势贪吃蛇。十一个 Demo 的构建产物都是纯静态资源，可任意子目录托管；RAG 的真实模型回答与 mini-opencode 的真实 Agent 需要本地 npm run serve 提供极薄转发/后端。",
     "keywords": [
       "Three.js",
       "CesiumJS",
